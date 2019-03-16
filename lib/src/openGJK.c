@@ -141,10 +141,7 @@ void S1D( struct simplex * s) {
   FacetsTest[ 0 ] = SAMESIGN( nu_test [ indexI ] , det_ap );
   FacetsTest[ 1 ] = SAMESIGN( nu_test [ indexI ] , det_pb );
 
-  /* Compare signed lengths and compute barycentric coordinates */
-
   if ( FacetsTest[ 0 ] + FacetsTest[ 1 ] == 2){
-    /* The origin projection P is between A and B */
     s->lambdas[0] = det_ap * inv_detM;
     s->lambdas[1] = 1 - s->lambdas[0];
     s->wids[0] = 0;
@@ -152,20 +149,15 @@ void S1D( struct simplex * s) {
     s->nvrtx = 2;
   }
   else if ( FacetsTest[ 0 ] == 0 ) {
-
-    /* The origin project P is beyond A */
     s->lambdas[0] = 1;
     s->wids[0] = 0;
     s->nvrtx = 1;
-    /* fold back the values stored for the indices into the original point arrays, and the transformed
-      coordinates, so that these are ready for subsequent calls.  */
 
     for ( i = 0; i < 3; ++i) {
       s->vrtx[0][i] = s->vrtx[1][i];
     }
   }
   else {
-    /* RARE The origin project P is behind B */
     s->lambdas[0] = 1;
     s->wids[0] = 1;
     s->nvrtx = 1;
@@ -197,20 +189,20 @@ static void S2D( struct simplex * s) {
     sb[3-1],
     sc[3-1];
 
-  double    nu_max = 0,
+  double nu_max = 0,
     inv_detM = 0,
     nnorm_sqrd = 0,
     nnnorm = 0,
     dotNA;
 
-  int     i = 0,
+  int i = 0,
     FacetsTest[3],
     k,
     l,
     j;
 
-  int     indexI = 1,
-    indexJ[2] = {-1},
+  int indexI = 1,
+    indexJ[2] = {0, 2},
     stemp[3];
 
   for ( i=0 ; i<3; ++i ) {
@@ -221,7 +213,6 @@ static void S2D( struct simplex * s) {
     s31[i] = c[i] - a[i];
   }
 
-  /* Find best axis for projection */
   k = 1; l = 2;
   for (i = 0; i < 3 ; ++i) {
     nu_test[i] = pow(-1.0,i) * (b[k]*c[l] + a[k]*b[l] + c[k]*a[l] - b[k]*a[l] - c[k]*b[l] - a[k]*c[l]);
@@ -264,8 +255,6 @@ static void S2D( struct simplex * s) {
 
   nu_max = nu_test[ indexI ];
 
-  /* Project origin onto the 2D simplex - plane */
-  /* ... compute the normal vector*/
   k = 1;      l = 2;
   for ( i = 0; i < 3; ++i ) {
     n[i] = s21[k] * s31[l] - s21[l] * s31[k];
@@ -278,8 +267,6 @@ static void S2D( struct simplex * s) {
   }
 
   dotNA = dotprod(n,a);
-
-  /* ... project but discard the components of indexI */
   pp[0] = dotNA * n[ indexJ[0] ];
   pp[1] = dotNA * n[ indexJ[1] ];
 
@@ -317,9 +304,6 @@ static void S2D( struct simplex * s) {
 
   /* Test if sign of ABC is equal to the signes of the auxiliary simplices */
   for ( int m = 0; m < 3 ; ++m) {
-    /* i = 0 -> OBC - most likely to be 1.
-     * i = 1 -> AOC
-     * i = 2 -> ABO */
     FacetsTest[ m ] = SAMESIGN( nu_max , B[ m ] );
   }
 
@@ -339,7 +323,6 @@ static void S2D( struct simplex * s) {
     }
 
     S1D(&sTmp);
-    /* ... test segment AC */
     S1D(s);
 
     for (j = 0; j < 3; ++j) {
@@ -352,7 +335,6 @@ static void S2D( struct simplex * s) {
     }
 
     if( dotprod(v,v) < dotprod(vtmp,vtmp) ){
-      /* Keep simplex. Need to update sID only*/
       for (i = 1; i < s->nvrtx ; ++i) {
         s->wids[i] = s->wids[i] + 1;
       }
@@ -370,7 +352,6 @@ static void S2D( struct simplex * s) {
     }
   }
   else if ( (FacetsTest[0] + FacetsTest[1] + FacetsTest[2] ) == 3 ) {
-    /* Compare signed lengths and compute barycentric coordinates */
     /* The origin projections lays onto the triangle */
     inv_detM = 1 / nu_max;
     s->lambdas[0] = B[2] * inv_detM;
@@ -402,15 +383,11 @@ static void S2D( struct simplex * s) {
     for (i = 1; i < s->nvrtx ; ++i) {
       s->wids[i] = s->wids[i] + 1;
     }
-
   }
   else {
-    /* RARE - The origin projection P faces the segment BC */
     s->nvrtx = 2;
     S1D(s);
-
   }
-
 }
 
 
@@ -499,7 +476,7 @@ static void S3D( struct simplex * s) {
     {
       for (i = 0; i < 4; i++)
       {
-        FacetsTest[i] = 0; /* Any other case. Test ABC, ABD, ACD */
+        FacetsTest[i] = 0; 
       }
     }
 
@@ -542,9 +519,7 @@ static void S3D( struct simplex * s) {
           sTmp.vrtx[2-k][j] = s->vrtx[ vtxid ][j];
         }
       }
-      /* ... and call S2D itself */
       S2D(&sTmp);
-      /* ... compute aux squared distance */
       for (j = 0; j < 3; ++j) {
         vtmp[j] = 0;
         for (l = 0; l < sTmp.nvrtx ; ++l) {
@@ -600,9 +575,7 @@ static void S3D( struct simplex * s) {
         sTmp.vrtx[1][i] = s->vrtx[ 1 ][i];
         sTmp.vrtx[2][i] = s->vrtx[ 3 ][i];
       }
-      /* ... and call S2D itself */
       S2D(&sTmp);
-      /* ... compute aux squared distance */
       for (j = 0; j < 3; ++j) {
         vtmp[j] = 0;
         for (i = 0; i < sTmp.nvrtx ; ++i) {
@@ -614,7 +587,6 @@ static void S3D( struct simplex * s) {
       firstaux = 0;
     }
     if ( FacetsTest[2] == 0 ){
-      /* ... Test facet ABD  */
       if ( Flag_sAuxused == 0 ){
 
         for ( i = 0; i < 3; ++i) {
@@ -622,9 +594,7 @@ static void S3D( struct simplex * s) {
           sTmp.vrtx[1][i] = s->vrtx[ 2 ][i];
           sTmp.vrtx[2][i] = s->vrtx[ 3 ][i];
         }
-        /* ... and call S2D itself */
         S2D(&sTmp);
-        /* ... compute aux squared distance */
         for (j = 0; j < 3; ++j) {
           vtmp[j] = 0;
           for (i = 0; i < sTmp.nvrtx ; ++i) {
@@ -660,7 +630,6 @@ static void S3D( struct simplex * s) {
       secondaux = 2;
     }
     /* Do a loop and compare current outcomes */
-    /* ... computer aux squared distance */
     for (j = 0; j < 3; ++j) {
       v[j] = 0;
       for (i = 0; i < s->nvrtx ; ++i) {
@@ -670,7 +639,6 @@ static void S3D( struct simplex * s) {
     if( dotprod(v,v) < sqdist_tmp){
       /* Keep simplex. Need to update sID only*/
       for (i = 0; i < s->nvrtx ; ++i) {
-        /* Assume that vertex a is always included in sID. */
         s->wids[ s->nvrtx - 1 - i] = TrianglesToTest[ secondaux +( s->wids[i] *3) ] ;
       }
     }
@@ -691,8 +659,6 @@ static void S3D( struct simplex * s) {
   else if ( FacetsTest[1] + FacetsTest[2] + FacetsTest[3] == 2 ){
     /* Only one facet is facing the origin */
     if  ( FacetsTest[1] == 0 ){
-      /* The origin projection P faces the facet ACD */
-      /* ... thus, remove the vertex B from the simplex. */
       s->nvrtx = 3;
       for ( i = 0; i < 3; ++i) {
         s->vrtx[0][i] = s->vrtx[ 0 ][i];
@@ -700,8 +666,6 @@ static void S3D( struct simplex * s) {
         s->vrtx[2][i] = s->vrtx[ 3 ][i];
       }
       S2D(s);
-
-      /* Keep simplex. Need to update sID only*/
       for (i = 0; i < s->nvrtx ; ++i) {
         s->wids[i] = s->wids[i];
       }
@@ -737,16 +701,13 @@ static void S3D( struct simplex * s) {
     }
   }
   else {
-    /* * RARE * - The origin projection P faces the facet BCD */
     s->nvrtx = 3;
     for ( i = 0; i < 3; ++i) {
       s->vrtx[0][i] = s->vrtx[ 0 ][i];
       s->vrtx[1][i] = s->vrtx[ 1 ][i];
       s->vrtx[2][i] = s->vrtx[ 2 ][i];
     }
-    /* ... and call S2D itself */
     S2D(s);
-    /* Keep simplex. Need to update sID only*/
     for (i = 0; i < s->nvrtx ; ++i) {
       /* Assume that vertex a is always included in sID. */
       s->wids[i] = s->wids[i] + 1;
@@ -840,7 +801,7 @@ double gjk ( struct bd bd1, struct bd bd2, struct simplex *s) {
   }
 
   
-#if 1
+#if DEBUG
   mexPrintf ("Num points A = %i \n",bd1.numpoints );
   mexPrintf ("Num points B = %i \n",bd2.numpoints );
   for ( i = 0; i < bd1.numpoints; ++i) {
@@ -944,17 +905,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /**************** PARSE INPUTS AND OUTPUTS **********************/
   /*----------------------------------------------------------------*/
   /* Examine input (right-hand-side) arguments. */
-  mexPrintf("\nThere are %d input arguments.", nrhs);
-  for (i=0; i<nrhs; i++)  {
-    mexPrintf("\n\tInput Arg %i is of type:\t%s ",i,mxGetClassName(prhs[i]));
-  }
-  /* .. check number of input arguments */
   if(nrhs!=2) {
     mexErrMsgIdAndTxt("MyToolbox:gjk:nrhs","Two inputs required.");
   }
   /* Examine output (left-hand-side) arguments. */
-  mexPrintf("\n\nThere is %d output argument.\n", nlhs);
-  /* .. check for  number of output arguments */
   if(nlhs!=1) {
     mexErrMsgIdAndTxt("MyToolbox:gjk:nlhs","One output required.");
   }
@@ -1002,25 +956,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 
   struct bd       bd1; /* Structure of body A */
   struct bd       bd2; /* Structure of body B */
-
-#ifdef DEBUG
-  printf("Coordinates of A\n");
-  for (i = 0; i < nCoordsA; i++){
-    for (j = 0; j < 3; j++){
-        printf("%.4f ", inCoordsA[i+j*nCoordsA] );
-    }
-    printf("\n");
-  }
-
-  printf("Coordinates of B\n");
-  for (i = 0; i < nCoordsB; i++){
-    for (j = 0; j < 3; j++){
-        printf("%.4f ", inCoordsB[i+j*nCoordsB] );
-    }
-    printf("\n");
-  }
-#endif
-
+  
   /* Assign number of vertices to each body */
   bd1.numpoints = (int) nCoordsA;
   bd2.numpoints = (int) nCoordsB;
@@ -1047,7 +983,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /*----------------------------------------------------------------*/
   /*CALL COMPUTATIONAL ROUTINE  */
   
-
   struct simplex s;
 
   /* Initialise simplex as empty */
