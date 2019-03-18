@@ -16,8 +16,7 @@ project (openGJKlib)
 set(CMAKE_C_STANDARD 11)
 
 # SELECT USER OPTIONS
-option(VERSION_ACCURATE  "Reduce speed to maximise accuracy (OFF)"
-        OFF )
+option(VERSION_ACCURATE  "Reduce speed to maximise accuracy (OFF)"   OFF )
 
 # APPLY USER OPTIONS
 IF(VERSION_ACCURATE)
@@ -46,8 +45,8 @@ IF(USE_PREDICATES)
 ENDIF()
 
 # Create the (dynamic) library
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${SOURCE_HEADS})
-add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE)
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} ${SOURCE_HEADS})
+add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=FALSE)
 
 # Link include file
 target_include_directories( ${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)

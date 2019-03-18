@@ -42,23 +42,23 @@ ENDIF()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -finline-functions")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -finline-functions")
   set(CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Werror")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -finline-functions")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -finline-functions")
   set(CMAKE_C_FLAGS_DEBUG "-g -DDEBUG")
-  set(CMAKE_C_FLAGS_RELEASE "-O3 -Werror")
+  set(CMAKE_C_FLAGS_RELEASE "-O3")
 
   add_compile_options(-static-libgcc -static-libstdc++ )
   add_definitions(-DMT)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /WX /wd4131 /wd4701 /wd4255 /wd4710 /wd4820 /wd4711")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4131 /wd4701 /wd4255 /wd4710 /wd4820 /wd4711 /wd5045")
   set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG /D_DEBUG /MDd /Zi  /Ob0 /Od /RTC1")
   set(CMAKE_CXX_FLAGS_RELEASE "/Ox")
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall /WX /wd4131 /wd4701 /wd4255 /wd4710  /wd4820 /wd4711")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4131 /wd4701 /wd4255 /wd4710  /wd4820 /wd4711 /wd5045")
   set(CMAKE_C_FLAGS_DEBUG "-DDEBUG /D_DEBUG /MDd /Zi  /Ob0 /Od /RTC1")
   set(CMAKE_C_FLAGS_RELEASE "/Ox")
 

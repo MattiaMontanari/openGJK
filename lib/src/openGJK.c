@@ -26,6 +26,7 @@
  *
  */
 
+#define _CRT_HAS_CXX17 0
 #include <stdio.h>
 
 #include "openGJK/openGJK.h"
@@ -777,18 +778,19 @@ void subalgorithm  ( struct simplex *s ) {
 double gjk ( struct bd bd1, struct bd bd2, struct simplex *s) {
 
   int k = 0;                /**< Iteration counter            */
-  int i;                    /**< General purpose index        */
-  int mk = 1000;            /**< Maximum number of iterations */
+  int i;                    /**< General purpose counter      */
+  int mk = 100;             /**< Maximum number of iterations of the GJK algorithm */
   double v[3];              /**< Search direction             */
   double vminus[3];         /**< Search direction             */
   double w[3];              /**< Vertex on CSO frontier       */
   double eps_rel = 1e-10;   /**< Tolerance on relative        */
-  double eps_tot = 1e-14;   /**< Tolerance on total           */
+  double eps_tot = 1e-13;
   double dd = -1;           /**< Squared distance             */
   int maxitreached = 0;     /**< Flag for maximum iterations  */
   int origininsimplex = 0;  /**< Flag for origin in simples   */
   int exeedtol_rel = 0;     /**< Flag for 1st exit condition  */
-  int exeedtol_tot = 0;     /**< Flag for 2nd exit condition  */
+  int exeedtol_tot = 0;     /**< Flag for 2nd exit condition  */ 
+  int nullV = 0;            /**< Flag for 3rd exit condition  */ 
 
 #ifdef ADAPTIVEFP
   exactinit();
@@ -800,34 +802,11 @@ double gjk ( struct bd bd1, struct bd bd2, struct simplex *s) {
     vminus[i] = -v[i];
   }
 
-  
-#if DEBUG
-  mexPrintf ("Num points A = %i \n",bd1.numpoints );
-  mexPrintf ("Num points B = %i \n",bd2.numpoints );
-  for ( i = 0; i < bd1.numpoints; ++i) {
-    for (int j = 0; j < 3; j++){
-      mexPrintf ("%.4f ", bd1.coord[ i][j ]);
-    }
-    mexPrintf ("\n");
-  }
-
-  for ( i = 0; i < bd2.numpoints; ++i) {
-    for (int j = 0; j < 3; j++){
-      mexPrintf ("%.4f ", bd2.coord[ i][j ]);
-    }
-    mexPrintf ("\n");
-  }
-#endif
-
   /* Begin GJK iteration */
   do {
     /* Increment iteration counter */
     k++;
-    
-#ifdef DEBUG
-    mexPrintf ("iteration number = %i \n",k );
-#endif
-    /* Evaluate support function*/
+
     /* Support function on polytope A */
     support( &bd1 , vminus );
     /* Support function on polytope B */
@@ -840,7 +819,11 @@ double gjk ( struct bd bd1, struct bd bd2, struct simplex *s) {
     /* Test first exit condition (can't move further) */
     exeedtol_rel = (norm2(v) - dotprod (v,w) ) <= eps_rel * norm2(v);
     if ( exeedtol_rel ){
-      continue;
+      break;
+    }
+    nullV = norm2(v) < eps_rel;
+    if (nullV) {
+      break;
     }
 
     /* Add support vertex to simplex at the position nvrtx+1 */
@@ -851,9 +834,6 @@ double gjk ( struct bd bd1, struct bd bd2, struct simplex *s) {
     /* Invoke sub-distance algorithm */
     subalgorithm ( s );
 
-#ifdef DEBUG
-    mexPrintf ("Elm in simplex = %i \n",s->nvrtx );
-#endif
     /* Termination tests */
     maxitreached = k == mk;
     origininsimplex = s->nvrtx == 4;
@@ -1008,26 +988,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 double csFunction( int nCoordsA, double *inCoordsA, int nCoordsB, double *inCoordsB )
 { 
   double distance = 0;
-int i, j;
-
-
-#ifdef DEBUG
-  printf("Coordinates of A\n");
-  for (i = 0; i < nCoordsA; i++){
-    for (j = 0; j < 3; j++){
-        printf("%.4f ", inCoordsA[i+j*nCoordsA] );
-    }
-    printf("\n");
-  }
-
-  printf("Coordinates of B\n");
-  for (i = 0; i < nCoordsB; i++){
-    for (j = 0; j < 3; j++){
-        printf("%.4f ", inCoordsB[i+j*nCoordsB] );
-    }
-    printf("\n");
-  }
-#endif
+  int i, j;
 
   /*----------------------------------------------------------------*/
   /* POPULATE BODIES' STRUCTURES  */

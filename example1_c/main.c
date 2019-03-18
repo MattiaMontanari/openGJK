@@ -26,6 +26,7 @@
  *
  */
 
+#define _CRT_HAS_CXX17 0
 #include <stdio.h>
 
 /* For importing openGJK this is Step 1: include header in subfolder. */
@@ -58,7 +59,7 @@ int readinput ( const char *inputfile, double ***pts, int * out ) {
   }
 
   /* Read number of input vertices. */
-  if (fscanf_s(fp, "%1d", &npoints) != 1)
+  if (fscanf_s(fp, "%d", &npoints) != 1)
     return 1;
 
   /* Allocate memory. */
