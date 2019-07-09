@@ -826,19 +826,18 @@ double gjk( struct bd bd1, struct bd bd2, struct simplex *s) {
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-
-  double  multiplier;           
+      
   double *inCoordsA; 
   double *inCoordsB;  
   size_t  nCoordsA;   
   size_t  nCoordsB;  
-  size_t  ncols;    
-  double *outMatrix;  
-  int     i,j,idx;    
-  double *distance;  
-  int     r = 30;
+  int     i,j;    
+  double *distance;   
   int     c = 3;
-  int     count;
+  int     count = 0;
+  int     len1 = 0, len2 = 0;
+  double *ptr1, **arr1;
+  double *ptr2, **arr2;
 
   /**************** PARSE INPUTS AND OUTPUTS **********************/
   /*----------------------------------------------------------------*/
@@ -888,6 +887,37 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /* get a pointer to the real data in the output matrix */
   distance = mxGetPr(plhs[0]);
 
+   /* Copy data from Matlab's vectors into two new arrays */
+  len1 = sizeof(double *) * (int) nCoordsA + sizeof(double) * c * (int) nCoordsA;
+  arr1 = (double **)mxMalloc(len1);
+  len2 = sizeof(double *) * (int) nCoordsB + sizeof(double) * c * (int) nCoordsB;
+  arr2 = (double **)mxMalloc(len2);
+    
+  ptr1 = (double *)(arr1 + nCoordsA);
+  ptr2 = (double *)(arr2 + nCoordsB);
+
+  for (i = 0; i < nCoordsA; i++)
+    arr1[i] = (ptr1 + c * i);
+
+  for (i = 0; i < nCoordsB; i++)
+    arr2[i] = (ptr2 + c * i);
+
+  for (i = 0; i < nCoordsA; i++)
+    for (j = 0; j < c; j++)
+      arr1[i][j] = ++count;
+
+  for (i = 0; i < nCoordsB; i++)
+    for (j = 0; j < c; j++)
+      arr2[i][j] = ++count;
+
+  for (i = 0; i < 3; i++)
+    for (j = 0; j < nCoordsA; j++)
+      arr1[j][i] = inCoordsA[i + j * 3];
+
+  for (i = 0; i < 3; i++)
+    for (j = 0; j < nCoordsB; j++)
+      arr2[j][i] = inCoordsB[i + j * 3];
+
 
   /*----------------------------------------------------------------*/
   /* POPULATE BODIES' STRUCTURES  */
@@ -898,44 +928,21 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /* Assign number of vertices to each body */
   bd1.numpoints = (int) nCoordsA;
   bd2.numpoints = (int) nCoordsB;
-
-  double **pinCoordsA = (double **)malloc(bd1.numpoints * sizeof(double *));
-  for (i=0; i< bd1.numpoints ; i++)
-     pinCoordsA[i] = (double *)malloc(3 * sizeof(double));
-
-  for (i = 0; i <  3; i++)
-    for (j = 0; j < bd1.numpoints; j++)
-      pinCoordsA[j][i] = inCoordsA[ i + j*3] ;
-
-  double **pinCoordsB = (double **)malloc(bd2.numpoints * sizeof(double *));
-  for (i=0; i< bd2.numpoints ; i++)
-    pinCoordsB[i] = (double *)malloc(3 * sizeof(double));
-
-  for (i = 0; i <  3; i++)
-    for (j = 0; j < bd2.numpoints; j++)
-      pinCoordsB[j][i] = inCoordsB[ i + j*3] ;
-
-  bd1.coord = pinCoordsA;
-  bd2.coord = pinCoordsB;
+   
+  bd1.coord = arr1;
+  bd2.coord = arr2;
 
   /*----------------------------------------------------------------*/
   /*CALL COMPUTATIONAL ROUTINE  */
   
   struct simplex s;
-
-  /* Initialise simplex as empty */
   s.nvrtx = 0;
 
   /* Compute squared distance using GJK algorithm */
   distance[0] = gjk (bd1, bd2, &s);
 
-  for (i=0; i< bd1.numpoints ; i++)
-    free(pinCoordsA[i]);
-  free( pinCoordsA );
-
-  for (i=0; i< bd2.numpoints ; i++)
-    free(pinCoordsB[i]);
-  free( pinCoordsB );
+  mxFree(arr1);
+  mxFree(arr2);
 
 }
 #endif
