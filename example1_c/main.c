@@ -7,7 +7,7 @@
 *       #    # #      #      #   ## #     # #     # #   #                 *
 *        ####  #      ###### #    #  #####   #####  #    #                *
 *                                                                         *
-*           Mattia Montanari    |   University of Oxford 2018             *
+*           Mattia Montanari    |   University of Oxford 2019             *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 *                                                                         *
 * This file runs an example to illustrate how to invoke the openGJK lib   *
