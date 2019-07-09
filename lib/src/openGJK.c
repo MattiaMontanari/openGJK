@@ -831,13 +831,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
   double *inCoordsB;  
   size_t  nCoordsA;   
   size_t  nCoordsB;  
-  int     i,j;    
+  int     i;    
   double *distance;   
   int     c = 3;
-  int     count = 0;
-  int     len1 = 0, len2 = 0;
-  double *ptr1, **arr1;
-  double *ptr2, **arr2;
+  int     count = 0; 
+  double**arr1;
+  double**arr2;
 
   /**************** PARSE INPUTS AND OUTPUTS **********************/
   /*----------------------------------------------------------------*/
@@ -887,29 +886,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /* get a pointer to the real data in the output matrix */
   distance = mxGetPr(plhs[0]);
 
-   /* Copy data from Matlab's vectors into two new arrays */
-  len1 = sizeof(double *) * (int) nCoordsA + sizeof(double) * c * (int) nCoordsA;
-  arr1 = (double **)mxMalloc(len1);
-  len2 = sizeof(double *) * (int) nCoordsB + sizeof(double) * c * (int) nCoordsB;
-  arr2 = (double **)mxMalloc(len2);
-    
-  ptr1 = (double *)(arr1 + nCoordsA);
-  ptr2 = (double *)(arr2 + nCoordsB);
+   /* Copy data from Matlab's vectors into two new arrays */ 
+  arr1 = (double **)mxMalloc( sizeof(double *) * (int)nCoordsA ); 
+  arr2 = (double **)mxMalloc( sizeof(double *) * (int)nCoordsB );
 
   for (i = 0; i < nCoordsA; i++)
-    arr1[i] = (ptr1 + c * i);
-
-  for (i = 0; i < nCoordsB; i++)
-    arr2[i] = (ptr2 + c * i);
+    arr1[i] = &inCoordsA[i  * 3];
   
-  for (j = 0; j < nCoordsA; j++)
-    for (i = 0; i < 3; i++)
-      arr1[j][i] = inCoordsA[i + j * 3];
-
-  for (j = 0; j < nCoordsB; j++)
-    for (i = 0; i < 3; i++)
-      arr2[j][i] = inCoordsB[i + j * 3];
-
+  for (i = 0; i < nCoordsB; i++)
+    arr2[i] = &inCoordsB[i  * 3]; 
 
   /*----------------------------------------------------------------*/
   /* POPULATE BODIES' STRUCTURES  */
