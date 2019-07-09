@@ -901,21 +901,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
 
   for (i = 0; i < nCoordsB; i++)
     arr2[i] = (ptr2 + c * i);
-
-  for (i = 0; i < nCoordsA; i++)
-    for (j = 0; j < c; j++)
-      arr1[i][j] = ++count;
-
-  for (i = 0; i < nCoordsB; i++)
-    for (j = 0; j < c; j++)
-      arr2[i][j] = ++count;
-
-  for (i = 0; i < 3; i++)
-    for (j = 0; j < nCoordsA; j++)
+  
+  for (j = 0; j < nCoordsA; j++)
+    for (i = 0; i < 3; i++)
       arr1[j][i] = inCoordsA[i + j * 3];
 
-  for (i = 0; i < 3; i++)
-    for (j = 0; j < nCoordsB; j++)
+  for (j = 0; j < nCoordsB; j++)
+    for (i = 0; i < 3; i++)
       arr2[j][i] = inCoordsB[i + j * 3];
 
 
