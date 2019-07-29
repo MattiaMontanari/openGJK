@@ -7,7 +7,25 @@
 %       #    # #      #      #   ## #     # #     # #   #                 %
 %        ####  #      ###### #    #  #####   #####  #    #                %
 %                                                                         %
-%           Mattia Montanari    |   University of Oxford 2019             %
+%   This file is part of openGJK.                                         %
+%                                                                         %
+%   openGJK is free software: you can redistribute it and/or modify       %
+%    it under the terms of the GNU General Public License as published by %
+%    the Free Software Foundation, either version 3 of the License, or    %
+%    any later version.                                                   %
+%                                                                         %
+%    openGJK is distributed in the hope that it will be useful,           %
+%    but WITHOUT ANY WARRANTY; without even the implied warranty of       %
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See The        %
+%    GNU General Public License for more details.                         %
+%                                                                         %
+%   You should have received a copy of the GNU General Public License     %
+%    along with Foobar.  If not, see <https://www.gnu.org/licenses/>.     %
+%                                                                         %
+%        openGJK: open-source Gilbert-Johnson-Keerthi algorithm           %
+%             Copyright (C) Mattia Montanari 2018 - 2019                  %
+%               http://iel.eng.ox.ac.uk/?page_id=504                      %
+%                                                                         %
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
 %                                                                         %
 % This file compiles a mex function from the openGJK library and runs an  %
@@ -50,7 +68,6 @@ mex(fullfile('..','lib','src','openGJK.c'),...  % Source of openGJK
 catch
     % Build failed, refer to documentation
     fprintf('\n\n ERROR DETECTED! Mex file cannot be compiled.\n')
-    fprintf('\tThoubleshooting: chance your current folder to ..\openGJK\1_src\example2_mex')
     fprintf('\tFor more information, see ')
     fprintf('<a href="http://www.mathworks.com/help/matlab/ref/mex.html">this documentation page</a>.\n\n')
     return

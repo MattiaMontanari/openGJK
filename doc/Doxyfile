@@ -1,17 +1,32 @@
-# Doxyfile 1.8.14
-
-# This file describes the settings to be used by the documentation system
-# doxygen (www.doxygen.org) for a project.
-#
-# All text after a double hash (##) is considered a comment and is placed in
-# front of the TAG it is preceding.
-#
-# All text after a single hash (#) is considered a comment and will be ignored.
-# The format is:
-# TAG = value [value, ...]
-# For lists, items can also be appended using:
-# TAG += value [value, ...]
-# Values that contain spaces should be placed between quotes (\" \").
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#                                    #####        # #    #                #
+#        ####  #####  ###### #    # #     #       # #   #                 #
+#       #    # #    # #      ##   # #             # #  #                  #
+#       #    # #    # #####  # #  # #  ####       # ###                   #
+#       #    # #####  #      #  # # #     # #     # #  #                  #
+#       #    # #      #      #   ## #     # #     # #   #                 #
+#        ####  #      ###### #    #  #####   #####  #    #                #
+#                                                                         #
+#   This file is part of openGJK.                                         #
+#                                                                         #
+#   openGJK is free software: you can redistribute it and/or modify       #
+#    it under the terms of the GNU General Public License as published by #
+#    the Free Software Foundation, either version 3 of the License, or    #
+#    any later version.                                                   #
+#                                                                         #
+#    openGJK is distributed in the hope that it will be useful,           #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of       #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See The        #
+#    GNU General Public License for more details.                         #
+#                                                                         #
+#   You should have received a copy of the GNU General Public License     #
+#    along with Foobar.  If not, see <https://www.gnu.org/licenses/>.     #
+#                                                                         #
+#        openGJK: open-source Gilbert-Johnson-Keerthi algorithm           #
+#             Copyright (C) Mattia Montanari 2018 - 2019                  #
+#               http://iel.eng.ox.ac.uk/?page_id=504                      #
+#                                                                         #
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
 #---------------------------------------------------------------------------
 # Project related configuration options
