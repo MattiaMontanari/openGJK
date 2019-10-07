@@ -720,7 +720,7 @@ inline static void support( struct bd *body, double *v ) {
  
   maxs = dotProduct(body->s, v);
 
-  for (i = 1; i < body->numpoints; ++i) {
+  for (i = 0; i < body->numpoints; ++i) {
     vrt = body->coord[i];
     s = dotProduct (vrt, v);
     if ( s > maxs ){
