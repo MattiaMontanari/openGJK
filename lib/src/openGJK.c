@@ -779,6 +779,8 @@ double gjk( struct bd bd1, struct bd bd2, struct simplex *s) {
     bd1.s[i] = bd1.coord[0][i];
     bd2.s[i] = bd2.coord[0][i];
     s->vrtx[0][i] = v[i];
+	s->p[0][i] = bd1.s[i];
+	s->q[0][i] = bd2.s[i];
   }
 
   /* Begin GJK iteration */
@@ -817,6 +819,12 @@ double gjk( struct bd bd1, struct bd bd2, struct simplex *s) {
 
     /* Invoke distance sub-algorithm */
     subalgorithm ( s, v );
+
+	for (i = 0; i < 3; i++)
+	{
+		s->p[s->nvrtx - 1][i] = bd1.s[i];
+		s->q[s->nvrtx - 1][i] = bd2.s[i];
+	}
 
     /* 3rd exit condition */
     for (i = 0; i < s->nvrtx; i++)
