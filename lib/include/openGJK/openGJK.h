@@ -67,6 +67,8 @@ struct simplex {
   double vrtx    [4][3]; /**< Coordinates of simplex's vertices. 		*/ 
   int    wids    [4];    /**< Label of the simplex's vertices. 			*/  
   double lambdas [4];    /**< Barycentric coordiantes for each vertex.  */
+  double  p [4][3];     /**< Points of P that form the simplex  */  
+  double  q [4][3];	    /**< Points of Q that form the simplex  */ 
 };
 
 
