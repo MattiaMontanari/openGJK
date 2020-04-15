@@ -28,57 +28,51 @@
 #                                                                         #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
+project(openGJKdemo VERSION 1.0.0 LANGUAGES C)
+
+set(APPLICATION_NAME ${PROJECT_NAME})
+set(CMAKE_C_STANDARD 11)
+set(TEST_NAME ${PROJECT_NAME}_CTEST)
+
 message( "[${PROJECT_NAME}] CMake setting ..")
 
-message(STATUS "Version     : " ${openGJK_VERSION}  )
-message(STATUS "Build type  : " ${CMAKE_BUILD_TYPE} )
+# Set source file
+set(SOURCE_FILES main.c )
 
-# Select source files
-set( SOURCE_FILES src/openGJK.c )
-set( SOURCE_HEADS include/openGJK/openGJK.h)
+# Create the executable
+add_executable(demo ${SOURCE_FILES})
 
-IF(USE_PREDICATES)
-    # for adpative floating-point artim.
-    set( SOURCE_FILES ${SOURCE_FILES} ext/predicates.c)
-    set( SOURCE_HEADS ${SOURCE_HEADS} ext/predicates.h)
-    # Add flag for adpative floating-point artim.
-    add_definitions(-DADAPTIVEFP)
-ENDIF()
-
-IF(BUILD_STATIC_LIB)
-    message(STATUS "Library type: " Static )
-    add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} ${SOURCE_HEADS})
-    add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=FALSE)
-ELSE()
-    message(STATUS "Library type: " Shared )
-    add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${SOURCE_HEADS})
-    add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=FALSE)
-ENDIF(BUILD_STATIC_LIB)
+# Copy input files after build
+add_custom_command(
+        TARGET demo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/examples/c/userP.dat
+                ${CMAKE_CURRENT_BINARY_DIR}/userP.dat
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/examples/c/userQ.dat
+                ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat)
 
 # PLATFORM-SPECIFIC SETTING
 if (UNIX)
     find_library(M_LIB m)
-    set(CMAKE_C_FLAGS "-lm")
+	# Link to openGJK and math library
+	target_link_libraries(demo openGJKlib m)
 else ()
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    target_link_libraries(demo openGJKlib)
 endif ()
 
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
 
-# ADD DEFAULT COMPILER FLAGS
-include(CompilerFlags)
+include(AddCMockaTest)
+find_library(LIB_CMOCKA cmocka)
+    target_link_libraries(demo ${CMOCKA_LIBRARY})
+if(NOT LIB_CMOCKA)
+  message(STATUS "${LIB_CMOCKA} library not found ")
+endif() 
 
-# Link include file
-target_include_directories( ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-    target_link_libraries(${PROJECT_NAME} ${CMOCKA_LIBRARY} OpenMP::OpenMP_C )
+if (UNIT_TESTING)
+    target_link_libraries(demo cmocka)
+    add_test( ${TEST_NAME} demo)
+endif (UNIT_TESTING)
 
-IF(USE_PREDICATES)
-    # for adpative floating-point artim.
-    target_include_directories( ${PROJECT_NAME}
-            PUBLIC ${PROJECT_SOURCE_DIR}/ext
-            )
-ENDIF()
+message(STATUS "Completed CMake setting for ${PROJECT_NAME}" )
