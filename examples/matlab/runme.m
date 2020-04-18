@@ -52,10 +52,10 @@ end
 % TRY COMPILING MEX FILE
 fprintf('Compiling mex function... ')
 try
-mex(fullfile('..','..','lib','src','openGJK.c'),...  % Source of openGJK 
+mex(fullfile('..','..','src','openGJK.c'),...  % Source of openGJK 
     '-largeArrayDims', ...      % Support large arrays
     optflug, ...                % Compiler flag for debug/optimisation
-    fullfile('-I..','..','lib','include'),...      % Folder to header files
+    fullfile('-I..','..','include'),...      % Folder to header files
     '-outdir', pwd,...          % Ouput directory for writing mex function
     '-output', 'openGJK',...    % Name of ouput mex file
     '-DMATLABDOESMEXSTUFF',...  % Define variable for mex function in source files

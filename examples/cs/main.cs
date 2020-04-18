@@ -35,12 +35,8 @@ using System.Runtime.InteropServices;
 public class Tester 
 {
 
-
-#if UNIX
-    [DllImport("libopenGJKlib.so", EntryPoint="csFunction", CallingConvention = CallingConvention.StdCall)]
-#else 
-    [DllImport("openGJKlib", EntryPoint = "csFunction", CallingConvention = CallingConvention.StdCall)]
-#endif
+    [DllImport("libopenGJKlib", EntryPoint="csFunction", CallingConvention = CallingConvention.StdCall)]
+ 
     static extern double gjk(int na, double [,] ia, int nb, double [,] ib);
 
         public static void Main(string[] args)
