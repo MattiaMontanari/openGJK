@@ -60,6 +60,8 @@ ELSE()
     add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE)
 ENDIF(BUILD_STATIC_LIB)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${SOURCE_HEADS})
+
 # PLATFORM-SPECIFIC SETTING
 if (UNIX)
     find_library(M_LIB m)
@@ -75,6 +77,12 @@ include(CompilerFlags)
 target_include_directories( ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(${PROJECT_NAME} ${CMOCKA_LIBRARY}  )
+
+set(DESTDIR "/usr")
+INSTALL(TARGETS ${PROJECT_NAME} 
+        LIBRARY DESTINATION "${DESTDIR}/lib"
+        PUBLIC_HEADER DESTINATION "${DESTDIR}/include"
+)
 
 if (WITH_EXAMPLES)
     add_subdirectory(examples/c)
