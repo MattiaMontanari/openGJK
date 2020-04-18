@@ -28,31 +28,36 @@
 #                                                                         #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
-message( "[${PROJECT_NAME}] CMake setting ..")
+cmake_minimum_required(VERSION   3.13)
 
-message(STATUS "Version     : " ${openGJK_VERSION}  )
+set(CMAKE_POLICY_DEFAULT_CMP0079 NEW)
+set(LIBRARY_VERSION              "2.0.3")
+
+project(openGJKlib VERSION ${LIBRARY_VERSION} LANGUAGES C)
+
+set(CMAKE_C_STANDARD 11)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(CMakeDefaults)
+include(CompilerFlags)
+include(PlatformDefaults)
+
+message( "[${PROJECT_NAME}] CMake setting ..")
+message(STATUS "Version     : " ${CMAKE_PROJECT_VERSION}  )
 message(STATUS "Build type  : " ${CMAKE_BUILD_TYPE} )
 
-# Select source files
+# Specify project specific and user custum options
+include(CMakeProjectOptions)
+
 set( SOURCE_FILES src/openGJK.c )
 set( SOURCE_HEADS include/openGJK/openGJK.h)
 
-IF(USE_PREDICATES)
-    # for adpative floating-point artim.
-    set( SOURCE_FILES ${SOURCE_FILES} ext/predicates.c)
-    set( SOURCE_HEADS ${SOURCE_HEADS} ext/predicates.h)
-    # Add flag for adpative floating-point artim.
-    add_definitions(-DADAPTIVEFP)
-ENDIF()
-
 IF(BUILD_STATIC_LIB)
-    message(STATUS "Library type: " Static )
     add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} ${SOURCE_HEADS})
     add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=FALSE)
 ELSE()
-    message(STATUS "Library type: " Shared )
     add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${SOURCE_HEADS})
-    add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=FALSE)
+    add_definitions(-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE)
 ENDIF(BUILD_STATIC_LIB)
 
 # PLATFORM-SPECIFIC SETTING
@@ -63,22 +68,16 @@ else ()
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif ()
 
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
-
 # ADD DEFAULT COMPILER FLAGS
 include(CompilerFlags)
 
 # Link include file
 target_include_directories( ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-    target_link_libraries(${PROJECT_NAME} ${CMOCKA_LIBRARY} OpenMP::OpenMP_C )
 
-IF(USE_PREDICATES)
-    # for adpative floating-point artim.
-    target_include_directories( ${PROJECT_NAME}
-            PUBLIC ${PROJECT_SOURCE_DIR}/ext
-            )
-ENDIF()
+target_link_libraries(${PROJECT_NAME} ${CMOCKA_LIBRARY}  )
+
+if (WITH_EXAMPLES)
+    add_subdirectory(examples/c)
+endif (WITH_EXAMPLES)
+
+message(STATUS "Completed CMake setting for ${PROJECT_NAME}" )

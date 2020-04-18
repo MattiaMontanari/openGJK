@@ -62,17 +62,4 @@ else ()
     target_link_libraries(demo openGJKlib)
 endif ()
 
-
-include(AddCMockaTest)
-find_library(LIB_CMOCKA cmocka)
-    target_link_libraries(demo ${CMOCKA_LIBRARY})
-if(NOT LIB_CMOCKA)
-  message(STATUS "${LIB_CMOCKA} library not found ")
-endif() 
-
-if (UNIT_TESTING)
-    target_link_libraries(demo cmocka)
-    add_test( ${TEST_NAME} demo)
-endif (UNIT_TESTING)
-
 message(STATUS "Completed CMake setting for ${PROJECT_NAME}" )
