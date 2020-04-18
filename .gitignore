@@ -92,7 +92,7 @@ DocProject/Help/Html2
 DocProject/Help/html
 
 # Cmake, make and compiled objects on unix
-*.cmake
+#*.cmake
 *.c.o
 */CMakeFiles/*
 */Makefile
