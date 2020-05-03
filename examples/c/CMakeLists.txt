@@ -46,11 +46,8 @@ add_executable(demo ${SOURCE_FILES})
 add_custom_command(
         TARGET demo POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_SOURCE_DIR}/examples/c/userP.dat
-                ${CMAKE_CURRENT_BINARY_DIR}/userP.dat
-        COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_SOURCE_DIR}/examples/c/userQ.dat
-                ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat)
+                ${CMAKE_CURRENT_SOURCE_DIR}/*.dat
+                ${CMAKE_CURRENT_BINARY_DIR}/ )
 
 # PLATFORM-SPECIFIC SETTING
 if (UNIX)
