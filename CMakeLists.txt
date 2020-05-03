@@ -62,16 +62,14 @@ ENDIF(BUILD_STATIC_LIB)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${SOURCE_HEADS})
 
-# PLATFORM-SPECIFIC SETTING
-if (UNIX)
-    find_library(M_LIB m)
-    set(CMAKE_C_FLAGS "-lm")
-else ()
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif ()
-
 # ADD DEFAULT COMPILER FLAGS
 include(CompilerFlags)
+
+find_package(OpenMP REQUIRED)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}") 
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
 
 # Link include file
 target_include_directories( ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

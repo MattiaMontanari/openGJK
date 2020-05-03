@@ -32,7 +32,7 @@
 # PLATFORM-SPECIFIC SETTING
 if (UNIX)
     find_library(M_LIB m)
-    set(CMAKE_C_FLAGS "-lm")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")
 else ()
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif ()
