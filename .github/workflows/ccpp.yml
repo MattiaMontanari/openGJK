@@ -10,6 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Eigen and Pybind11
-      run: sudo apt update && sudo apt install -y libeigen3-dev && pip install pybind11 --update
+      run: sudo apt update && sudo apt install -y libeigen3-dev && pip install pybind11
     - name: Compile
       run: export CPATH=/usr/include/eigen3 && cd python && source build.sh
