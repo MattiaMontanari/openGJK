@@ -2,7 +2,7 @@ import opengjkc as opengjk
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import pytest
-from IPython import embed
+#from IPython import embed
 
 def settol():
     return 1e-12

@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Eigen and Pybind11
-      run: sudo apt update && sudo apt install -y libeigen3-dev && pip3 install pybind11 pytest numpy scipy ipython
+      run: sudo apt update && sudo apt install -y libeigen3-dev && pip3 install pybind11 pytest numpy scipy
     - name: Compile
       run: export CPATH=/usr/include/eigen3 && cd python && source build.sh
     - name: Test
