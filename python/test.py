@@ -2,7 +2,10 @@ import opengjkc as opengjk
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import pytest
+from IPython import embed
 
+def settol():
+    return 1e-12
 
 def distance_point_to_line_3D(P1, P2, point):
     """
@@ -29,7 +32,7 @@ def test_line_point_distance(delta):
     actual_distance = distance_point_to_line_3D(
         line[0], line[1], point)
     print(distance, actual_distance)
-    assert(np.isclose(distance, actual_distance, atol=1e-15))
+    assert(np.isclose(distance, actual_distance, atol=settol() ))
 
 
 @pytest.mark.parametrize("delta", [0.1, 1e-12, 0])
@@ -43,7 +46,7 @@ def test_line_line_distance(delta):
     actual_distance = distance_point_to_line_3D(
         line[0], line[1], line_2[0])
     print(distance, actual_distance)
-    assert(np.isclose(distance, actual_distance, atol=1e-15))
+    assert(np.isclose(distance, actual_distance, atol=settol() ))
 
 
 @pytest.mark.parametrize("delta", [0.1**(3*i) for i in range(6)])
@@ -55,10 +58,11 @@ def test_tri_distance(delta):
     P2 = tri_1[1]
     point = tri_2[0]
     actual_distance = distance_point_to_line_3D(P1, P2, point)
-    distance = opengjk.gjk(tri_1, tri_2)
+    distance = opengjk.gjk(tri_1, tri_2) 
     print("Computed distance ", distance, "Actual distance ", actual_distance)
 
-    assert(np.isclose(distance, actual_distance, atol=1e-15))
+    #embed()
+    assert(np.isclose(distance, actual_distance, atol=settol() ))
 
 
 @pytest.mark.parametrize("delta", [0.1*0.1**(3*i) for i in range(6)])
@@ -74,7 +78,7 @@ def test_quad_distance2d(delta):
     distance = opengjk.gjk(quad_1, quad_2)
     print("Computed distance ", distance, "Actual distance ", actual_distance)
 
-    assert(np.isclose(distance, actual_distance, atol=1e-15))
+    assert(np.isclose(distance, actual_distance, atol=settol() ))
 
 
 @pytest.mark.parametrize("delta", [1*0.5**(3*i) for i in range(7)])
@@ -88,7 +92,7 @@ def test_tetra_distance_3d(delta):
     distance = opengjk.gjk(tetra_1, tetra_2)
     print("Computed distance ", distance, "Actual distance ", actual_distance)
 
-    assert(np.isclose(distance, actual_distance, atol=1e-15))
+    assert(np.isclose(distance, actual_distance, atol=settol() ))
 
 
 @pytest.mark.parametrize("delta", [(-1)**i*np.sqrt(2)*0.1**(3*i)
@@ -103,11 +107,11 @@ def test_tetra_collision_3d(delta):
     distance = opengjk.gjk(tetra_1, tetra_2)
 
     if delta < 0:
-        assert(np.isclose(distance, 0, atol=1e-15))
+        assert(np.isclose(distance, 0, atol=settol()))
     else:
         print("Computed distance ", distance,
               "Actual distance ", actual_distance)
-        assert(np.isclose(distance, actual_distance, atol=1e-15))
+        assert(np.isclose(distance, actual_distance, atol=settol()))
 
 
 @pytest.mark.parametrize("delta", [0, -0.1, -0.49, -0.51])
@@ -133,11 +137,11 @@ def test_hex_collision_3d(delta):
     distance = opengjk.gjk(hex_1, hex_2)
 
     if P0[0] < 1:
-        assert(np.isclose(distance, 0, atol=1e-15))
+        assert(np.isclose(distance, 0, atol=settol()))
     else:
         print("Computed distance ", distance,
               "Actual distance ", actual_distance)
-        assert(np.isclose(distance, actual_distance, atol=1e-15))
+        assert(np.isclose(distance, actual_distance, atol=settol()))
 
 
 @pytest.mark.parametrize("c0", [0, 1, 2, 3])
