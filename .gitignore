@@ -175,3 +175,8 @@ sysinfo.txt
 
 # Office
 ~*.pptx
+
+# Pytest
+.cache
+.pytest_cache
+.mypy_cache
