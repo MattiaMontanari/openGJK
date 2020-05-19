@@ -671,6 +671,8 @@ inline static void subalgorithm(struct simplex *s, double *v) {
   }
 }
 
+#define DEBUG
+
 double gjk(struct bd bd1, struct bd bd2, struct simplex *s) {
 
   int k = 0;                /**< Iteration counter            */
