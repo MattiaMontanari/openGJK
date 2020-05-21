@@ -180,25 +180,11 @@ sysinfo.txt
 *.pyc
 *.pyo
 __pycache__
-*.so
 *.o
 
-*.egg
-*.egg-info
 .*cache*/
-*venv*/
 
-Cython/Compiler/*.c
-Cython/Plex/*.c
-Cython/Runtime/refnanny.c
-Cython/Tempita/*.c
-Cython/*.c
-Cython/*.html
-Cython/*/*.html
-
-Tools/*.elc
-Demos/*.html
-Demos/*/*.html
+*/cython/*.c
 
 /TEST_TMP/
 /build/
@@ -220,13 +206,6 @@ Demos/*/*.html
 callgrind.out.*
 
 .ipynb_checkpoints
-docs/build
-
-tags
-TAGS
-MANIFEST
-
-.tox
 
 # Jetbrains IDE project files
 /.idea
