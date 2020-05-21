@@ -1784,7 +1784,6 @@ static const char __pyx_k_step[] = "step";
 static const char __pyx_k_stop[] = "stop";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_ASCII[] = "ASCII";
-static const char __pyx_k_bdptr[] = "bdptr";
 static const char __pyx_k_class[] = "__class__";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
@@ -1899,7 +1898,6 @@ static PyObject *__pyx_n_s_axis;
 static PyObject *__pyx_n_s_base;
 static PyObject *__pyx_n_s_bd1;
 static PyObject *__pyx_n_s_bd2;
-static PyObject *__pyx_n_s_bdptr;
 static PyObject *__pyx_n_s_bod1;
 static PyObject *__pyx_n_s_bod2;
 static PyObject *__pyx_n_s_c;
@@ -2137,7 +2135,6 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
   int __pyx_v_i;
   int __pyx_v_j;
   double __pyx_v_answer;
-  struct bd *__pyx_v_bdptr;
   __Pyx_memviewslice __pyx_v_narr1 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_narr2 = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_r = NULL;
@@ -2609,107 +2606,57 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
   /* "openGJK_cython.pyx":55
  * 
  * 	# Allocate memory for pointer (not working)
- * 	cdef bd *bdptr = <bd *> malloc(sizeof(bd))             # <<<<<<<<<<<<<<
- * 
- * 	if bd1.numpoints >= bd2.numpoints:
- */
-  __pyx_v_bdptr = ((struct bd *)malloc((sizeof(struct bd))));
-
-  /* "openGJK_cython.pyx":57
- * 	cdef bd *bdptr = <bd *> malloc(sizeof(bd))
- * 
- * 	if bd1.numpoints >= bd2.numpoints:             # <<<<<<<<<<<<<<
- * 		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
- * 		bdptr.coord = <double **> malloc(bd1.numpoints * sizeof(bdptr.coord[0]))
- */
-  __pyx_t_3 = ((__pyx_v_bd1.numpoints >= __pyx_v_bd2.numpoints) != 0);
-  if (__pyx_t_3) {
-
-    /* "openGJK_cython.pyx":58
- * 
- * 	if bd1.numpoints >= bd2.numpoints:
- * 		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))             # <<<<<<<<<<<<<<
- * 		bdptr.coord = <double **> malloc(bd1.numpoints * sizeof(bdptr.coord[0]))
+ * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))             # <<<<<<<<<<<<<<
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
  * 
  */
-    (__pyx_v_bdptr->coord[0]) = ((double *)malloc((3 * (sizeof(double)))));
+  __pyx_v_bd1.coord = ((double **)malloc((__pyx_v_bd1.numpoints * (sizeof(double *)))));
 
-    /* "openGJK_cython.pyx":59
- * 	if bd1.numpoints >= bd2.numpoints:
- * 		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
- * 		bdptr.coord = <double **> malloc(bd1.numpoints * sizeof(bdptr.coord[0]))             # <<<<<<<<<<<<<<
- * 
- * 	else:
- */
-    __pyx_v_bdptr->coord = ((double **)malloc((__pyx_v_bd1.numpoints * (sizeof((__pyx_v_bdptr->coord[0]))))));
-
-    /* "openGJK_cython.pyx":57
- * 	cdef bd *bdptr = <bd *> malloc(sizeof(bd))
- * 
- * 	if bd1.numpoints >= bd2.numpoints:             # <<<<<<<<<<<<<<
- * 		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
- * 		bdptr.coord = <double **> malloc(bd1.numpoints * sizeof(bdptr.coord[0]))
- */
-    goto __pyx_L5;
-  }
-
-  /* "openGJK_cython.pyx":62
- * 
- * 	else:
- * 		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))             # <<<<<<<<<<<<<<
- * 		bdptr.coord = <double **> malloc(bd2.numpoints * sizeof(bdptr.coord[0]))
- * 
- */
-  /*else*/ {
-    (__pyx_v_bdptr->coord[0]) = ((double *)malloc((3 * (sizeof(double)))));
-
-    /* "openGJK_cython.pyx":63
- * 	else:
- * 		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
- * 		bdptr.coord = <double **> malloc(bd2.numpoints * sizeof(bdptr.coord[0]))             # <<<<<<<<<<<<<<
+  /* "openGJK_cython.pyx":56
+ * 	# Allocate memory for pointer (not working)
+ * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_v_bdptr->coord = ((double **)malloc((__pyx_v_bd2.numpoints * (sizeof((__pyx_v_bdptr->coord[0]))))));
-  }
-  __pyx_L5:;
+  __pyx_v_bd2.coord = ((double **)malloc((__pyx_v_bd2.numpoints * (sizeof(double *)))));
 
-  /* "openGJK_cython.pyx":66
+  /* "openGJK_cython.pyx":59
  * 
  * 
  * 	print("Break 2")#--------------------------------------------------             # <<<<<<<<<<<<<<
  * 
  * 	# Create numpy-array MemoryView
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "openGJK_cython.pyx":70
+  /* "openGJK_cython.pyx":63
  * 	# Create numpy-array MemoryView
  * 	cdef:
  * 		double [:,:] narr1 = bod1             # <<<<<<<<<<<<<<
  * 		double [:,:] narr2 = bod2
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 63, __pyx_L1_error)
   __pyx_v_narr1 = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "openGJK_cython.pyx":71
+  /* "openGJK_cython.pyx":64
  * 	cdef:
  * 		double [:,:] narr1 = bod1
  * 		double [:,:] narr2 = bod2             # <<<<<<<<<<<<<<
  * 
  * 	print(narr2[0,0]) # output a <double>, works fine
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 64, __pyx_L1_error)
   __pyx_v_narr2 = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "openGJK_cython.pyx":73
+  /* "openGJK_cython.pyx":66
  * 		double [:,:] narr2 = bod2
  * 
  * 	print(narr2[0,0]) # output a <double>, works fine             # <<<<<<<<<<<<<<
@@ -2720,39 +2667,48 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
   __pyx_t_9 = 0;
   if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr2.shape[0];
   if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr2.shape[1];
-  __pyx_t_1 = PyFloat_FromDouble((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "openGJK_cython.pyx":75
+  /* "openGJK_cython.pyx":68
  * 	print(narr2[0,0]) # output a <double>, works fine
  * 
  * 	print("Break 3")#--------------------------------------------------             # <<<<<<<<<<<<<<
  * 
  * 	# Assign coordinate values (Segmentation Fault Here!!, )
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "openGJK_cython.pyx":78
+  /* "openGJK_cython.pyx":71
  * 
  * 	# Assign coordinate values (Segmentation Fault Here!!, )
  * 	for i in range(0, bd1.numpoints):             # <<<<<<<<<<<<<<
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
  * 		bd1.coord[i][0] = narr1[i,0]
- * 		bd1.coord[i][1] = narr1[i,1]
  */
   __pyx_t_6 = __pyx_v_bd1.numpoints;
   __pyx_t_10 = __pyx_t_6;
   for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
     __pyx_v_i = __pyx_t_11;
 
-    /* "openGJK_cython.pyx":79
+    /* "openGJK_cython.pyx":72
  * 	# Assign coordinate values (Segmentation Fault Here!!, )
  * 	for i in range(0, bd1.numpoints):
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))             # <<<<<<<<<<<<<<
+ * 		bd1.coord[i][0] = narr1[i,0]
+ * 		bd1.coord[i][1] = narr1[i,1]
+ */
+    (__pyx_v_bd1.coord[__pyx_v_i]) = ((double *)malloc((3 * (sizeof(double)))));
+
+    /* "openGJK_cython.pyx":73
+ * 	for i in range(0, bd1.numpoints):
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
  * 		bd1.coord[i][0] = narr1[i,0]             # <<<<<<<<<<<<<<
  * 		bd1.coord[i][1] = narr1[i,1]
  * 		bd1.coord[i][2] = narr1[i,2]
@@ -2763,8 +2719,8 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr1.shape[1];
     ((__pyx_v_bd1.coord[__pyx_v_i])[0]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_9 * __pyx_v_narr1.strides[0]) ) + __pyx_t_8 * __pyx_v_narr1.strides[1]) )));
 
-    /* "openGJK_cython.pyx":80
- * 	for i in range(0, bd1.numpoints):
+    /* "openGJK_cython.pyx":74
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
  * 		bd1.coord[i][0] = narr1[i,0]
  * 		bd1.coord[i][1] = narr1[i,1]             # <<<<<<<<<<<<<<
  * 		bd1.coord[i][2] = narr1[i,2]
@@ -2776,7 +2732,7 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr1.shape[1];
     ((__pyx_v_bd1.coord[__pyx_v_i])[1]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_8 * __pyx_v_narr1.strides[0]) ) + __pyx_t_9 * __pyx_v_narr1.strides[1]) )));
 
-    /* "openGJK_cython.pyx":81
+    /* "openGJK_cython.pyx":75
  * 		bd1.coord[i][0] = narr1[i,0]
  * 		bd1.coord[i][1] = narr1[i,1]
  * 		bd1.coord[i][2] = narr1[i,2]             # <<<<<<<<<<<<<<
@@ -2790,21 +2746,30 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     ((__pyx_v_bd1.coord[__pyx_v_i])[2]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_9 * __pyx_v_narr1.strides[0]) ) + __pyx_t_8 * __pyx_v_narr1.strides[1]) )));
   }
 
-  /* "openGJK_cython.pyx":84
+  /* "openGJK_cython.pyx":78
  * 
  * 
  * 	for j in range(0, bd2.numpoints):             # <<<<<<<<<<<<<<
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
  * 		bd2.coord[j][0] = narr2[j,0]
- * 		bd2.coord[j][1] = narr2[j,1]
  */
   __pyx_t_6 = __pyx_v_bd2.numpoints;
   __pyx_t_10 = __pyx_t_6;
   for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
     __pyx_v_j = __pyx_t_11;
 
-    /* "openGJK_cython.pyx":85
+    /* "openGJK_cython.pyx":79
  * 
  * 	for j in range(0, bd2.numpoints):
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))             # <<<<<<<<<<<<<<
+ * 		bd2.coord[j][0] = narr2[j,0]
+ * 		bd2.coord[j][1] = narr2[j,1]
+ */
+    (__pyx_v_bd2.coord[__pyx_v_j]) = ((double *)malloc((3 * (sizeof(double)))));
+
+    /* "openGJK_cython.pyx":80
+ * 	for j in range(0, bd2.numpoints):
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
  * 		bd2.coord[j][0] = narr2[j,0]             # <<<<<<<<<<<<<<
  * 		bd2.coord[j][1] = narr2[j,1]
  * 		bd2.coord[j][2] = narr2[j,2]
@@ -2815,8 +2780,8 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr2.shape[1];
     ((__pyx_v_bd2.coord[__pyx_v_j])[0]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )));
 
-    /* "openGJK_cython.pyx":86
- * 	for j in range(0, bd2.numpoints):
+    /* "openGJK_cython.pyx":81
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
  * 		bd2.coord[j][0] = narr2[j,0]
  * 		bd2.coord[j][1] = narr2[j,1]             # <<<<<<<<<<<<<<
  * 		bd2.coord[j][2] = narr2[j,2]
@@ -2828,7 +2793,7 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr2.shape[1];
     ((__pyx_v_bd2.coord[__pyx_v_j])[1]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_9 * __pyx_v_narr2.strides[0]) ) + __pyx_t_8 * __pyx_v_narr2.strides[1]) )));
 
-    /* "openGJK_cython.pyx":87
+    /* "openGJK_cython.pyx":82
  * 		bd2.coord[j][0] = narr2[j,0]
  * 		bd2.coord[j][1] = narr2[j,1]
  * 		bd2.coord[j][2] = narr2[j,2]             # <<<<<<<<<<<<<<
@@ -2842,18 +2807,18 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     ((__pyx_v_bd2.coord[__pyx_v_j])[2]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )));
   }
 
-  /* "openGJK_cython.pyx":90
+  /* "openGJK_cython.pyx":85
  * 
  * 
  * 	print("Break 4")#--------------------------------------------------             # <<<<<<<<<<<<<<
  * 
  * 	# Call C function
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "openGJK_cython.pyx":93
+  /* "openGJK_cython.pyx":88
  * 
  * 	# Call C function
  * 	answer = gjk(bd1, bd2, &s)             # <<<<<<<<<<<<<<
@@ -2862,23 +2827,58 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
  */
   __pyx_v_answer = gjk(__pyx_v_bd1, __pyx_v_bd2, (&__pyx_v_s));
 
-  /* "openGJK_cython.pyx":96
+  /* "openGJK_cython.pyx":91
  * 
  * 	# Free the memory
- * 	free(bdptr)             # <<<<<<<<<<<<<<
- * 
- * 	return answer
+ * 	for i in range(0, bd1.numpoints):             # <<<<<<<<<<<<<<
+ * 		free(bd1.coord[i])
+ * 	for j in range(0, bd2.numpoints):
  */
-  free(__pyx_v_bdptr);
+  __pyx_t_6 = __pyx_v_bd1.numpoints;
+  __pyx_t_10 = __pyx_t_6;
+  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+    __pyx_v_i = __pyx_t_11;
 
-  /* "openGJK_cython.pyx":98
- * 	free(bdptr)
+    /* "openGJK_cython.pyx":92
+ * 	# Free the memory
+ * 	for i in range(0, bd1.numpoints):
+ * 		free(bd1.coord[i])             # <<<<<<<<<<<<<<
+ * 	for j in range(0, bd2.numpoints):
+ * 		free(bd2.coord[j])
+ */
+    free((__pyx_v_bd1.coord[__pyx_v_i]));
+  }
+
+  /* "openGJK_cython.pyx":93
+ * 	for i in range(0, bd1.numpoints):
+ * 		free(bd1.coord[i])
+ * 	for j in range(0, bd2.numpoints):             # <<<<<<<<<<<<<<
+ * 		free(bd2.coord[j])
+ * 
+ */
+  __pyx_t_6 = __pyx_v_bd2.numpoints;
+  __pyx_t_10 = __pyx_t_6;
+  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+    __pyx_v_j = __pyx_t_11;
+
+    /* "openGJK_cython.pyx":94
+ * 		free(bd1.coord[i])
+ * 	for j in range(0, bd2.numpoints):
+ * 		free(bd2.coord[j])             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    free((__pyx_v_bd2.coord[__pyx_v_j]));
+  }
+
+  /* "openGJK_cython.pyx":97
+ * 
  * 
  * 	return answer             # <<<<<<<<<<<<<<
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_answer); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_answer); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_r = __pyx_t_5;
   __pyx_t_5 = 0;
@@ -16529,7 +16529,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_base, __pyx_k_base, sizeof(__pyx_k_base), 0, 0, 1, 1},
   {&__pyx_n_s_bd1, __pyx_k_bd1, sizeof(__pyx_k_bd1), 0, 0, 1, 1},
   {&__pyx_n_s_bd2, __pyx_k_bd2, sizeof(__pyx_k_bd2), 0, 0, 1, 1},
-  {&__pyx_n_s_bdptr, __pyx_k_bdptr, sizeof(__pyx_k_bdptr), 0, 0, 1, 1},
   {&__pyx_n_s_bod1, __pyx_k_bod1, sizeof(__pyx_k_bod1), 0, 0, 1, 1},
   {&__pyx_n_s_bod2, __pyx_k_bod2, sizeof(__pyx_k_bod2), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
@@ -16608,7 +16607,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 34, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 71, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 133, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 151, __pyx_L1_error)
@@ -16636,36 +16635,36 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "openGJK_cython.pyx":66
+  /* "openGJK_cython.pyx":59
  * 
  * 
  * 	print("Break 2")#--------------------------------------------------             # <<<<<<<<<<<<<<
  * 
  * 	# Create numpy-array MemoryView
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_Break_2); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_Break_2); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "openGJK_cython.pyx":75
+  /* "openGJK_cython.pyx":68
  * 	print(narr2[0,0]) # output a <double>, works fine
  * 
  * 	print("Break 3")#--------------------------------------------------             # <<<<<<<<<<<<<<
  * 
  * 	# Assign coordinate values (Segmentation Fault Here!!, )
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_Break_3); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_Break_3); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "openGJK_cython.pyx":90
+  /* "openGJK_cython.pyx":85
  * 
  * 
  * 	print("Break 4")#--------------------------------------------------             # <<<<<<<<<<<<<<
  * 
  * 	# Call C function
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Break_4); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Break_4); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
@@ -16868,10 +16867,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 	# Declare data types
  */
-  __pyx_tuple__23 = PyTuple_Pack(11, __pyx_n_s_bod1, __pyx_n_s_bod2, __pyx_n_s_s, __pyx_n_s_bd1, __pyx_n_s_bd2, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_answer, __pyx_n_s_bdptr, __pyx_n_s_narr1, __pyx_n_s_narr2); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(10, __pyx_n_s_bod1, __pyx_n_s_bod2, __pyx_n_s_s, __pyx_n_s_bd1, __pyx_n_s_bd2, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_answer, __pyx_n_s_narr1, __pyx_n_s_narr2); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_openGJK_cython_pyx, __pyx_n_s_pygjk, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_openGJK_cython_pyx, __pyx_n_s_pygjk, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 24, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name

@@ -52,15 +52,8 @@ def pygjk(bod1, bod2):
 
 	
 	# Allocate memory for pointer (not working)
-	cdef bd *bdptr = <bd *> malloc(sizeof(bd))
-
-	if bd1.numpoints > bd2.numpoints:
-		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
-		bdptr.coord = <double **> malloc(bd1.numpoints * sizeof(bdptr.coord[0]))
-		
-	else:
-		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
-		bdptr.coord = <double **> malloc(bd2.numpoints * sizeof(bdptr.coord[0]))
+	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
 		
 
 	print("Break 2")#--------------------------------------------------
@@ -76,12 +69,14 @@ def pygjk(bod1, bod2):
 
 	# Assign coordinate values (Segmentation Fault Here!!, )
 	for i in range(0, bd1.numpoints):
+		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
 		bd1.coord[i][0] = narr1[i,0]
 		bd1.coord[i][1] = narr1[i,1]
 		bd1.coord[i][2] = narr1[i,2]
 
 	
 	for j in range(0, bd2.numpoints):
+		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
 		bd2.coord[j][0] = narr2[j,0]
 		bd2.coord[j][1] = narr2[j,1]
 		bd2.coord[j][2] = narr2[j,2]
@@ -93,7 +88,11 @@ def pygjk(bod1, bod2):
 	answer = gjk(bd1, bd2, &s)
 
 	# Free the memory
-	free(bdptr)
+	for i in range(0, bd1.numpoints):
+		free(bd1.coord[i])
+	for j in range(0, bd2.numpoints):
+		free(bd2.coord[j])
+
 
 	return answer
 
