@@ -1,7 +1,7 @@
 #!python
 # cython: language_level=3
-# distutils: sources = src/openGJK.c
-# distutils: include_dirs = include/openGJK
+# distutils: sources = ../../src/openGJK.c
+# distutils: include_dirs = ../../include/openGJK
 
 cimport openGJK_cython
 
