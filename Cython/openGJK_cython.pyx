@@ -2,13 +2,15 @@
 
 import numpy as np
 from libc.stdlib cimport free, malloc
+from cpython.mem  cimport PyMem_Malloc, PyMem_Free
 
-# Declare C function and data 
+
+# Declare C function and data
 cdef extern from "openGJK.h":
 	struct bd: 
 		int numpoints
 		double s[3]  		
-		double** coord
+		double ** coord
 
 	struct simplex:
 		int nvrtx       	
@@ -31,22 +33,35 @@ def pygjk(bod1, bod2):
 
 	print("Break 1")#--------------------------------------------------
 
-	# Allocate memory for pointers
-	bd1.coord = <double**> malloc(sizeof(double)*bod1.ndim)
-	bd1.coord[0] = <double*> malloc(sizeof(double)*3)
-	bd2.coord = <double**> malloc(sizeof(double)*bod2.ndim)
-	bd2.coord[0] = <double*> malloc(sizeof(double)*3)
-
-
 	# Convert 1D array to 2D, if any
 	if bod1.ndim < 2:
 		bod1 = np.append([bod1], [[1.,1.,1.]], axis = 0)
+		bd1.numpoints = np.size(bod1,0) - 1
+	else:
+		bd1.numpoints = np.size(bod1,0)
+
+	print(bd1.numpoints)
+
 	if bod2.ndim < 2:
 		bod2 = np.append([bod2], [[1.,1.,1.]], axis = 0)
+		bd2.numpoints = np.size(bod2,0) - 1
+	else:
+		bd2.numpoints = np.size(bod2,0)
 
-	bd1.numpoints = np.size(bod1,0)
-	bd2.numpoints = np.size(bod2,0)
+	print(bd2.numpoints)
 
+	
+	# Allocate memory for pointer (not working)
+	cdef bd *bdptr = <bd *> malloc(sizeof(bd))
+
+	if bd1.numpoints > bd2.numpoints:
+		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
+		bdptr.coord = <double **> malloc(bd1.numpoints * sizeof(bdptr.coord[0]))
+		
+	else:
+		bdptr.coord[0] = <double *> malloc(3 * sizeof(double))
+		bdptr.coord = <double **> malloc(bd2.numpoints * sizeof(bdptr.coord[0]))
+		
 
 	print("Break 2")#--------------------------------------------------
 	
@@ -54,6 +69,8 @@ def pygjk(bod1, bod2):
 	cdef:	
 		double [:,:] narr1 = bod1 	
 		double [:,:] narr2 = bod2
+
+	print(narr2[0,0]) # output a <double>, works fine 
 
 	print("Break 3")#--------------------------------------------------
 
@@ -76,8 +93,7 @@ def pygjk(bod1, bod2):
 	answer = gjk(bd1, bd2, &s)
 
 	# Free the memory
-	free(bd1.coord)
-	free(bd2.coord)
+	free(bdptr)
 
 	return answer
 
