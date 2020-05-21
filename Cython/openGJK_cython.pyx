@@ -28,7 +28,7 @@ def pygjk(bod1, bod2):
 		simplex s
 		bd bd1
 		bd bd2
-		double answer
+		double dist2
 
 	# Convert 1D array to 2D, if any
 	if bod1.ndim < 2:
@@ -45,14 +45,22 @@ def pygjk(bod1, bod2):
 		bd2.numpoints = np.size(bod2,0)
 
 	
-	# Allocate memory for pointer (not working)
+	# Allocate memory for bodies
 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
 	if not bd1.coord:
 		raise NameError('Not enough memory for bd1.coord')
+	for i in range(0, bd1.numpoints):
+		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+		if not bd1.coord[i]:
+			raise NameError('Not enough memory for bd1.coord[]')
+
 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
 	if not bd2.coord:
 		raise NameError('Not enough memory for bd2.coord')
-		
+	for j in range(0, bd2.numpoints):
+		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+		if not bd2.coord[j]:
+			raise NameError('Not enough memory for bd2.coord[]')
 
 	# Create numpy-array MemoryView
 	cdef:	
@@ -61,25 +69,15 @@ def pygjk(bod1, bod2):
 
 	# Assign coordinate values
 	for i in range(0, bd1.numpoints):
-		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
-		if not bd1.coord[i]:
-			raise NameError('Not enough memory for bd1.coord[]')
-		bd1.coord[i][0] = narr1[i,0]
-		bd1.coord[i][1] = narr1[i,1]
-		bd1.coord[i][2] = narr1[i,2]
-
+		for j in range(0,3):
+			bd1.coord[i][j] = narr1[i,j]
 	
-	for j in range(0, bd2.numpoints):
-		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
-		if not bd2.coord[j]:
-			raise NameError('Not enough memory for bd2.coord[]')
-		bd2.coord[j][0] = narr2[j,0]
-		bd2.coord[j][1] = narr2[j,1]
-		bd2.coord[j][2] = narr2[j,2]
-
+	for i in range(0, bd2.numpoints):
+		for j in range(0,3):
+			bd2.coord[i][j] = narr2[i,j]
 
 	# Call C function
-	answer = gjk(bd1, bd2, &s)
+	dist2 = gjk(bd1, bd2, &s)
 
 	# Free the memory
 	for ii in range(0, bd1.numpoints):
@@ -90,6 +88,5 @@ def pygjk(bod1, bod2):
 		free(bd2.coord[jj])
 	free(bd2.coord)
 
-
-	return answer
+	return dist2
 
