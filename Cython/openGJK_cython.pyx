@@ -5,7 +5,7 @@ from libc.stdlib cimport free, malloc
 from cpython.mem  cimport PyMem_Malloc, PyMem_Free
 
 
-# Declare C function and data
+# Declare C function and data types
 cdef extern from "openGJK.h":
 	struct bd: 
 		int numpoints
@@ -28,10 +28,7 @@ def pygjk(bod1, bod2):
 		simplex s
 		bd bd1
 		bd bd2
-		int i, j
 		double answer
-
-	print("Break 1")#--------------------------------------------------
 
 	# Convert 1D array to 2D, if any
 	if bod1.ndim < 2:
@@ -40,7 +37,6 @@ def pygjk(bod1, bod2):
 	else:
 		bd1.numpoints = np.size(bod1,0)
 
-	print(bd1.numpoints)
 
 	if bod2.ndim < 2:
 		bod2 = np.append([bod2], [[1.,1.,1.]], axis = 0)
@@ -48,28 +44,26 @@ def pygjk(bod1, bod2):
 	else:
 		bd2.numpoints = np.size(bod2,0)
 
-	print(bd2.numpoints)
-
 	
 	# Allocate memory for pointer (not working)
 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+	if not bd1.coord:
+		raise NameError('Not enough memory for bd1.coord')
 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+	if not bd2.coord:
+		raise NameError('Not enough memory for bd2.coord')
 		
 
-	print("Break 2")#--------------------------------------------------
-	
 	# Create numpy-array MemoryView
 	cdef:	
 		double [:,:] narr1 = bod1 	
 		double [:,:] narr2 = bod2
 
-	print(narr2[0,0]) # output a <double>, works fine 
-
-	print("Break 3")#--------------------------------------------------
-
-	# Assign coordinate values (Segmentation Fault Here!!, )
+	# Assign coordinate values
 	for i in range(0, bd1.numpoints):
 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+		if not bd1.coord[i]:
+			raise NameError('Not enough memory for bd1.coord[]')
 		bd1.coord[i][0] = narr1[i,0]
 		bd1.coord[i][1] = narr1[i,1]
 		bd1.coord[i][2] = narr1[i,2]
@@ -77,21 +71,24 @@ def pygjk(bod1, bod2):
 	
 	for j in range(0, bd2.numpoints):
 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+		if not bd2.coord[j]:
+			raise NameError('Not enough memory for bd2.coord[]')
 		bd2.coord[j][0] = narr2[j,0]
 		bd2.coord[j][1] = narr2[j,1]
 		bd2.coord[j][2] = narr2[j,2]
 
 
-	print("Break 4")#--------------------------------------------------
-
 	# Call C function
 	answer = gjk(bd1, bd2, &s)
 
 	# Free the memory
-	for i in range(0, bd1.numpoints):
-		free(bd1.coord[i])
-	for j in range(0, bd2.numpoints):
-		free(bd2.coord[j])
+	for ii in range(0, bd1.numpoints):
+		free(bd1.coord[ii])
+	free(bd1.coord)
+
+	for jj in range(0, bd2.numpoints):
+		free(bd2.coord[jj])
+	free(bd2.coord)
 
 
 	return answer

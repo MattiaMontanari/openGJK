@@ -1154,13 +1154,6 @@ static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
     PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
     const char* function_name);
 
-/* PyObjectCall.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
-#else
-#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
-#endif
-
 /* PyDictVersioning.proto */
 #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
 #define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
@@ -1208,6 +1201,13 @@ static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_ve
 static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
 #endif
 
+/* PyObjectCall.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
+#else
+#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
+#endif
+
 /* PyIntBinop.proto */
 #if !CYTHON_COMPILING_IN_PYPY
 static PyObject* __Pyx_PyInt_SubtractObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check);
@@ -1245,46 +1245,6 @@ static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObje
 #else
 #define __Pyx_PyCFunction_FastCall(func, args, nargs)  (assert(0), NULL)
 #endif
-
-/* PyObjectCallMethO.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
-#endif
-
-/* PyObjectCallOneArg.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
-
-/* MemviewSliceInit.proto */
-#define __Pyx_BUF_MAX_NDIMS %(BUF_MAX_NDIMS)d
-#define __Pyx_MEMVIEW_DIRECT   1
-#define __Pyx_MEMVIEW_PTR      2
-#define __Pyx_MEMVIEW_FULL     4
-#define __Pyx_MEMVIEW_CONTIG   8
-#define __Pyx_MEMVIEW_STRIDED  16
-#define __Pyx_MEMVIEW_FOLLOW   32
-#define __Pyx_IS_C_CONTIG 1
-#define __Pyx_IS_F_CONTIG 2
-static int __Pyx_init_memviewslice(
-                struct __pyx_memoryview_obj *memview,
-                int ndim,
-                __Pyx_memviewslice *memviewslice,
-                int memview_is_new_reference);
-static CYTHON_INLINE int __pyx_add_acquisition_count_locked(
-    __pyx_atomic_int *acquisition_count, PyThread_type_lock lock);
-static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
-    __pyx_atomic_int *acquisition_count, PyThread_type_lock lock);
-#define __pyx_get_slice_count_pointer(memview) (memview->acquisition_count_aligned_p)
-#define __pyx_get_slice_count(memview) (*__pyx_get_slice_count_pointer(memview))
-#define __PYX_INC_MEMVIEW(slice, have_gil) __Pyx_INC_MEMVIEW(slice, have_gil, __LINE__)
-#define __PYX_XDEC_MEMVIEW(slice, have_gil) __Pyx_XDEC_MEMVIEW(slice, have_gil, __LINE__)
-static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
-static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
-
-/* ArgTypeTest.proto */
-#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
-    ((likely((Py_TYPE(obj) == type) | (none_allowed && (obj == Py_None)))) ? 1 :\
-        __Pyx__ArgTypeTest(obj, type, name, exact))
-static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
 
 /* PyThreadStateGet.proto */
 #if CYTHON_FAST_THREAD_STATE
@@ -1325,8 +1285,48 @@ static CYTHON_INLINE void __Pyx_ErrFetchInState(PyThreadState *tstate, PyObject 
 /* RaiseException.proto */
 static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
 
+/* MemviewSliceInit.proto */
+#define __Pyx_BUF_MAX_NDIMS %(BUF_MAX_NDIMS)d
+#define __Pyx_MEMVIEW_DIRECT   1
+#define __Pyx_MEMVIEW_PTR      2
+#define __Pyx_MEMVIEW_FULL     4
+#define __Pyx_MEMVIEW_CONTIG   8
+#define __Pyx_MEMVIEW_STRIDED  16
+#define __Pyx_MEMVIEW_FOLLOW   32
+#define __Pyx_IS_C_CONTIG 1
+#define __Pyx_IS_F_CONTIG 2
+static int __Pyx_init_memviewslice(
+                struct __pyx_memoryview_obj *memview,
+                int ndim,
+                __Pyx_memviewslice *memviewslice,
+                int memview_is_new_reference);
+static CYTHON_INLINE int __pyx_add_acquisition_count_locked(
+    __pyx_atomic_int *acquisition_count, PyThread_type_lock lock);
+static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
+    __pyx_atomic_int *acquisition_count, PyThread_type_lock lock);
+#define __pyx_get_slice_count_pointer(memview) (memview->acquisition_count_aligned_p)
+#define __pyx_get_slice_count(memview) (*__pyx_get_slice_count_pointer(memview))
+#define __PYX_INC_MEMVIEW(slice, have_gil) __Pyx_INC_MEMVIEW(slice, have_gil, __LINE__)
+#define __PYX_XDEC_MEMVIEW(slice, have_gil) __Pyx_XDEC_MEMVIEW(slice, have_gil, __LINE__)
+static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
+static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
+
+/* ArgTypeTest.proto */
+#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
+    ((likely((Py_TYPE(obj) == type) | (none_allowed && (obj == Py_None)))) ? 1 :\
+        __Pyx__ArgTypeTest(obj, type, name, exact))
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
+
 /* PyObjectCall2Args.proto */
 static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2);
+
+/* PyObjectCallMethO.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
+#endif
+
+/* PyObjectCallOneArg.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
 
 /* IncludeStringH.proto */
 #include <string.h>
@@ -1749,7 +1749,7 @@ extern int __pyx_module_is_main_openGJKpy;
 int __pyx_module_is_main_openGJKpy = 0;
 
 /* Implementation of 'openGJKpy' */
-static PyObject *__pyx_builtin_print;
+static PyObject *__pyx_builtin_NameError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_MemoryError;
@@ -1764,6 +1764,8 @@ static const char __pyx_k_i[] = "i";
 static const char __pyx_k_j[] = "j";
 static const char __pyx_k_s[] = "s";
 static const char __pyx_k_id[] = "id";
+static const char __pyx_k_ii[] = "ii";
+static const char __pyx_k_jj[] = "jj";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_bd1[] = "bd1";
 static const char __pyx_k_bd2[] = "bd2";
@@ -1790,7 +1792,6 @@ static const char __pyx_k_flags[] = "flags";
 static const char __pyx_k_narr1[] = "narr1";
 static const char __pyx_k_narr2[] = "narr2";
 static const char __pyx_k_numpy[] = "numpy";
-static const char __pyx_k_print[] = "print";
 static const char __pyx_k_pygjk[] = "pygjk";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
@@ -1806,10 +1807,6 @@ static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_struct[] = "struct";
 static const char __pyx_k_unpack[] = "unpack";
 static const char __pyx_k_update[] = "update";
-static const char __pyx_k_Break_1[] = "Break 1";
-static const char __pyx_k_Break_2[] = "Break 2";
-static const char __pyx_k_Break_3[] = "Break 3";
-static const char __pyx_k_Break_4[] = "Break 4";
 static const char __pyx_k_fortran[] = "fortran";
 static const char __pyx_k_memview[] = "memview";
 static const char __pyx_k_Ellipsis[] = "Ellipsis";
@@ -1817,6 +1814,7 @@ static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_itemsize[] = "itemsize";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
 static const char __pyx_k_setstate[] = "__setstate__";
+static const char __pyx_k_NameError[] = "NameError";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_openGJKpy[] = "openGJKpy";
@@ -1851,6 +1849,8 @@ static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
+static const char __pyx_k_Not_enough_memory_for_bd1_coord[] = "Not enough memory for bd1.coord";
+static const char __pyx_k_Not_enough_memory_for_bd2_coord[] = "Not enough memory for bd2.coord";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
 static const char __pyx_k_Cannot_assign_to_read_only_memor[] = "Cannot assign to read-only memoryview";
@@ -1864,11 +1864,9 @@ static const char __pyx_k_Unable_to_convert_item_to_object[] = "Unable to conver
 static const char __pyx_k_got_differing_extents_in_dimensi[] = "got differing extents in dimension %d (got %d and %d)";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
+static const char __pyx_k_Not_enough_memory_for_bd1_coord_2[] = "Not enough memory for bd1.coord[]";
+static const char __pyx_k_Not_enough_memory_for_bd2_coord_2[] = "Not enough memory for bd2.coord[]";
 static PyObject *__pyx_n_s_ASCII;
-static PyObject *__pyx_kp_u_Break_1;
-static PyObject *__pyx_kp_u_Break_2;
-static PyObject *__pyx_kp_u_Break_3;
-static PyObject *__pyx_kp_u_Break_4;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
 static PyObject *__pyx_kp_s_Can_only_create_a_buffer_that_is;
 static PyObject *__pyx_kp_s_Cannot_assign_to_read_only_memor;
@@ -1884,6 +1882,11 @@ static PyObject *__pyx_kp_s_Invalid_shape_in_axis_d_d;
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_kp_s_MemoryView_of_r_at_0x_x;
 static PyObject *__pyx_kp_s_MemoryView_of_r_object;
+static PyObject *__pyx_n_s_NameError;
+static PyObject *__pyx_kp_u_Not_enough_memory_for_bd1_coord;
+static PyObject *__pyx_kp_u_Not_enough_memory_for_bd1_coord_2;
+static PyObject *__pyx_kp_u_Not_enough_memory_for_bd2_coord;
+static PyObject *__pyx_kp_u_Not_enough_memory_for_bd2_coord_2;
 static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
@@ -1919,10 +1922,12 @@ static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
 static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_id;
+static PyObject *__pyx_n_s_ii;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
 static PyObject *__pyx_n_s_j;
+static PyObject *__pyx_n_s_jj;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_mode;
@@ -1940,7 +1945,6 @@ static PyObject *__pyx_kp_s_openGJK_cython_pyx;
 static PyObject *__pyx_n_s_openGJKpy;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
-static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pygjk;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
@@ -2132,11 +2136,13 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
   struct simplex __pyx_v_s;
   struct bd __pyx_v_bd1;
   struct bd __pyx_v_bd2;
-  int __pyx_v_i;
-  int __pyx_v_j;
   double __pyx_v_answer;
   __Pyx_memviewslice __pyx_v_narr1 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_narr2 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  long __pyx_v_i;
+  long __pyx_v_j;
+  long __pyx_v_ii;
+  long __pyx_v_jj;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -2146,58 +2152,47 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
   PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
   __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  int __pyx_t_10;
-  int __pyx_t_11;
+  int __pyx_t_8;
+  long __pyx_t_9;
+  Py_ssize_t __pyx_t_10;
+  Py_ssize_t __pyx_t_11;
   __Pyx_RefNannySetupContext("pygjk", 0);
   __Pyx_INCREF(__pyx_v_bod1);
   __Pyx_INCREF(__pyx_v_bod2);
 
   /* "openGJK_cython.pyx":34
- * 		double answer
- * 
- * 	print("Break 1")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Convert 1D array to 2D, if any
- */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "openGJK_cython.pyx":37
  * 
  * 	# Convert 1D array to 2D, if any
  * 	if bod1.ndim < 2:             # <<<<<<<<<<<<<<
  * 		bod1 = np.append([bod1], [[1.,1.,1.]], axis = 0)
  * 		bd1.numpoints = np.size(bod1,0) - 1
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bod1, __pyx_n_s_ndim); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bod1, __pyx_n_s_ndim); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_2, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_2, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_3) {
 
-    /* "openGJK_cython.pyx":38
+    /* "openGJK_cython.pyx":35
  * 	# Convert 1D array to 2D, if any
  * 	if bod1.ndim < 2:
  * 		bod1 = np.append([bod1], [[1.,1.,1.]], axis = 0)             # <<<<<<<<<<<<<<
  * 		bd1.numpoints = np.size(bod1,0) - 1
  * 	else:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_append); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_append); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_v_bod1);
     __Pyx_GIVEREF(__pyx_v_bod1);
     PyList_SET_ITEM(__pyx_t_2, 0, __pyx_v_bod1);
-    __pyx_t_4 = PyList_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_INCREF(__pyx_float_1_);
     __Pyx_GIVEREF(__pyx_float_1_);
@@ -2208,12 +2203,12 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     __Pyx_INCREF(__pyx_float_1_);
     __Pyx_GIVEREF(__pyx_float_1_);
     PyList_SET_ITEM(__pyx_t_4, 2, __pyx_float_1_);
-    __pyx_t_5 = PyList_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_5 = PyList_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_GIVEREF(__pyx_t_4);
     PyList_SET_ITEM(__pyx_t_5, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -2221,10 +2216,10 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5);
     __pyx_t_2 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 38, __pyx_L1_error)
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 35, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -2232,16 +2227,16 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     __Pyx_DECREF_SET(__pyx_v_bod1, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "openGJK_cython.pyx":39
+    /* "openGJK_cython.pyx":36
  * 	if bod1.ndim < 2:
  * 		bod1 = np.append([bod1], [[1.,1.,1.]], axis = 0)
  * 		bd1.numpoints = np.size(bod1,0) - 1             # <<<<<<<<<<<<<<
  * 	else:
  * 		bd1.numpoints = np.size(bod1,0)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 36, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_size); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_size); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -2259,7 +2254,7 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_bod1, __pyx_int_0};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else
@@ -2267,13 +2262,13 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_bod1, __pyx_int_0};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else
     #endif
     {
-      __pyx_t_1 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __pyx_t_1 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (__pyx_t_5) {
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -2284,19 +2279,19 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
       __Pyx_INCREF(__pyx_int_0);
       __Pyx_GIVEREF(__pyx_int_0);
       PyTuple_SET_ITEM(__pyx_t_1, 1+__pyx_t_6, __pyx_int_0);
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyInt_SubtractObjC(__pyx_t_2, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_SubtractObjC(__pyx_t_2, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_bd1.numpoints = __pyx_t_6;
 
-    /* "openGJK_cython.pyx":37
+    /* "openGJK_cython.pyx":34
  * 
  * 	# Convert 1D array to 2D, if any
  * 	if bod1.ndim < 2:             # <<<<<<<<<<<<<<
@@ -2306,17 +2301,17 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     goto __pyx_L3;
   }
 
-  /* "openGJK_cython.pyx":41
+  /* "openGJK_cython.pyx":38
  * 		bd1.numpoints = np.size(bod1,0) - 1
  * 	else:
  * 		bd1.numpoints = np.size(bod1,0)             # <<<<<<<<<<<<<<
  * 
- * 	print(bd1.numpoints)
+ * 
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -2334,7 +2329,7 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_bod1, __pyx_int_0};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_4);
     } else
@@ -2342,13 +2337,13 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_bod1, __pyx_int_0};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_4);
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 41, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       if (__pyx_t_2) {
         __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2); __pyx_t_2 = NULL;
@@ -2359,64 +2354,50 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
       __Pyx_INCREF(__pyx_int_0);
       __Pyx_GIVEREF(__pyx_int_0);
       PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_6, __pyx_int_0);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_bd1.numpoints = __pyx_t_6;
   }
   __pyx_L3:;
 
-  /* "openGJK_cython.pyx":43
- * 		bd1.numpoints = np.size(bod1,0)
+  /* "openGJK_cython.pyx":41
  * 
- * 	print(bd1.numpoints)             # <<<<<<<<<<<<<<
- * 
- * 	if bod2.ndim < 2:
- */
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_bd1.numpoints); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "openGJK_cython.pyx":45
- * 	print(bd1.numpoints)
  * 
  * 	if bod2.ndim < 2:             # <<<<<<<<<<<<<<
  * 		bod2 = np.append([bod2], [[1.,1.,1.]], axis = 0)
  * 		bd2.numpoints = np.size(bod2,0) - 1
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bod2, __pyx_n_s_ndim); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_1, __pyx_int_2, Py_LT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_bod2, __pyx_n_s_ndim); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_4, __pyx_int_2, Py_LT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_3) {
 
-    /* "openGJK_cython.pyx":46
+    /* "openGJK_cython.pyx":42
  * 
  * 	if bod2.ndim < 2:
  * 		bod2 = np.append([bod2], [[1.,1.,1.]], axis = 0)             # <<<<<<<<<<<<<<
  * 		bd2.numpoints = np.size(bod2,0) - 1
  * 	else:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 46, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_append); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 46, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_append); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_v_bod2);
     __Pyx_GIVEREF(__pyx_v_bod2);
-    PyList_SET_ITEM(__pyx_t_4, 0, __pyx_v_bod2);
-    __pyx_t_5 = PyList_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 46, __pyx_L1_error)
+    PyList_SET_ITEM(__pyx_t_1, 0, __pyx_v_bod2);
+    __pyx_t_5 = PyList_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_INCREF(__pyx_float_1_);
     __Pyx_GIVEREF(__pyx_float_1_);
@@ -2427,40 +2408,40 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     __Pyx_INCREF(__pyx_float_1_);
     __Pyx_GIVEREF(__pyx_float_1_);
     PyList_SET_ITEM(__pyx_t_5, 2, __pyx_float_1_);
-    __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_5);
     PyList_SET_ITEM(__pyx_t_2, 0, __pyx_t_5);
     __pyx_t_5 = 0;
-    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 46, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4);
+    __Pyx_GIVEREF(__pyx_t_1);
+    PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_2);
-    __pyx_t_4 = 0;
+    __pyx_t_1 = 0;
     __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 46, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 42, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF_SET(__pyx_v_bod2, __pyx_t_4);
-    __pyx_t_4 = 0;
+    __Pyx_DECREF_SET(__pyx_v_bod2, __pyx_t_1);
+    __pyx_t_1 = 0;
 
-    /* "openGJK_cython.pyx":47
+    /* "openGJK_cython.pyx":43
  * 	if bod2.ndim < 2:
  * 		bod2 = np.append([bod2], [[1.,1.,1.]], axis = 0)
  * 		bd2.numpoints = np.size(bod2,0) - 1             # <<<<<<<<<<<<<<
  * 	else:
  * 		bd2.numpoints = np.size(bod2,0)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 47, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 47, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 43, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -2478,45 +2459,45 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_bod2, __pyx_int_0};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_bod2, __pyx_int_0};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_1 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_4 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
       if (__pyx_t_2) {
-        __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2); __pyx_t_2 = NULL;
+        __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __pyx_t_2 = NULL;
       }
       __Pyx_INCREF(__pyx_v_bod2);
       __Pyx_GIVEREF(__pyx_v_bod2);
-      PyTuple_SET_ITEM(__pyx_t_1, 0+__pyx_t_6, __pyx_v_bod2);
+      PyTuple_SET_ITEM(__pyx_t_4, 0+__pyx_t_6, __pyx_v_bod2);
       __Pyx_INCREF(__pyx_int_0);
       __Pyx_GIVEREF(__pyx_int_0);
-      PyTuple_SET_ITEM(__pyx_t_1, 1+__pyx_t_6, __pyx_int_0);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      PyTuple_SET_ITEM(__pyx_t_4, 1+__pyx_t_6, __pyx_int_0);
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyInt_SubtractObjC(__pyx_t_4, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 47, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_SubtractObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 43, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 47, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 43, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_bd2.numpoints = __pyx_t_6;
 
-    /* "openGJK_cython.pyx":45
- * 	print(bd1.numpoints)
+    /* "openGJK_cython.pyx":41
+ * 
  * 
  * 	if bod2.ndim < 2:             # <<<<<<<<<<<<<<
  * 		bod2 = np.append([bod2], [[1.,1.,1.]], axis = 0)
@@ -2525,52 +2506,52 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
     goto __pyx_L4;
   }
 
-  /* "openGJK_cython.pyx":49
+  /* "openGJK_cython.pyx":45
  * 		bd2.numpoints = np.size(bod2,0) - 1
  * 	else:
  * 		bd2.numpoints = np.size(bod2,0)             # <<<<<<<<<<<<<<
  * 
- * 	print(bd2.numpoints)
+ * 
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 49, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = NULL;
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_1 = NULL;
     __pyx_t_6 = 0;
-    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
-      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
-      if (likely(__pyx_t_4)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-        __Pyx_INCREF(__pyx_t_4);
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_1)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_1);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_1, function);
+        __Pyx_DECREF_SET(__pyx_t_4, function);
         __pyx_t_6 = 1;
       }
     }
     #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_1)) {
-      PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_bod2, __pyx_int_0};
-      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 49, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (PyFunction_Check(__pyx_t_4)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_1, __pyx_v_bod2, __pyx_int_0};
+      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 45, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
-      PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_bod2, __pyx_int_0};
-      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 49, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_1, __pyx_v_bod2, __pyx_int_0};
+      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 45, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else
     #endif
     {
-      __pyx_t_2 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 49, __pyx_L1_error)
+      __pyx_t_2 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 45, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      if (__pyx_t_4) {
-        __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4); __pyx_t_4 = NULL;
+      if (__pyx_t_1) {
+        __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1); __pyx_t_1 = NULL;
       }
       __Pyx_INCREF(__pyx_v_bod2);
       __Pyx_GIVEREF(__pyx_v_bod2);
@@ -2578,247 +2559,310 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
       __Pyx_INCREF(__pyx_int_0);
       __Pyx_GIVEREF(__pyx_int_0);
       PyTuple_SET_ITEM(__pyx_t_2, 1+__pyx_t_6, __pyx_int_0);
-      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 49, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 45, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     }
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 49, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_bd2.numpoints = __pyx_t_6;
   }
   __pyx_L4:;
 
-  /* "openGJK_cython.pyx":51
- * 		bd2.numpoints = np.size(bod2,0)
- * 
- * 	print(bd2.numpoints)             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_bd2.numpoints); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 51, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "openGJK_cython.pyx":55
+  /* "openGJK_cython.pyx":49
  * 
  * 	# Allocate memory for pointer (not working)
  * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))             # <<<<<<<<<<<<<<
- * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
- * 
+ * 	if not bd1.coord:
+ * 		raise NameError('Not enough memory for bd1.coord')
  */
   __pyx_v_bd1.coord = ((double **)malloc((__pyx_v_bd1.numpoints * (sizeof(double *)))));
 
-  /* "openGJK_cython.pyx":56
+  /* "openGJK_cython.pyx":50
  * 	# Allocate memory for pointer (not working)
  * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+ * 	if not bd1.coord:             # <<<<<<<<<<<<<<
+ * 		raise NameError('Not enough memory for bd1.coord')
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ */
+  __pyx_t_3 = ((!(__pyx_v_bd1.coord != 0)) != 0);
+  if (unlikely(__pyx_t_3)) {
+
+    /* "openGJK_cython.pyx":51
+ * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+ * 	if not bd1.coord:
+ * 		raise NameError('Not enough memory for bd1.coord')             # <<<<<<<<<<<<<<
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ * 	if not bd2.coord:
+ */
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_NameError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 51, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_Raise(__pyx_t_5, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __PYX_ERR(0, 51, __pyx_L1_error)
+
+    /* "openGJK_cython.pyx":50
+ * 	# Allocate memory for pointer (not working)
+ * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+ * 	if not bd1.coord:             # <<<<<<<<<<<<<<
+ * 		raise NameError('Not enough memory for bd1.coord')
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ */
+  }
+
+  /* "openGJK_cython.pyx":52
+ * 	if not bd1.coord:
+ * 		raise NameError('Not enough memory for bd1.coord')
  * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))             # <<<<<<<<<<<<<<
- * 
- * 
+ * 	if not bd2.coord:
+ * 		raise NameError('Not enough memory for bd2.coord')
  */
   __pyx_v_bd2.coord = ((double **)malloc((__pyx_v_bd2.numpoints * (sizeof(double *)))));
 
-  /* "openGJK_cython.pyx":59
+  /* "openGJK_cython.pyx":53
+ * 		raise NameError('Not enough memory for bd1.coord')
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ * 	if not bd2.coord:             # <<<<<<<<<<<<<<
+ * 		raise NameError('Not enough memory for bd2.coord')
  * 
- * 
- * 	print("Break 2")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Create numpy-array MemoryView
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_3 = ((!(__pyx_v_bd2.coord != 0)) != 0);
+  if (unlikely(__pyx_t_3)) {
 
-  /* "openGJK_cython.pyx":63
+    /* "openGJK_cython.pyx":54
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ * 	if not bd2.coord:
+ * 		raise NameError('Not enough memory for bd2.coord')             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_NameError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_Raise(__pyx_t_5, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __PYX_ERR(0, 54, __pyx_L1_error)
+
+    /* "openGJK_cython.pyx":53
+ * 		raise NameError('Not enough memory for bd1.coord')
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ * 	if not bd2.coord:             # <<<<<<<<<<<<<<
+ * 		raise NameError('Not enough memory for bd2.coord')
+ * 
+ */
+  }
+
+  /* "openGJK_cython.pyx":59
  * 	# Create numpy-array MemoryView
  * 	cdef:
  * 		double [:,:] narr1 = bod1             # <<<<<<<<<<<<<<
  * 		double [:,:] narr2 = bod2
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 59, __pyx_L1_error)
   __pyx_v_narr1 = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "openGJK_cython.pyx":64
+  /* "openGJK_cython.pyx":60
  * 	cdef:
  * 		double [:,:] narr1 = bod1
  * 		double [:,:] narr2 = bod2             # <<<<<<<<<<<<<<
  * 
- * 	print(narr2[0,0]) # output a <double>, works fine
+ * 	# Assign coordinate values
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(__pyx_v_bod2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 60, __pyx_L1_error)
   __pyx_v_narr2 = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "openGJK_cython.pyx":66
- * 		double [:,:] narr2 = bod2
+  /* "openGJK_cython.pyx":63
  * 
- * 	print(narr2[0,0]) # output a <double>, works fine             # <<<<<<<<<<<<<<
- * 
- * 	print("Break 3")#--------------------------------------------------
- */
-  __pyx_t_8 = 0;
-  __pyx_t_9 = 0;
-  if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr2.shape[0];
-  if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr2.shape[1];
-  __pyx_t_1 = PyFloat_FromDouble((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-  /* "openGJK_cython.pyx":68
- * 	print(narr2[0,0]) # output a <double>, works fine
- * 
- * 	print("Break 3")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Assign coordinate values (Segmentation Fault Here!!, )
- */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-  /* "openGJK_cython.pyx":71
- * 
- * 	# Assign coordinate values (Segmentation Fault Here!!, )
+ * 	# Assign coordinate values
  * 	for i in range(0, bd1.numpoints):             # <<<<<<<<<<<<<<
  * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
- * 		bd1.coord[i][0] = narr1[i,0]
+ * 		if not bd1.coord[i]:
  */
   __pyx_t_6 = __pyx_v_bd1.numpoints;
-  __pyx_t_10 = __pyx_t_6;
-  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
-    __pyx_v_i = __pyx_t_11;
+  __pyx_t_8 = __pyx_t_6;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_i = __pyx_t_9;
 
-    /* "openGJK_cython.pyx":72
- * 	# Assign coordinate values (Segmentation Fault Here!!, )
+    /* "openGJK_cython.pyx":64
+ * 	# Assign coordinate values
  * 	for i in range(0, bd1.numpoints):
  * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))             # <<<<<<<<<<<<<<
- * 		bd1.coord[i][0] = narr1[i,0]
- * 		bd1.coord[i][1] = narr1[i,1]
+ * 		if not bd1.coord[i]:
+ * 			raise NameError('Not enough memory for bd1.coord[]')
  */
     (__pyx_v_bd1.coord[__pyx_v_i]) = ((double *)malloc((3 * (sizeof(double)))));
 
-    /* "openGJK_cython.pyx":73
+    /* "openGJK_cython.pyx":65
  * 	for i in range(0, bd1.numpoints):
  * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd1.coord[i]:             # <<<<<<<<<<<<<<
+ * 			raise NameError('Not enough memory for bd1.coord[]')
+ * 		bd1.coord[i][0] = narr1[i,0]
+ */
+    __pyx_t_3 = ((!((__pyx_v_bd1.coord[__pyx_v_i]) != 0)) != 0);
+    if (unlikely(__pyx_t_3)) {
+
+      /* "openGJK_cython.pyx":66
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd1.coord[i]:
+ * 			raise NameError('Not enough memory for bd1.coord[]')             # <<<<<<<<<<<<<<
+ * 		bd1.coord[i][0] = narr1[i,0]
+ * 		bd1.coord[i][1] = narr1[i,1]
+ */
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_NameError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_Raise(__pyx_t_5, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __PYX_ERR(0, 66, __pyx_L1_error)
+
+      /* "openGJK_cython.pyx":65
+ * 	for i in range(0, bd1.numpoints):
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd1.coord[i]:             # <<<<<<<<<<<<<<
+ * 			raise NameError('Not enough memory for bd1.coord[]')
+ * 		bd1.coord[i][0] = narr1[i,0]
+ */
+    }
+
+    /* "openGJK_cython.pyx":67
+ * 		if not bd1.coord[i]:
+ * 			raise NameError('Not enough memory for bd1.coord[]')
  * 		bd1.coord[i][0] = narr1[i,0]             # <<<<<<<<<<<<<<
  * 		bd1.coord[i][1] = narr1[i,1]
  * 		bd1.coord[i][2] = narr1[i,2]
  */
-    __pyx_t_9 = __pyx_v_i;
-    __pyx_t_8 = 0;
-    if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr1.shape[0];
-    if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr1.shape[1];
-    ((__pyx_v_bd1.coord[__pyx_v_i])[0]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_9 * __pyx_v_narr1.strides[0]) ) + __pyx_t_8 * __pyx_v_narr1.strides[1]) )));
+    __pyx_t_10 = __pyx_v_i;
+    __pyx_t_11 = 0;
+    if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_narr1.shape[0];
+    if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_narr1.shape[1];
+    ((__pyx_v_bd1.coord[__pyx_v_i])[0]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_10 * __pyx_v_narr1.strides[0]) ) + __pyx_t_11 * __pyx_v_narr1.strides[1]) )));
 
-    /* "openGJK_cython.pyx":74
- * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+    /* "openGJK_cython.pyx":68
+ * 			raise NameError('Not enough memory for bd1.coord[]')
  * 		bd1.coord[i][0] = narr1[i,0]
  * 		bd1.coord[i][1] = narr1[i,1]             # <<<<<<<<<<<<<<
  * 		bd1.coord[i][2] = narr1[i,2]
  * 
  */
-    __pyx_t_8 = __pyx_v_i;
-    __pyx_t_9 = 1;
-    if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr1.shape[0];
-    if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr1.shape[1];
-    ((__pyx_v_bd1.coord[__pyx_v_i])[1]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_8 * __pyx_v_narr1.strides[0]) ) + __pyx_t_9 * __pyx_v_narr1.strides[1]) )));
+    __pyx_t_11 = __pyx_v_i;
+    __pyx_t_10 = 1;
+    if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_narr1.shape[0];
+    if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_narr1.shape[1];
+    ((__pyx_v_bd1.coord[__pyx_v_i])[1]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_11 * __pyx_v_narr1.strides[0]) ) + __pyx_t_10 * __pyx_v_narr1.strides[1]) )));
 
-    /* "openGJK_cython.pyx":75
+    /* "openGJK_cython.pyx":69
  * 		bd1.coord[i][0] = narr1[i,0]
  * 		bd1.coord[i][1] = narr1[i,1]
  * 		bd1.coord[i][2] = narr1[i,2]             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_9 = __pyx_v_i;
-    __pyx_t_8 = 2;
-    if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr1.shape[0];
-    if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr1.shape[1];
-    ((__pyx_v_bd1.coord[__pyx_v_i])[2]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_9 * __pyx_v_narr1.strides[0]) ) + __pyx_t_8 * __pyx_v_narr1.strides[1]) )));
+    __pyx_t_10 = __pyx_v_i;
+    __pyx_t_11 = 2;
+    if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_narr1.shape[0];
+    if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_narr1.shape[1];
+    ((__pyx_v_bd1.coord[__pyx_v_i])[2]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr1.data + __pyx_t_10 * __pyx_v_narr1.strides[0]) ) + __pyx_t_11 * __pyx_v_narr1.strides[1]) )));
   }
 
-  /* "openGJK_cython.pyx":78
+  /* "openGJK_cython.pyx":72
  * 
  * 
  * 	for j in range(0, bd2.numpoints):             # <<<<<<<<<<<<<<
  * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
- * 		bd2.coord[j][0] = narr2[j,0]
+ * 		if not bd2.coord[j]:
  */
   __pyx_t_6 = __pyx_v_bd2.numpoints;
-  __pyx_t_10 = __pyx_t_6;
-  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
-    __pyx_v_j = __pyx_t_11;
+  __pyx_t_8 = __pyx_t_6;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_j = __pyx_t_9;
 
-    /* "openGJK_cython.pyx":79
+    /* "openGJK_cython.pyx":73
  * 
  * 	for j in range(0, bd2.numpoints):
  * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))             # <<<<<<<<<<<<<<
- * 		bd2.coord[j][0] = narr2[j,0]
- * 		bd2.coord[j][1] = narr2[j,1]
+ * 		if not bd2.coord[j]:
+ * 			raise NameError('Not enough memory for bd2.coord[]')
  */
     (__pyx_v_bd2.coord[__pyx_v_j]) = ((double *)malloc((3 * (sizeof(double)))));
 
-    /* "openGJK_cython.pyx":80
+    /* "openGJK_cython.pyx":74
  * 	for j in range(0, bd2.numpoints):
  * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd2.coord[j]:             # <<<<<<<<<<<<<<
+ * 			raise NameError('Not enough memory for bd2.coord[]')
+ * 		bd2.coord[j][0] = narr2[j,0]
+ */
+    __pyx_t_3 = ((!((__pyx_v_bd2.coord[__pyx_v_j]) != 0)) != 0);
+    if (unlikely(__pyx_t_3)) {
+
+      /* "openGJK_cython.pyx":75
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd2.coord[j]:
+ * 			raise NameError('Not enough memory for bd2.coord[]')             # <<<<<<<<<<<<<<
+ * 		bd2.coord[j][0] = narr2[j,0]
+ * 		bd2.coord[j][1] = narr2[j,1]
+ */
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_NameError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 75, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_Raise(__pyx_t_5, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __PYX_ERR(0, 75, __pyx_L1_error)
+
+      /* "openGJK_cython.pyx":74
+ * 	for j in range(0, bd2.numpoints):
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd2.coord[j]:             # <<<<<<<<<<<<<<
+ * 			raise NameError('Not enough memory for bd2.coord[]')
+ * 		bd2.coord[j][0] = narr2[j,0]
+ */
+    }
+
+    /* "openGJK_cython.pyx":76
+ * 		if not bd2.coord[j]:
+ * 			raise NameError('Not enough memory for bd2.coord[]')
  * 		bd2.coord[j][0] = narr2[j,0]             # <<<<<<<<<<<<<<
  * 		bd2.coord[j][1] = narr2[j,1]
  * 		bd2.coord[j][2] = narr2[j,2]
  */
-    __pyx_t_8 = __pyx_v_j;
-    __pyx_t_9 = 0;
-    if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr2.shape[0];
-    if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr2.shape[1];
-    ((__pyx_v_bd2.coord[__pyx_v_j])[0]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )));
+    __pyx_t_11 = __pyx_v_j;
+    __pyx_t_10 = 0;
+    if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_narr2.shape[0];
+    if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_narr2.shape[1];
+    ((__pyx_v_bd2.coord[__pyx_v_j])[0]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_11 * __pyx_v_narr2.strides[0]) ) + __pyx_t_10 * __pyx_v_narr2.strides[1]) )));
 
-    /* "openGJK_cython.pyx":81
- * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+    /* "openGJK_cython.pyx":77
+ * 			raise NameError('Not enough memory for bd2.coord[]')
  * 		bd2.coord[j][0] = narr2[j,0]
  * 		bd2.coord[j][1] = narr2[j,1]             # <<<<<<<<<<<<<<
  * 		bd2.coord[j][2] = narr2[j,2]
  * 
  */
-    __pyx_t_9 = __pyx_v_j;
-    __pyx_t_8 = 1;
-    if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr2.shape[0];
-    if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr2.shape[1];
-    ((__pyx_v_bd2.coord[__pyx_v_j])[1]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_9 * __pyx_v_narr2.strides[0]) ) + __pyx_t_8 * __pyx_v_narr2.strides[1]) )));
+    __pyx_t_10 = __pyx_v_j;
+    __pyx_t_11 = 1;
+    if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_narr2.shape[0];
+    if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_narr2.shape[1];
+    ((__pyx_v_bd2.coord[__pyx_v_j])[1]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_10 * __pyx_v_narr2.strides[0]) ) + __pyx_t_11 * __pyx_v_narr2.strides[1]) )));
 
-    /* "openGJK_cython.pyx":82
+    /* "openGJK_cython.pyx":78
  * 		bd2.coord[j][0] = narr2[j,0]
  * 		bd2.coord[j][1] = narr2[j,1]
  * 		bd2.coord[j][2] = narr2[j,2]             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_8 = __pyx_v_j;
-    __pyx_t_9 = 2;
-    if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_narr2.shape[0];
-    if (__pyx_t_9 < 0) __pyx_t_9 += __pyx_v_narr2.shape[1];
-    ((__pyx_v_bd2.coord[__pyx_v_j])[2]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_8 * __pyx_v_narr2.strides[0]) ) + __pyx_t_9 * __pyx_v_narr2.strides[1]) )));
+    __pyx_t_11 = __pyx_v_j;
+    __pyx_t_10 = 2;
+    if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_narr2.shape[0];
+    if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_narr2.shape[1];
+    ((__pyx_v_bd2.coord[__pyx_v_j])[2]) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_narr2.data + __pyx_t_11 * __pyx_v_narr2.strides[0]) ) + __pyx_t_10 * __pyx_v_narr2.strides[1]) )));
   }
 
-  /* "openGJK_cython.pyx":85
- * 
- * 
- * 	print("Break 4")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Call C function
- */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-  /* "openGJK_cython.pyx":88
+  /* "openGJK_cython.pyx":82
  * 
  * 	# Call C function
  * 	answer = gjk(bd1, bd2, &s)             # <<<<<<<<<<<<<<
@@ -2827,58 +2871,76 @@ static PyObject *__pyx_pf_9openGJKpy_pygjk(CYTHON_UNUSED PyObject *__pyx_self, P
  */
   __pyx_v_answer = gjk(__pyx_v_bd1, __pyx_v_bd2, (&__pyx_v_s));
 
-  /* "openGJK_cython.pyx":91
+  /* "openGJK_cython.pyx":85
  * 
  * 	# Free the memory
- * 	for i in range(0, bd1.numpoints):             # <<<<<<<<<<<<<<
- * 		free(bd1.coord[i])
- * 	for j in range(0, bd2.numpoints):
+ * 	for ii in range(0, bd1.numpoints):             # <<<<<<<<<<<<<<
+ * 		free(bd1.coord[ii])
+ * 	free(bd1.coord)
  */
   __pyx_t_6 = __pyx_v_bd1.numpoints;
-  __pyx_t_10 = __pyx_t_6;
-  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
-    __pyx_v_i = __pyx_t_11;
+  __pyx_t_8 = __pyx_t_6;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_ii = __pyx_t_9;
 
-    /* "openGJK_cython.pyx":92
+    /* "openGJK_cython.pyx":86
  * 	# Free the memory
- * 	for i in range(0, bd1.numpoints):
- * 		free(bd1.coord[i])             # <<<<<<<<<<<<<<
- * 	for j in range(0, bd2.numpoints):
- * 		free(bd2.coord[j])
+ * 	for ii in range(0, bd1.numpoints):
+ * 		free(bd1.coord[ii])             # <<<<<<<<<<<<<<
+ * 	free(bd1.coord)
+ * 
  */
-    free((__pyx_v_bd1.coord[__pyx_v_i]));
+    free((__pyx_v_bd1.coord[__pyx_v_ii]));
   }
 
-  /* "openGJK_cython.pyx":93
- * 	for i in range(0, bd1.numpoints):
- * 		free(bd1.coord[i])
- * 	for j in range(0, bd2.numpoints):             # <<<<<<<<<<<<<<
- * 		free(bd2.coord[j])
+  /* "openGJK_cython.pyx":87
+ * 	for ii in range(0, bd1.numpoints):
+ * 		free(bd1.coord[ii])
+ * 	free(bd1.coord)             # <<<<<<<<<<<<<<
  * 
+ * 	for jj in range(0, bd2.numpoints):
+ */
+  free(__pyx_v_bd1.coord);
+
+  /* "openGJK_cython.pyx":89
+ * 	free(bd1.coord)
+ * 
+ * 	for jj in range(0, bd2.numpoints):             # <<<<<<<<<<<<<<
+ * 		free(bd2.coord[jj])
+ * 	free(bd2.coord)
  */
   __pyx_t_6 = __pyx_v_bd2.numpoints;
-  __pyx_t_10 = __pyx_t_6;
-  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
-    __pyx_v_j = __pyx_t_11;
+  __pyx_t_8 = __pyx_t_6;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_jj = __pyx_t_9;
 
-    /* "openGJK_cython.pyx":94
- * 		free(bd1.coord[i])
- * 	for j in range(0, bd2.numpoints):
- * 		free(bd2.coord[j])             # <<<<<<<<<<<<<<
+    /* "openGJK_cython.pyx":90
+ * 
+ * 	for jj in range(0, bd2.numpoints):
+ * 		free(bd2.coord[jj])             # <<<<<<<<<<<<<<
+ * 	free(bd2.coord)
+ * 
+ */
+    free((__pyx_v_bd2.coord[__pyx_v_jj]));
+  }
+
+  /* "openGJK_cython.pyx":91
+ * 	for jj in range(0, bd2.numpoints):
+ * 		free(bd2.coord[jj])
+ * 	free(bd2.coord)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    free((__pyx_v_bd2.coord[__pyx_v_j]));
-  }
+  free(__pyx_v_bd2.coord);
 
-  /* "openGJK_cython.pyx":97
+  /* "openGJK_cython.pyx":94
  * 
  * 
  * 	return answer             # <<<<<<<<<<<<<<
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_answer); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_answer); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_r = __pyx_t_5;
   __pyx_t_5 = 0;
@@ -16496,10 +16558,6 @@ static struct PyModuleDef __pyx_moduledef = {
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ASCII, __pyx_k_ASCII, sizeof(__pyx_k_ASCII), 0, 0, 1, 1},
-  {&__pyx_kp_u_Break_1, __pyx_k_Break_1, sizeof(__pyx_k_Break_1), 0, 1, 0, 0},
-  {&__pyx_kp_u_Break_2, __pyx_k_Break_2, sizeof(__pyx_k_Break_2), 0, 1, 0, 0},
-  {&__pyx_kp_u_Break_3, __pyx_k_Break_3, sizeof(__pyx_k_Break_3), 0, 1, 0, 0},
-  {&__pyx_kp_u_Break_4, __pyx_k_Break_4, sizeof(__pyx_k_Break_4), 0, 1, 0, 0},
   {&__pyx_kp_s_Buffer_view_does_not_expose_stri, __pyx_k_Buffer_view_does_not_expose_stri, sizeof(__pyx_k_Buffer_view_does_not_expose_stri), 0, 0, 1, 0},
   {&__pyx_kp_s_Can_only_create_a_buffer_that_is, __pyx_k_Can_only_create_a_buffer_that_is, sizeof(__pyx_k_Can_only_create_a_buffer_that_is), 0, 0, 1, 0},
   {&__pyx_kp_s_Cannot_assign_to_read_only_memor, __pyx_k_Cannot_assign_to_read_only_memor, sizeof(__pyx_k_Cannot_assign_to_read_only_memor), 0, 0, 1, 0},
@@ -16515,6 +16573,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
   {&__pyx_kp_s_MemoryView_of_r_at_0x_x, __pyx_k_MemoryView_of_r_at_0x_x, sizeof(__pyx_k_MemoryView_of_r_at_0x_x), 0, 0, 1, 0},
   {&__pyx_kp_s_MemoryView_of_r_object, __pyx_k_MemoryView_of_r_object, sizeof(__pyx_k_MemoryView_of_r_object), 0, 0, 1, 0},
+  {&__pyx_n_s_NameError, __pyx_k_NameError, sizeof(__pyx_k_NameError), 0, 0, 1, 1},
+  {&__pyx_kp_u_Not_enough_memory_for_bd1_coord, __pyx_k_Not_enough_memory_for_bd1_coord, sizeof(__pyx_k_Not_enough_memory_for_bd1_coord), 0, 1, 0, 0},
+  {&__pyx_kp_u_Not_enough_memory_for_bd1_coord_2, __pyx_k_Not_enough_memory_for_bd1_coord_2, sizeof(__pyx_k_Not_enough_memory_for_bd1_coord_2), 0, 1, 0, 0},
+  {&__pyx_kp_u_Not_enough_memory_for_bd2_coord, __pyx_k_Not_enough_memory_for_bd2_coord, sizeof(__pyx_k_Not_enough_memory_for_bd2_coord), 0, 1, 0, 0},
+  {&__pyx_kp_u_Not_enough_memory_for_bd2_coord_2, __pyx_k_Not_enough_memory_for_bd2_coord_2, sizeof(__pyx_k_Not_enough_memory_for_bd2_coord_2), 0, 1, 0, 0},
   {&__pyx_n_b_O, __pyx_k_O, sizeof(__pyx_k_O), 0, 0, 0, 1},
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
@@ -16550,10 +16613,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
+  {&__pyx_n_s_ii, __pyx_k_ii, sizeof(__pyx_k_ii), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_itemsize, __pyx_k_itemsize, sizeof(__pyx_k_itemsize), 0, 0, 1, 1},
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
   {&__pyx_n_s_j, __pyx_k_j, sizeof(__pyx_k_j), 0, 0, 1, 1},
+  {&__pyx_n_s_jj, __pyx_k_jj, sizeof(__pyx_k_jj), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
@@ -16571,7 +16636,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_openGJKpy, __pyx_k_openGJKpy, sizeof(__pyx_k_openGJKpy), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
-  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pygjk, __pyx_k_pygjk, sizeof(__pyx_k_pygjk), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
@@ -16606,8 +16670,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 34, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_builtin_NameError = __Pyx_GetBuiltinName(__pyx_n_s_NameError); if (!__pyx_builtin_NameError) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 63, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 133, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 151, __pyx_L1_error)
@@ -16624,47 +16688,47 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "openGJK_cython.pyx":34
- * 		double answer
- * 
- * 	print("Break 1")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Convert 1D array to 2D, if any
+  /* "openGJK_cython.pyx":51
+ * 	bd1.coord = <double **> malloc(bd1.numpoints * sizeof(double *))
+ * 	if not bd1.coord:
+ * 		raise NameError('Not enough memory for bd1.coord')             # <<<<<<<<<<<<<<
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ * 	if not bd2.coord:
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Break_1); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Not_enough_memory_for_bd1_coord); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "openGJK_cython.pyx":59
+  /* "openGJK_cython.pyx":54
+ * 	bd2.coord = <double **> malloc(bd2.numpoints * sizeof(double *))
+ * 	if not bd2.coord:
+ * 		raise NameError('Not enough memory for bd2.coord')             # <<<<<<<<<<<<<<
  * 
  * 
- * 	print("Break 2")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Create numpy-array MemoryView
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_Break_2); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_Not_enough_memory_for_bd2_coord); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "openGJK_cython.pyx":68
- * 	print(narr2[0,0]) # output a <double>, works fine
- * 
- * 	print("Break 3")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Assign coordinate values (Segmentation Fault Here!!, )
+  /* "openGJK_cython.pyx":66
+ * 		bd1.coord[i] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd1.coord[i]:
+ * 			raise NameError('Not enough memory for bd1.coord[]')             # <<<<<<<<<<<<<<
+ * 		bd1.coord[i][0] = narr1[i,0]
+ * 		bd1.coord[i][1] = narr1[i,1]
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_Break_3); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_Not_enough_memory_for_bd1_coord_2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "openGJK_cython.pyx":85
- * 
- * 
- * 	print("Break 4")#--------------------------------------------------             # <<<<<<<<<<<<<<
- * 
- * 	# Call C function
+  /* "openGJK_cython.pyx":75
+ * 		bd2.coord[j] = <double *> malloc(3 * sizeof(double))
+ * 		if not bd2.coord[j]:
+ * 			raise NameError('Not enough memory for bd2.coord[]')             # <<<<<<<<<<<<<<
+ * 		bd2.coord[j][0] = narr2[j,0]
+ * 		bd2.coord[j][1] = narr2[j,1]
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Break_4); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Not_enough_memory_for_bd2_coord_2); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
@@ -16867,10 +16931,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 	# Declare data types
  */
-  __pyx_tuple__23 = PyTuple_Pack(10, __pyx_n_s_bod1, __pyx_n_s_bod2, __pyx_n_s_s, __pyx_n_s_bd1, __pyx_n_s_bd2, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_answer, __pyx_n_s_narr1, __pyx_n_s_narr2); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(12, __pyx_n_s_bod1, __pyx_n_s_bod2, __pyx_n_s_s, __pyx_n_s_bd1, __pyx_n_s_bd2, __pyx_n_s_answer, __pyx_n_s_narr1, __pyx_n_s_narr2, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_ii, __pyx_n_s_jj); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_openGJK_cython_pyx, __pyx_n_s_pygjk, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_openGJK_cython_pyx, __pyx_n_s_pygjk, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 24, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -17676,26 +17740,6 @@ bad:
     return -1;
 }
 
-/* PyObjectCall */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
-    PyObject *result;
-    ternaryfunc call = func->ob_type->tp_call;
-    if (unlikely(!call))
-        return PyObject_Call(func, arg, kw);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = (*call)(func, arg, kw);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
-
 /* PyDictVersioning */
 #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
 static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj) {
@@ -17756,6 +17800,26 @@ static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
 #endif
     return __Pyx_GetBuiltinName(name);
 }
+
+/* PyObjectCall */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    PyObject *result;
+    ternaryfunc call = func->ob_type->tp_call;
+    if (unlikely(!call))
+        return PyObject_Call(func, arg, kw);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = (*call)(func, arg, kw);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
 
 /* PyIntBinop */
 #if !CYTHON_COMPILING_IN_PYPY
@@ -18023,221 +18087,6 @@ static CYTHON_INLINE PyObject * __Pyx_PyCFunction_FastCall(PyObject *func_obj, P
 }
 #endif
 
-/* PyObjectCallMethO */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
-    PyObject *self, *result;
-    PyCFunction cfunc;
-    cfunc = PyCFunction_GET_FUNCTION(func);
-    self = PyCFunction_GET_SELF(func);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = cfunc(self, arg);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
-
-/* PyObjectCallOneArg */
-#if CYTHON_COMPILING_IN_CPYTHON
-static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *result;
-    PyObject *args = PyTuple_New(1);
-    if (unlikely(!args)) return NULL;
-    Py_INCREF(arg);
-    PyTuple_SET_ITEM(args, 0, arg);
-    result = __Pyx_PyObject_Call(func, args, NULL);
-    Py_DECREF(args);
-    return result;
-}
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-#if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(func)) {
-        return __Pyx_PyFunction_FastCall(func, &arg, 1);
-    }
-#endif
-    if (likely(PyCFunction_Check(func))) {
-        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
-            return __Pyx_PyObject_CallMethO(func, arg);
-#if CYTHON_FAST_PYCCALL
-        } else if (PyCFunction_GET_FLAGS(func) & METH_FASTCALL) {
-            return __Pyx_PyCFunction_FastCall(func, &arg, 1);
-#endif
-        }
-    }
-    return __Pyx__PyObject_CallOneArg(func, arg);
-}
-#else
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *result;
-    PyObject *args = PyTuple_Pack(1, arg);
-    if (unlikely(!args)) return NULL;
-    result = __Pyx_PyObject_Call(func, args, NULL);
-    Py_DECREF(args);
-    return result;
-}
-#endif
-
-/* MemviewSliceInit */
-static int
-__Pyx_init_memviewslice(struct __pyx_memoryview_obj *memview,
-                        int ndim,
-                        __Pyx_memviewslice *memviewslice,
-                        int memview_is_new_reference)
-{
-    __Pyx_RefNannyDeclarations
-    int i, retval=-1;
-    Py_buffer *buf = &memview->view;
-    __Pyx_RefNannySetupContext("init_memviewslice", 0);
-    if (memviewslice->memview || memviewslice->data) {
-        PyErr_SetString(PyExc_ValueError,
-            "memviewslice is already initialized!");
-        goto fail;
-    }
-    if (buf->strides) {
-        for (i = 0; i < ndim; i++) {
-            memviewslice->strides[i] = buf->strides[i];
-        }
-    } else {
-        Py_ssize_t stride = buf->itemsize;
-        for (i = ndim - 1; i >= 0; i--) {
-            memviewslice->strides[i] = stride;
-            stride *= buf->shape[i];
-        }
-    }
-    for (i = 0; i < ndim; i++) {
-        memviewslice->shape[i]   = buf->shape[i];
-        if (buf->suboffsets) {
-            memviewslice->suboffsets[i] = buf->suboffsets[i];
-        } else {
-            memviewslice->suboffsets[i] = -1;
-        }
-    }
-    memviewslice->memview = memview;
-    memviewslice->data = (char *)buf->buf;
-    if (__pyx_add_acquisition_count(memview) == 0 && !memview_is_new_reference) {
-        Py_INCREF(memview);
-    }
-    retval = 0;
-    goto no_fail;
-fail:
-    memviewslice->memview = 0;
-    memviewslice->data = 0;
-    retval = -1;
-no_fail:
-    __Pyx_RefNannyFinishContext();
-    return retval;
-}
-#ifndef Py_NO_RETURN
-#define Py_NO_RETURN
-#endif
-static void __pyx_fatalerror(const char *fmt, ...) Py_NO_RETURN {
-    va_list vargs;
-    char msg[200];
-#ifdef HAVE_STDARG_PROTOTYPES
-    va_start(vargs, fmt);
-#else
-    va_start(vargs);
-#endif
-    vsnprintf(msg, 200, fmt, vargs);
-    va_end(vargs);
-    Py_FatalError(msg);
-}
-static CYTHON_INLINE int
-__pyx_add_acquisition_count_locked(__pyx_atomic_int *acquisition_count,
-                                   PyThread_type_lock lock)
-{
-    int result;
-    PyThread_acquire_lock(lock, 1);
-    result = (*acquisition_count)++;
-    PyThread_release_lock(lock);
-    return result;
-}
-static CYTHON_INLINE int
-__pyx_sub_acquisition_count_locked(__pyx_atomic_int *acquisition_count,
-                                   PyThread_type_lock lock)
-{
-    int result;
-    PyThread_acquire_lock(lock, 1);
-    result = (*acquisition_count)--;
-    PyThread_release_lock(lock);
-    return result;
-}
-static CYTHON_INLINE void
-__Pyx_INC_MEMVIEW(__Pyx_memviewslice *memslice, int have_gil, int lineno)
-{
-    int first_time;
-    struct __pyx_memoryview_obj *memview = memslice->memview;
-    if (!memview || (PyObject *) memview == Py_None)
-        return;
-    if (__pyx_get_slice_count(memview) < 0)
-        __pyx_fatalerror("Acquisition count is %d (line %d)",
-                         __pyx_get_slice_count(memview), lineno);
-    first_time = __pyx_add_acquisition_count(memview) == 0;
-    if (first_time) {
-        if (have_gil) {
-            Py_INCREF((PyObject *) memview);
-        } else {
-            PyGILState_STATE _gilstate = PyGILState_Ensure();
-            Py_INCREF((PyObject *) memview);
-            PyGILState_Release(_gilstate);
-        }
-    }
-}
-static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
-                                             int have_gil, int lineno) {
-    int last_time;
-    struct __pyx_memoryview_obj *memview = memslice->memview;
-    if (!memview ) {
-        return;
-    } else if ((PyObject *) memview == Py_None) {
-        memslice->memview = NULL;
-        return;
-    }
-    if (__pyx_get_slice_count(memview) <= 0)
-        __pyx_fatalerror("Acquisition count is %d (line %d)",
-                         __pyx_get_slice_count(memview), lineno);
-    last_time = __pyx_sub_acquisition_count(memview) == 1;
-    memslice->data = NULL;
-    if (last_time) {
-        if (have_gil) {
-            Py_CLEAR(memslice->memview);
-        } else {
-            PyGILState_STATE _gilstate = PyGILState_Ensure();
-            Py_CLEAR(memslice->memview);
-            PyGILState_Release(_gilstate);
-        }
-    } else {
-        memslice->memview = NULL;
-    }
-}
-
-/* ArgTypeTest */
-static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
-{
-    if (unlikely(!type)) {
-        PyErr_SetString(PyExc_SystemError, "Missing type object");
-        return 0;
-    }
-    else if (exact) {
-        #if PY_MAJOR_VERSION == 2
-        if ((type == &PyBaseString_Type) && likely(__Pyx_PyBaseString_CheckExact(obj))) return 1;
-        #endif
-    }
-    else {
-        if (likely(__Pyx_TypeCheck(obj, type))) return 1;
-    }
-    PyErr_Format(PyExc_TypeError,
-        "Argument '%.200s' has incorrect type (expected %.200s, got %.200s)",
-        name, type->tp_name, Py_TYPE(obj)->tp_name);
-    return 0;
-}
-
 /* PyErrFetchRestore */
 #if CYTHON_FAST_THREAD_STATE
 static CYTHON_INLINE void __Pyx_ErrRestoreInState(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
@@ -18421,6 +18270,161 @@ bad:
 }
 #endif
 
+/* MemviewSliceInit */
+static int
+__Pyx_init_memviewslice(struct __pyx_memoryview_obj *memview,
+                        int ndim,
+                        __Pyx_memviewslice *memviewslice,
+                        int memview_is_new_reference)
+{
+    __Pyx_RefNannyDeclarations
+    int i, retval=-1;
+    Py_buffer *buf = &memview->view;
+    __Pyx_RefNannySetupContext("init_memviewslice", 0);
+    if (memviewslice->memview || memviewslice->data) {
+        PyErr_SetString(PyExc_ValueError,
+            "memviewslice is already initialized!");
+        goto fail;
+    }
+    if (buf->strides) {
+        for (i = 0; i < ndim; i++) {
+            memviewslice->strides[i] = buf->strides[i];
+        }
+    } else {
+        Py_ssize_t stride = buf->itemsize;
+        for (i = ndim - 1; i >= 0; i--) {
+            memviewslice->strides[i] = stride;
+            stride *= buf->shape[i];
+        }
+    }
+    for (i = 0; i < ndim; i++) {
+        memviewslice->shape[i]   = buf->shape[i];
+        if (buf->suboffsets) {
+            memviewslice->suboffsets[i] = buf->suboffsets[i];
+        } else {
+            memviewslice->suboffsets[i] = -1;
+        }
+    }
+    memviewslice->memview = memview;
+    memviewslice->data = (char *)buf->buf;
+    if (__pyx_add_acquisition_count(memview) == 0 && !memview_is_new_reference) {
+        Py_INCREF(memview);
+    }
+    retval = 0;
+    goto no_fail;
+fail:
+    memviewslice->memview = 0;
+    memviewslice->data = 0;
+    retval = -1;
+no_fail:
+    __Pyx_RefNannyFinishContext();
+    return retval;
+}
+#ifndef Py_NO_RETURN
+#define Py_NO_RETURN
+#endif
+static void __pyx_fatalerror(const char *fmt, ...) Py_NO_RETURN {
+    va_list vargs;
+    char msg[200];
+#ifdef HAVE_STDARG_PROTOTYPES
+    va_start(vargs, fmt);
+#else
+    va_start(vargs);
+#endif
+    vsnprintf(msg, 200, fmt, vargs);
+    va_end(vargs);
+    Py_FatalError(msg);
+}
+static CYTHON_INLINE int
+__pyx_add_acquisition_count_locked(__pyx_atomic_int *acquisition_count,
+                                   PyThread_type_lock lock)
+{
+    int result;
+    PyThread_acquire_lock(lock, 1);
+    result = (*acquisition_count)++;
+    PyThread_release_lock(lock);
+    return result;
+}
+static CYTHON_INLINE int
+__pyx_sub_acquisition_count_locked(__pyx_atomic_int *acquisition_count,
+                                   PyThread_type_lock lock)
+{
+    int result;
+    PyThread_acquire_lock(lock, 1);
+    result = (*acquisition_count)--;
+    PyThread_release_lock(lock);
+    return result;
+}
+static CYTHON_INLINE void
+__Pyx_INC_MEMVIEW(__Pyx_memviewslice *memslice, int have_gil, int lineno)
+{
+    int first_time;
+    struct __pyx_memoryview_obj *memview = memslice->memview;
+    if (!memview || (PyObject *) memview == Py_None)
+        return;
+    if (__pyx_get_slice_count(memview) < 0)
+        __pyx_fatalerror("Acquisition count is %d (line %d)",
+                         __pyx_get_slice_count(memview), lineno);
+    first_time = __pyx_add_acquisition_count(memview) == 0;
+    if (first_time) {
+        if (have_gil) {
+            Py_INCREF((PyObject *) memview);
+        } else {
+            PyGILState_STATE _gilstate = PyGILState_Ensure();
+            Py_INCREF((PyObject *) memview);
+            PyGILState_Release(_gilstate);
+        }
+    }
+}
+static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
+                                             int have_gil, int lineno) {
+    int last_time;
+    struct __pyx_memoryview_obj *memview = memslice->memview;
+    if (!memview ) {
+        return;
+    } else if ((PyObject *) memview == Py_None) {
+        memslice->memview = NULL;
+        return;
+    }
+    if (__pyx_get_slice_count(memview) <= 0)
+        __pyx_fatalerror("Acquisition count is %d (line %d)",
+                         __pyx_get_slice_count(memview), lineno);
+    last_time = __pyx_sub_acquisition_count(memview) == 1;
+    memslice->data = NULL;
+    if (last_time) {
+        if (have_gil) {
+            Py_CLEAR(memslice->memview);
+        } else {
+            PyGILState_STATE _gilstate = PyGILState_Ensure();
+            Py_CLEAR(memslice->memview);
+            PyGILState_Release(_gilstate);
+        }
+    } else {
+        memslice->memview = NULL;
+    }
+}
+
+/* ArgTypeTest */
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+{
+    if (unlikely(!type)) {
+        PyErr_SetString(PyExc_SystemError, "Missing type object");
+        return 0;
+    }
+    else if (exact) {
+        #if PY_MAJOR_VERSION == 2
+        if ((type == &PyBaseString_Type) && likely(__Pyx_PyBaseString_CheckExact(obj))) return 1;
+        #endif
+    }
+    else {
+        if (likely(__Pyx_TypeCheck(obj, type))) return 1;
+    }
+    PyErr_Format(PyExc_TypeError,
+        "Argument '%.200s' has incorrect type (expected %.200s, got %.200s)",
+        name, type->tp_name, Py_TYPE(obj)->tp_name);
+    return 0;
+}
+
 /* PyObjectCall2Args */
 static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2) {
     PyObject *args, *result = NULL;
@@ -18449,6 +18453,66 @@ static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyOb
 done:
     return result;
 }
+
+/* PyObjectCallMethO */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
+    PyObject *self, *result;
+    PyCFunction cfunc;
+    cfunc = PyCFunction_GET_FUNCTION(func);
+    self = PyCFunction_GET_SELF(func);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = cfunc(self, arg);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
+/* PyObjectCallOneArg */
+#if CYTHON_COMPILING_IN_CPYTHON
+static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_New(1);
+    if (unlikely(!args)) return NULL;
+    Py_INCREF(arg);
+    PyTuple_SET_ITEM(args, 0, arg);
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+#if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(func)) {
+        return __Pyx_PyFunction_FastCall(func, &arg, 1);
+    }
+#endif
+    if (likely(PyCFunction_Check(func))) {
+        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
+            return __Pyx_PyObject_CallMethO(func, arg);
+#if CYTHON_FAST_PYCCALL
+        } else if (PyCFunction_GET_FLAGS(func) & METH_FASTCALL) {
+            return __Pyx_PyCFunction_FastCall(func, &arg, 1);
+#endif
+        }
+    }
+    return __Pyx__PyObject_CallOneArg(func, arg);
+}
+#else
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_Pack(1, arg);
+    if (unlikely(!args)) return NULL;
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+#endif
 
 /* BytesEquals */
 static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals) {

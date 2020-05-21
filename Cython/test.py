@@ -49,8 +49,7 @@ def test_line_line_distance(delta):
 @pytest.mark.parametrize("delta", [0.1**(3*i) for i in range(6)])
 def test_tri_distance(delta):
     tri_1 = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=np.float64)
-    tri_2 = np.array([[1, delta, 0], [3, 1.2, 0], [
-        1, 1, 0]], dtype=np.float64)
+    tri_2 = np.array([[1, delta, 0], [3, 1.2, 0], [1, 1, 0]], dtype=np.float64)
     P1 = tri_1[2]
     P2 = tri_1[1]
     point = tri_2[0]
