@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install python moduels
-      run: sudo apt update && sudo apt install -y libeigen3-dev python-setuptools && pip3 install pybind11 pytest numpy scipy cython
+      run: sudo apt update && sudo apt install -y libeigen3-dev python3-setuptools && pip3 install pybind11 pytest numpy scipy cytho && apt-get install --reinstall python-setuptools
     - name: Compile Bybind
       run: export CPATH=/usr/include/eigen3 && cd examples/python && source build.sh
     - name: Test Bybind
