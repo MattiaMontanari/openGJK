@@ -210,3 +210,8 @@ callgrind.out.*
 # Jetbrains IDE project files
 /.idea
 /*.iml
+
+# Pytest
+.cache
+.pytest_cache
+.mypy_cache

@@ -37,8 +37,8 @@
 #define mexPrintf  printf
 #endif
 
-#define eps_rel22  1e-5
-#define eps_tot22  1e-14
+#define eps_rel22  1e-10
+#define eps_tot22  1e-12
 
 /* Select distance sub-algorithm */
 
@@ -295,7 +295,7 @@ inline static void S2D(struct simplex * s, double *v)
   }
   else if (hff1f_s13) {
     if (hff2f_32) {
-      projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update c
+      projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update v
       return; // Return V{1,2,3}
     }
     else
@@ -675,7 +675,7 @@ double gjk(struct bd bd1, struct bd bd2, struct simplex *s) {
 
   int k = 0;                /**< Iteration counter            */
   int i;                    /**< General purpose counter      */
-  int mk = 5000;            /**< Maximum number of iterations of the GJK algorithm */
+  int mk = 25;            /**< Maximum number of iterations of the GJK algorithm */
   int absTestin;
   double norm2Wmax = 0;
   double tesnorm;
@@ -685,7 +685,7 @@ double gjk(struct bd bd1, struct bd bd2, struct simplex *s) {
   double eps_rel = eps_rel22;   /**< Tolerance on relative        */
   double eps_rel2 = eps_rel * eps_rel;
   double eps_tot = eps_tot22;
-  int exeedtol_rel = 0;     /**< Flag for 1st exit condition  */
+  double exeedtol_rel;     /**< Test for 1st exit condition  */
   int nullV = 0;
 
 #ifdef DEBUG
@@ -738,8 +738,8 @@ double gjk(struct bd bd1, struct bd bd2, struct simplex *s) {
       w[t] = bd1.s[t] - bd2.s[t];
 
     /* Test first exit condition (new point already in simplex/can't move further) */
-    exeedtol_rel = (norm2(v) - dotProduct(v, w)) <= eps_rel2 * norm2(v);
-    if (exeedtol_rel) {
+    exeedtol_rel = (norm2(v) - dotProduct(v, w));
+    if ( exeedtol_rel <= (eps_rel * norm2(v)) || exeedtol_rel < eps_tot22) {
       break;
     }
 
@@ -766,9 +766,10 @@ double gjk(struct bd bd1, struct bd bd2, struct simplex *s) {
     }
 
     absTestin = (norm2(v) <= (eps_tot * eps_tot * norm2Wmax));
-    if (absTestin)
+    if (absTestin) {
       break;
-
+    }
+    
   } while ((s->nvrtx != 4) && (k != mk));
 
   if (k == mk) {
