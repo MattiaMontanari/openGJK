@@ -20,4 +20,4 @@ jobs:
     - name: Run cython
       run: |
         cd examples/cython
-        python3 setup.py build_ext --inplace && python3 pygjk_trial.py
+        python3 setup.py build_ext --inplace && python3 -m pytest -s -v test.py
