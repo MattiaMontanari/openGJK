@@ -176,6 +176,41 @@ sysinfo.txt
 # Office
 ~*.pptx
 
+#Cython https://github.com/cython/cython/blob/master/.gitignore
+*.pyc
+*.pyo
+__pycache__
+*.o
+
+.*cache*/
+
+*/cython/*.c
+
+/TEST_TMP/
+/build/
+/cython_build/
+/wheelhouse*/
+!tests/build/
+/dist/
+.gitrev
+.coverage
+*.patch
+*.diff
+*.orig
+*.prof
+*.rej
+*.log
+*.dep
+*.swp
+*~
+callgrind.out.*
+
+.ipynb_checkpoints
+
+# Jetbrains IDE project files
+/.idea
+/*.iml
+
 # Pytest
 .cache
 .pytest_cache
