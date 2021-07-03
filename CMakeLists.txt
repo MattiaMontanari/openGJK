@@ -62,8 +62,11 @@ ENDIF(BUILD_STATIC_LIB)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${SOURCE_HEADS})
 
-# ADD DEFAULT COMPILER FLAGS
+# Add compiler flags
 include(CompilerFlags)
+
+# Install setup
+install(TARGETS ${PROJECT_NAME} PERMISSIONS WORLD_WRITE )
 
 find_package(OpenMP REQUIRED)
 if (OPENMP_FOUND)

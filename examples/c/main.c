@@ -77,7 +77,7 @@ int readinput(const char *inputfile, double ***pts, int * out) {
   }
 
   /* Read number of input vertices. */
-  if (fscanf_s(fp, "%d", &npoints) != 1)
+  if (fscanf(fp, "%d", &npoints) != 1)
     return 1;
 
   /* Allocate memory. */
@@ -88,7 +88,7 @@ int readinput(const char *inputfile, double ***pts, int * out) {
   /* Read and store vertices' coordinates. */
   for (idx = 0; idx < npoints; idx++)
   {
-    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3)
+    if (fscanf(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3)
       return 1;
   }
 

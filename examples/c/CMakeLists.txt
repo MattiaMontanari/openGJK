@@ -42,12 +42,17 @@ set(SOURCE_FILES main.c )
 # Create the executable
 add_executable(demo ${SOURCE_FILES})
 
-# Copy input files after build
+# Copy input files for this example after build
 add_custom_command(
         TARGET demo POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_CURRENT_SOURCE_DIR}/*.dat
-                ${CMAKE_CURRENT_BINARY_DIR}/ )
+                ${CMAKE_CURRENT_SOURCE_DIR}/userP.dat
+                ${CMAKE_CURRENT_BINARY_DIR}/userP.dat )
+add_custom_command(
+        TARGET demo POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/userQ.dat
+                ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat )
 
 # PLATFORM-SPECIFIC SETTING
 if (UNIX)
