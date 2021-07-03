@@ -1,5 +1,5 @@
 
-Hello!
+# Hello!
 
 This is a simple and reliable C implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm, [docs and  details are available here](https://www.mattiamontanari.com/opengjk/). 
 
