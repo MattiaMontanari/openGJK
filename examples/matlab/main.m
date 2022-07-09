@@ -1,40 +1,24 @@
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
-%                                    #####        # #    #                %
-%        ####  #####  ###### #    # #     #       # #   #                 %
-%       #    # #    # #      ##   # #             # #  #                  %
-%       #    # #    # #####  # #  # #  ####       # ###                   %
-%       #    # #####  #      #  # # #     # #     # #  #                  %
-%       #    # #      #      #   ## #     # #     # #   #                 %
-%        ####  #      ###### #    #  #####   #####  #    #                %
-%                                                                         %
-%   This file is part of openGJK.                                         %
-%                                                                         %
-%   openGJK is free software: you can redistribute it and/or modify       %
-%    it under the terms of the GNU General Public License as published by %
-%    the Free Software Foundation, either version 3 of the License, or    %
-%    any later version.                                                   %
-%                                                                         %
-%    openGJK is distributed in the hope that it will be useful,           %
-%    but WITHOUT ANY WARRANTY; without even the implied warranty of       %
-%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See The        %
-%    GNU General Public License for more details.                         %
-%                                                                         %
-%   You should have received a copy of the GNU General Public License     %
-%    along with Foobar.  If not, see <https://www.gnu.org/licenses/>.     %
-%                                                                         %
-%        openGJK: open-source Gilbert-Johnson-Keerthi algorithm           %
-%             Copyright (C) Mattia Montanari 2018 - 2019                  %
-%               http://iel.eng.ox.ac.uk/?page_id=504                      %
-%                                                                         %
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
-%                                                                         %
-% This file runs an example to illustrate how to cll the openGJK library  %
-%   withing Matlab. It assumes that a mex file openGJK is availalbe, see  %
-%   the runme.m script for information on how to compile it.              % 
-% The example computes the minimum distance between two polytopes in 3D,  %
-%   A and B, both defined as a list of points.                            %
-%                                                                         %
-% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
+%                           _____      _ _  __                                   %
+%                          / ____|    | | |/ /                                   %
+%    ___  _ __   ___ _ __ | |  __     | | ' /                                    %
+%   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <                                     %
+%  | (_) | |_) |  __/ | | | |__| | |__| | . \                                    %
+%   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\                                   %
+%        | |                                                                     %
+%        |_|                                                                     %
+%                                                                                %
+% Copyright 2022 Mattia Montanari, University of Oxford                          %
+%                                                                                %
+% This program is free software: you can redistribute it and/or modify it under  %
+% the terms of the GNU General Public License as published by the Free Software  %
+% Foundation, either version 3 of the License. You should have received a copy   %
+% of the GNU General Public License along with this program. If not, visit       %
+%                                                                                %
+%     https://www.gnu.org/licenses/                                              %
+%                                                                                %
+% This program is distributed in the hope that it will be useful, but WITHOUT    %
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS  %
+% FOR A PARTICULAR PURPOSE. See GNU General Public License for details.          %
 
 % DEFINE BODY A AS 3xN MATRIX, WHERE N IS THE NUMBER OF VERTICES OF BODY A
 A = [  0.0  2.3  8.1  4.3  2.5  7.1  1.0  3.3  6.0
