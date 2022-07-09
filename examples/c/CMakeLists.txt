@@ -1,67 +1,40 @@
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-#                                    #####        # #    #                #
-#        ####  #####  ###### #    # #     #       # #   #                 #
-#       #    # #    # #      ##   # #             # #  #                  #
-#       #    # #    # #####  # #  # #  ####       # ###                   #
-#       #    # #####  #      #  # # #     # #     # #  #                  #
-#       #    # #      #      #   ## #     # #     # #   #                 #
-#        ####  #      ###### #    #  #####   #####  #    #                #
-#                                                                         #
-#   This file is part of openGJK.                                         #
-#                                                                         #
-#   openGJK is free software: you can redistribute it and/or modify       #
-#    it under the terms of the GNU General Public License as published by #
-#    the Free Software Foundation, either version 3 of the License, or    #
-#    any later version.                                                   #
-#                                                                         #
-#    openGJK is distributed in the hope that it will be useful,           #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of       #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See The        #
-#    GNU General Public License for more details.                         #
-#                                                                         #
-#   You should have received a copy of the GNU General Public License     #
-#    along with openGJK. If not, see <https://www.gnu.org/licenses/>.     #
-#                                                                         #
-#        openGJK: open-source Gilbert-Johnson-Keerthi algorithm           #
-#             Copyright (C) Mattia Montanari 2018 - 2019                  #
-#               http://iel.eng.ox.ac.uk/?page_id=504                      #
-#                                                                         #
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#                            _____      _ _  __                                    #
+#                           / ____|    | | |/ /                                    #
+#     ___  _ __   ___ _ __ | |  __     | | ' /                                     #
+#    / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <                                      #
+#   | (_) | |_) |  __/ | | | |__| | |__| | . \                                     #
+#    \___/| .__/ \___|_| |_|\_____|\____/|_|\_\                                    #
+#         | |                                                                      #
+#         |_|                                                                      #
+#                                                                                  #
+#  Copyright 2022 Mattia Montanari, University of Oxford                           #
+#                                                                                  #
+#  This program is free software: you can redistribute it and/or modify it under   #
+#  the terms of the GNU General Public License as published by the Free Software   #
+#  Foundation, either version 3 of the License. You should have received a copy    #
+#  of the GNU General Public License along with this program. If not, visit        #
+#                                                                                  #
+#      https://www.gnu.org/licenses/                                               #
+#                                                                                  #
+#  This program is distributed in the hope that it will be useful, but WITHOUT     #
+#  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS   #
+#  FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           #
 
-project(openGJKdemo VERSION 1.0.0 LANGUAGES C)
+project(example_lib_opengjk_ce 
+    LANGUAGES C
+    VERSION 1.0.0 
+)
 
-set(APPLICATION_NAME ${PROJECT_NAME})
-set(CMAKE_C_STANDARD 11)
-set(TEST_NAME ${PROJECT_NAME}_CTEST)
-
-message( "[${PROJECT_NAME}] CMake setting ..")
-
-# Set source file
-set(SOURCE_FILES main.c )
-
-# Create the executable
-add_executable(demo ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
+target_link_libraries(${PROJECT_NAME} lib_opengjk_ce)
 
 # Copy input files for this example after build
 add_custom_command(
-        TARGET demo POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_CURRENT_SOURCE_DIR}/userP.dat
-                ${CMAKE_CURRENT_BINARY_DIR}/userP.dat )
-add_custom_command(
-        TARGET demo POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_CURRENT_SOURCE_DIR}/userQ.dat
-                ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat )
-
-# PLATFORM-SPECIFIC SETTING
-if (UNIX)
-    find_library(M_LIB m)
-	# Link to openGJK and math library
-	target_link_libraries(demo openGJKlib m)
-else ()
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-    target_link_libraries(demo openGJKlib)
-endif ()
-
-message(STATUS "Completed CMake setting for ${PROJECT_NAME}" )
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/userP.dat
+            ${CMAKE_CURRENT_BINARY_DIR}/userP.dat 
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/userQ.dat
+            ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat 
+)
