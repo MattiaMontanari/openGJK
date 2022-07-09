@@ -26,7 +26,7 @@
 If you have some basic tools installed (git, compiler and cmake) clone this repo:
 
 ```
-git clone 
+git clone https://github.com/MattiaMontanari/openGJK.git
 ```
 
 followed by these commands:
@@ -35,12 +35,14 @@ followed by these commands:
 cmake -E make_directory build
 cmake -E chdir build cmake -DRUN_UNITESTS=ON  -DCMAKE_BUILD_TYPE=Release .. 
 cmake --build build 
-cmake -E chdir build/src/examples/c ./example_lib_opengjk_ce
+cmake -E chdir build/examples/c ./example_lib_opengjk_ce
 cmake -E chdir "build/test" ctest --build-config Release
 ```
 
 If you get no errors, the successfull output is:
+
 > `Distance between bodies 3.653650`. 
+
 However, if you do get an error - any error - please file a bug! Support requests are welcome too.
 
 # Beyond getting started
