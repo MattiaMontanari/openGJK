@@ -26,7 +26,7 @@
 If you have some basic tools installed (git, compiler and cmake) clone this repo:
 
 ```
-git clone 
+git clone https://github.com/MattiaMontanari/openGJK/tree/ce
 ```
 
 followed by these commands:
