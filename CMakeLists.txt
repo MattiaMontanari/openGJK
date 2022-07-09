@@ -54,6 +54,8 @@ add_library(${PROJECT_NAME}
     ${GK_PUBLIC_HEADER_DIR}/openGJK/openGJK.h
 )
 
+target_link_libraries(${PROJECT_NAME}  m)
+
 target_include_directories( 
     ${PROJECT_NAME} 
     PUBLIC 
