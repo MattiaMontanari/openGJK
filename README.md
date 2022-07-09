@@ -40,7 +40,9 @@ cmake -E chdir "build/test" ctest --build-config Release
 ```
 
 If you get no errors, the successfull output is:
+
 > `Distance between bodies 3.653650`. 
+
 However, if you do get an error - any error - please file a bug! Support requests are welcome too.
 
 # Beyond getting started
