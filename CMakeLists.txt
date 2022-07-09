@@ -21,16 +21,18 @@
 #  FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           #
 
 cmake_minimum_required(VERSION          2.8)
-cmake_policy(SET CMP0048                NEW)
-cmake_policy(SET CMP0079                NEW)
+cmake_policy(SET CMP0048                NEW) 
 
-option(BUILD_EXAMPLE "Build demo"       ON) 
+option(BUILD_EXAMPLE "Build demo"        ON)
+set(GK_VERSION_MAJOR                      3)
+set(GK_VERSION_MINOR                      0)
+set(GK_VERSION_PATCH                      0)
 
 project(lib_opengjk_ce 
     LANGUAGES C
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    DESCRIPTION "openGJK library"
-    HOMEPAGE_URL "https://mattiamontanari.com/opengjk"
+	DESCRIPTION "openGJK library community edition (CE)"
+    HOMEPAGE_URL "www.mattiamontanari.com/opengjk/"
+    VERSION ${GK_VERSION_MAJOR}.${GK_VERSION_MINOR}.${GK_VERSION_PATCH}
 )
 
 set( C_STANDARD                          99)
@@ -51,6 +53,8 @@ add_library(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/openGJK.c 
     ${GK_PUBLIC_HEADER_DIR}/openGJK/openGJK.h
 )
+
+target_link_libraries(${PROJECT_NAME}  m)
 
 target_include_directories( 
     ${PROJECT_NAME} 
