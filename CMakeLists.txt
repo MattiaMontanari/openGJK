@@ -42,13 +42,19 @@ set( CMAKE_POLICY_DEFAULT_CMP0079        NEW)
 set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS    ON)
 set( CMAKE_INCLUDE_CURRENT_DIR           TRUE)
 
-# Set default compile flags for GCC
-if(CMAKE_COMPILER_IS_GNUC)
-    message(STATUS "GCC detected, adding compile flags")
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wunused-macros")
-    set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall -Wno-unused-command-line-argument")
-    set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror -Wno-unused-command-line-argument")
-endif(CMAKE_COMPILER_IS_GNUC)
+# Set compile flags
+message(STATUS "Compiler in use: ${CMAKE_C_COMPILER_ID}")
+set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall")
+set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror")
+
+if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    # To use Clang, pass to cmake: -DCMAKE_C_COMPILER="clang"
+elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    # To use Clang, pass to cmake: -DCMAKE_C_COMPILER="gcc"
+    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wunused-macros -Wno-unused-command-line-argument")
+elseif (CMAKE_C_COMPILER_ID STREQUAL "Intel")
+elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+endif()
 
 set( GK_PUBLIC_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
