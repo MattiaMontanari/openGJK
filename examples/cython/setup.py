@@ -40,5 +40,5 @@ exts = Extension(
 
 setup(
 	name='openGJK-cython-version',
-	ext_modules = cythonize( [exts] )
+	ext_modules = cythonize([exts], language_level = "3")
 )

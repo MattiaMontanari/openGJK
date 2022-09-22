@@ -30,15 +30,15 @@
 
 # Declare C function and data types
 cdef extern from "openGJK.h":
-	struct bd:
+	struct gkPolytope_:
 		int numpoints
 		double s[3]
 		double ** coord
 
-	struct simplex:
+	struct gkSimplex_:
 		int nvrtx
 		double vrtx[4][3]
 		int wids[4]
 		double lambdas[4]
 
-	double gjk(bd bd1, bd bd2, simplex *s)
+	double compute_minimum_distance(gkPolytope_ bd1, gkPolytope_ bd2, gkSimplex_ *s)
