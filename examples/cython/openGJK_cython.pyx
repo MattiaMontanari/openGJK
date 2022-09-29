@@ -30,7 +30,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
 # cython: language_level=3
-# distutils: sources = ../../src/openGJK.c
+# distutils: sources = ../../openGJK.c
 # distutils: include_dirs = ../../include/openGJK
 
 cimport openGJK_cython
@@ -44,9 +44,9 @@ def pygjk(bod1, bod2):
 
 	# Declare data types
 	cdef: 
-		simplex s
-		bd bd1
-		bd bd2
+		gkSimplex_ s
+		gkPolytope_ bd1
+		gkPolytope_ bd2
 		double dist2
 
 	# Convert 1D array to 2D, if any
@@ -96,7 +96,7 @@ def pygjk(bod1, bod2):
 			bd2.coord[i][j] = narr2[i,j]
 
 	# Call C function
-	dist2 = gjk(bd1, bd2, &s)
+	dist2 = compute_minimum_distance(bd1, bd2, &s)
 
 	# Free the memory
 	for ii in range(0, bd1.numpoints):
