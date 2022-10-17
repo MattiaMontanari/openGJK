@@ -44,7 +44,7 @@ mex(fullfile('..','..','src','openGJK.c'),...  % Source of openGJK
     fullfile('-I..','..','include'),...      % Folder to header files
     '-outdir', pwd,...          % Ouput directory for writing mex function
     '-output', 'openGJK',...    % Name of ouput mex file
-    '-DMATLABDOESMEXSTUFF',...  % Define variable for mex function in source files
+    '-DMATLAB_MEX_BUILD',...  % Define variable for mex function in source files
     silflag )                   % Silent/verbose flag
 
     % File compiled without errors. Return path and name of mex file
