@@ -763,7 +763,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   s.nvrtx = 0;
 
   /* Compute squared distance using GJK algorithm */
-  distance[0] = gjk(bd1, bd2, &s);
+  distance[0] = compute_minimum_distance(bd1, bd2, &s);
 
   mxFree(arr1);
   mxFree(arr2);
