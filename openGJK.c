@@ -730,7 +730,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   nCoordsB = mxGetN(prhs[1]);
 
   /* Create output */
-  plhs[0] = mxCreategkFloatMatrix(1, 1, mxREAL);
+  plhs[0] = mxCreateDoubleMatrix(1, 1, mxREAL);
 
   /* get a pointer to the real data in the output matrix */
   distance = mxGetPr(plhs[0]);
