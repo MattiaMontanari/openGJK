@@ -8,9 +8,9 @@ PYBIND11_MODULE(opengjkc, m) {
         [](Eigen::Array<double, Eigen::Dynamic, 3, Eigen::RowMajor> &arr1,
            Eigen::Array<double, Eigen::Dynamic, 3, Eigen::RowMajor> &arr2)
             -> double {
-          struct simplex s;
-          struct bd bd1;
-          struct bd bd2;
+          gkSimplex s;
+          gkPolytope bd1;
+          gkPolytope bd2;
           bd1.numpoints = arr1.rows();
           std::vector<double *> arr1_rows(arr1.rows());
           for (int i = 0; i < arr1.rows(); ++i)
@@ -23,7 +23,7 @@ PYBIND11_MODULE(opengjkc, m) {
             arr2_rows[i] = arr2.row(i).data();
           bd2.coord = arr2_rows.data();
 
-          double a = gjk(bd1, bd2, &s);
+          double a = compute_minimum_distance(bd1, bd2, &s);
 
           return a;
         });
