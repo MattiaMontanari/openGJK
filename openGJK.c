@@ -730,7 +730,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   nCoordsB = mxGetN(prhs[1]);
 
   /* Create output */
-  plhs[0] = mxCreategkFloatMatrix(1, 1, mxREAL);
+  plhs[0] = mxCreateDoubleMatrix(1, 1, mxREAL);
 
   /* get a pointer to the real data in the output matrix */
   distance = mxGetPr(plhs[0]);
@@ -763,7 +763,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   s.nvrtx = 0;
 
   /* Compute squared distance using GJK algorithm */
-  distance[0] = gjk(bd1, bd2, &s);
+  distance[0] = compute_minimum_distance(bd1, bd2, &s);
 
   mxFree(arr1);
   mxFree(arr2);
