@@ -226,12 +226,12 @@ inline static void S2D(gkSimplex *s, gkFloat *v) {
   gkFloat *s3p = s->vrtx[0];
   int hff1f_s12 = hff1(s1p, s2p);
   int hff1f_s13 = hff1(s1p, s3p);
-  int hff2f_23 = !hff2(s1p, s2p, s3p);
-  int hff2f_32 = !hff2(s1p, s3p, s2p);
 
   if (hff1f_s12) {
+    int hff2f_23 = !hff2(s1p, s2p, s3p);
     if (hff2f_23) {
       if (hff1f_s13) {
+        int hff2f_32 = !hff2(s1p, s3p, s2p);
         if (hff2f_32) {
           projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update c
           return;                            // Return V{1,2,3}
@@ -250,6 +250,7 @@ inline static void S2D(gkSimplex *s, gkFloat *v) {
       return;                      // Return V{1,2}
     }
   } else if (hff1f_s13) {
+    int hff2f_32 = !hff2(s1p, s3p, s2p);
     if (hff2f_32) {
       projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update v
       return;                            // Return V{1,2,3}

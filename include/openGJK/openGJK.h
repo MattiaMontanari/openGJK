@@ -40,8 +40,6 @@ typedef struct gkPolytope_ {
 /// @brief Structure of the simplex
 typedef struct gkSimplex_ {
   int nvrtx;            // Number of simplex's vertices
-  int wids[4];          // Label of the simplex's vertices
-  gkFloat lambdas[4];   // Barycentric coordiantes for each vertex
   gkFloat vrtx[4][3];   // Coordinates of simplex's vertices
 } gkSimplex;
 
