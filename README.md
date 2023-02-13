@@ -21,15 +21,15 @@
 < FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           -->
 
 
-# Get started
+# Getting started
 
-If you have some basic tools installed (git, compiler and cmake) clone this repo:
+On Linux, Mac or Windows, if you have a basic C/C++ toolchain installed (git, compiler and cmake) clone this repo:
 
 ```
 git clone https://github.com/MattiaMontanari/openGJK.git
 ```
 
-followed by these commands:
+Then use these commands to build and run an example:
 
 ```
 cmake -E make_directory build
@@ -44,8 +44,17 @@ If you get no errors, the successfull output is:
 
 However, if you do get an error - any error - please file a bug! Support requests are welcome too.
 
-# Beyond getting started
+# Use OpenGJK in your project
 
-With the commands above you have built a demo example tha invokes the openGJK library. The library is statically linked and the distance between two bodies is computed and returned. 
+The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab and Python. I aim to publish few more for Julia and Unity.
 
-To learn how to use this library in your project the best place to start is the demo. Look at `main.c` and the other examples. In `examples/c/CMakeLists.txt` you can find how simple is to link using CMake.
+Take a look at the `examples` folder in this repo and have fun. File a request if you wish to see more! 
+
+# Contribute
+
+You are very welcome to:
+
+- Create pull requests of any kind
+- Let me know if you are using this library and find it usefule
+- Open issues with request for support because they will help you and many others
+- Cite this repository ([a sweet GitHub feature](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files#about-citation-files)) or my paper: Montanari, M. et at, *Improving the GJK Algorithm for Faster and More Reliable Distance Queries Between Convex Objects* (2017). ACM Trans. Graph.
