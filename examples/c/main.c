@@ -31,10 +31,11 @@
 #define fscanf_s fscanf
 
 /// @brief Function for reading input file with body's coordinates.
-int readinput(const char *inputfile, double ***pts, int *out) {
+int
+readinput(const char* inputfile, double*** pts, int* out) {
   int npoints = 0;
   int idx = 0;
-  FILE *fp;
+  FILE* fp;
 
   /* Open file. */
 #ifdef WIN32
@@ -50,19 +51,21 @@ int readinput(const char *inputfile, double ***pts, int *out) {
   }
 
   /* Read number of input vertices. */
-  if (fscanf_s(fp, "%d", &npoints) != 1)
+  if (fscanf_s(fp, "%d", &npoints) != 1) {
     return 1;
+  }
 
   /* Allocate memory. */
-  double **arr = (double **)malloc(npoints * sizeof(double *));
-  for (int i = 0; i < npoints; i++)
-    arr[i] = (double *)malloc(3 * sizeof(double));
+  double** arr = (double**)malloc(npoints * sizeof(double*));
+  for (int i = 0; i < npoints; i++) {
+    arr[i] = (double*)malloc(3 * sizeof(double));
+  }
 
   /* Read and store vertices' coordinates. */
   for (idx = 0; idx < npoints; idx++) {
-    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) !=
-        3)
+    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3) {
       return 1;
+    }
   }
 
   fclose(fp);
@@ -77,7 +80,8 @@ int readinput(const char *inputfile, double ***pts, int *out) {
  * @brief Main program of example1_c (described in Section 3.1 of the paper).
  *
  */
-int main() {
+int
+main() {
   /* Squared distance computed by openGJK.                                 */
   double dd;
   /* Structure of simplex used by openGJK.                                 */
@@ -96,14 +100,16 @@ int main() {
    * two bodies that will be passed to the GJK procedure. */
 
   /* Import coordinates of object 1. */
-  if (readinput(inputfileA, &vrtx1, &nvrtx1))
+  if (readinput(inputfileA, &vrtx1, &nvrtx1)) {
     return (1);
+  }
   bd1.coord = vrtx1;
   bd1.numpoints = nvrtx1;
 
   /* Import coordinates of object 2. */
-  if (readinput(inputfileB, &vrtx2, &nvrtx2))
+  if (readinput(inputfileB, &vrtx2, &nvrtx2)) {
     return (1);
+  }
   bd2.coord = vrtx2;
   bd2.numpoints = nvrtx2;
 
@@ -118,11 +124,13 @@ int main() {
   printf("Distance between bodies %f\n", dd);
 
   /* Free memory */
-  for (int i = 0; i < bd1.numpoints; i++)
+  for (int i = 0; i < bd1.numpoints; i++) {
     free(bd1.coord[i]);
+  }
   free(bd1.coord);
-  for (int i = 0; i < bd2.numpoints; i++)
+  for (int i = 0; i < bd2.numpoints; i++) {
     free(bd2.coord[i]);
+  }
   free(bd2.coord);
 
   return (0);
