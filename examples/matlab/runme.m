@@ -29,35 +29,20 @@ else
     optflug = '-O';
 end
 % SELECT SILET COMPILATION MODE.
-if 1 
+if 1
     silflag = '-silent'; 
 else
     silflag = '-v';
 end
 
-% TRY COMPILING MEX FILE
-fprintf('Compiling mex function... ')
-try
-mex(fullfile('..','..','openGJK.c'),...  % Source of openGJK 
+% COMPILE MEX FILE
+mex(fullfile('..','..','openGJK.c'),...
     '-largeArrayDims', ...      % Support large arrays
-    optflug, ...                % Compiler flag for debug/optimisation
-    fullfile('-I','..','..','include'),...      % Folder to header files
-    '-outdir', pwd, ...         % Ouput directory for writing mex function
+    optflug, ...
+    ['-I',fullfile('..','..','include')],...      % Folder to header files
     '-output', 'openGJK',...    % Name of ouput mex file
     '-DMATLAB_MEX_BUILD',...  % Define variable for mex function in source files
-    silflag )                   % Silent/verbose flag
-
-    % File compiled without errors. Return path and name of mex file
-    fprintf('completed!\n')
-    fprintf('The following mex file has been generated:')
-    fprintf('\t%s\n',[pwd,filesep,'openGJK.',mexext]) 
-catch
-    % Build failed, refer to documentation
-    fprintf('\n\n ERROR DETECTED! Mex file cannot be compiled.\n')
-    fprintf('\tFor more information, see ')
-    fprintf('<a href="http://www.mathworks.com/help/matlab/ref/mex.html">this documentation page</a>.\n\n')
-    return
-end
+    silflag )
  
 % RUN EXAMPLE
 fprintf('Running example... ')

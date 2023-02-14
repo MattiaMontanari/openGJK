@@ -23,3 +23,11 @@ jobs:
         with:
           go-version: 1.15
       - run: cd examples/go/openGJK && go build && go test -v
+
+  Run_Octave_example:
+    runs-on: ubuntu-latest
+    container: gnuoctave/octave:7.3.0
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: cd examples/matlab/; run runme.m
