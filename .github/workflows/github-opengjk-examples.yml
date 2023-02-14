@@ -31,6 +31,7 @@ jobs:
       - run: apt-get update && apt-get install gcc cmake -y
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON ..
+      - run: cmake --build build
       - run: cmake --install build
       - run: cd examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
 
