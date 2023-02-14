@@ -6,18 +6,22 @@ jobs:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - run: echo "🍏 This job's status is ${{ job.status }}."
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release ..
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
+
+  Run_GO_example:
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-fedora
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.15
+      - run: cd examples/go/openGJK
+      - run: go build
+      - run: go test -v
