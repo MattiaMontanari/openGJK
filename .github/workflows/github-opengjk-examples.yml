@@ -13,6 +13,26 @@ jobs:
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
 
+  Cython:
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-ubuntu
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
+      - run: cd examples/cython/ && pytest test.py
+
+  CSharp:
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:mono:latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: apt-get update && apt-get install gcc cmake -y
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON ..
+      - run: cd examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
+
   GO:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
@@ -31,12 +51,3 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: cd examples/matlab/; octave runme.m
-
-  Cython:
-    runs-on: ubuntu-latest
-    container: mmontanari/devenv:buildenv-ubuntu
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
-      - run: cd examples/cython/ && pytest test.py

@@ -34,10 +34,13 @@ using System.Runtime.InteropServices;
 
 public class Tester 
 {
-
-    [DllImport("libopenGJKlib", EntryPoint="csFunction", CallingConvention = CallingConvention.StdCall)]
+#if UNIX
+    [DllImport("libopengjk_ce.so", EntryPoint="csFunction", CallingConvention = CallingConvention.StdCall)]
+#else 
+    [DllImport("libopengjk_ce", EntryPoint = "csFunction", CallingConvention = CallingConvention.StdCall)]
+#endif
  
-    static extern double gjk(int na, double [,] ia, int nb, double [,] ib);
+    static extern double compute_minimum_distance(int na, double [,] ia, int nb, double [,] ib);
 
         public static void Main(string[] args)
         {
@@ -51,13 +54,12 @@ public class Tester
                 var inCoordsB = new double[3,9] { {-0.0 , -2.3 , -8.1 , -4.3  ,-2.5 , -7.1 , -1.0 , -3.3 , -6.0} , { -5.5 , -1.0 ,- 4.0 ,- 5.0  ,-1.0,  -1.0,  -1.5,  -0.5 , -1.4} ,{ -0.0 , 2.0,  -2.4,  -2.2,  -2.3 , -2.4 , -0.3 , -0.3 , -0.2} };
 
 		// Invoke GJK to compute distance
-		dist = gjk( nCoordsA, inCoordsA, nCoordsB, inCoordsB );
+		dist = compute_minimum_distance( nCoordsA, inCoordsA, nCoordsB, inCoordsB );
  
 		// Output results
 		var s = string.Format("{0:0.##}", dist);
 		var message = string.Format("The distance between {0} is {1}","A and B",s);
 		Console.WriteLine(message);
-		Console.WriteLine("Press any key to exit");
-		Console.ReadLine();
+
         }
 }
