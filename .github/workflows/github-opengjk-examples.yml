@@ -24,7 +24,7 @@ jobs:
 
   CSharp:
     runs-on: ubuntu-latest
-    container: mmontanari/devenv:mono:latest
+    container: mono:latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
