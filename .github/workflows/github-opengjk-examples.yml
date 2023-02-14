@@ -2,7 +2,7 @@ name: Run all demos
 run-name: ${{ github.actor }} is running
 on: [push]
 jobs:
-  Run C example:
+  Run_C_example:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
     steps:
