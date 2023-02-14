@@ -21,15 +21,16 @@
 #  FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           #
 
 # User options . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-option(BUILD_EXAMPLE "Build demo"        ON)
+option(BUILD_EXAMPLE "Build demo"        ON )
+option(BUILD_MONO    "Build C# example"  OFF)
 
 # CMake setup  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 cmake_minimum_required(VERSION          3.0) # You can downgrade to 2.8, but I don't maintain it anymore
 cmake_policy(SET CMP0048                NEW) 
 cmake_policy(SET CMP0063                NEW) # Visibility of preset and hidden lines on shared libs
 
-set( CMAKE_C_VISIBILITY_PRESET           hidden)
-set( CMAKE_VISIBILITY_INLINES_HIDDEN     TRUE)
+# set( CMAKE_C_VISIBILITY_PRESET           hidden)
+set( CMAKE_VISIBILITY_INLINES_HIDDEN     FALSE)
 set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS    ON)
 
 # Project setup  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -58,25 +59,33 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # Target . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-add_library( ${PROJECT_NAME} 
-    STATIC
+
+if(BUILD_MONO)
+    add_compile_definitions(CS_MONO_BUILD)
+endif(BUILD_MONO)
+
+add_library( obj_openGJK 
+    OBJECT
         ${CMAKE_CURRENT_SOURCE_DIR}/openGJK.c 
         ${CMAKE_CURRENT_SOURCE_DIR}/include/openGJK/openGJK.h
 )
 
-target_include_directories( ${PROJECT_NAME} 
+target_include_directories( obj_openGJK 
 PUBLIC 
 ${CMAKE_CURRENT_SOURCE_DIR}/include
 ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE m)
+target_link_libraries(obj_openGJK PRIVATE m)
 
-set_target_properties(${PROJECT_NAME} 
+set_target_properties(obj_openGJK 
     PROPERTIES 
         C_STANDARD 11
         PUBLIC_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/openGJK/openGJK.h
+        POSITION_INDEPENDENT_CODE 1
 )
+
+add_library(opengjk_ce SHARED $<TARGET_OBJECTS:obj_openGJK>)
 
 # Build demo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 if(BUILD_EXAMPLE)
@@ -85,11 +94,11 @@ endif(BUILD_EXAMPLE)
 
 # Install  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 if (UNIX)
-    install(TARGETS ${PROJECT_NAME} PERMISSIONS WORLD_WRITE )
     set(DESTDIR "/usr")
-    INSTALL(TARGETS ${PROJECT_NAME} 
+    INSTALL(TARGETS opengjk_ce 
         LIBRARY DESTINATION "${DESTDIR}/lib"
         PUBLIC_HEADER DESTINATION "${DESTDIR}/include"
+        PERMISSIONS WORLD_WRITE
     )
 endif (UNIX)
 

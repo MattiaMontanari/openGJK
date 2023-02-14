@@ -25,12 +25,12 @@ project(example_lib_opengjk_ce
     VERSION 1.0.0 
 )
 
-add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
-target_link_libraries(${PROJECT_NAME} lib_opengjk_ce)
+add_executable(example_lib_opengjk_ce ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
+target_link_libraries(example_lib_opengjk_ce obj_openGJK m)
 
 # Copy input files for this example after build
 add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
+    TARGET example_lib_opengjk_ce POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/userP.dat
             ${CMAKE_CURRENT_BINARY_DIR}/userP.dat 
