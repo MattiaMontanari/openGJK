@@ -22,5 +22,4 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.15
-      - run: cd examples/go/openGJK && go build
-      - run: go test -v
+      - run: cd examples/go/openGJK && go build && go test -v
