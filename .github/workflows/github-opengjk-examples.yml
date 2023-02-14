@@ -2,7 +2,7 @@ name: Run all demos
 run-name: ${{ github.actor }} is running
 on: [push]
 jobs:
-  Run_C_example:
+  C:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
     steps:
@@ -13,7 +13,7 @@ jobs:
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
 
-  Run_GO_example:
+  GO:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
     steps:
@@ -24,7 +24,7 @@ jobs:
           go-version: 1.15
       - run: cd examples/go/openGJK && go build && go test -v
 
-  Run_Octave_example:
+  Octave:
     runs-on: ubuntu-latest
     container: gnuoctave/octave:7.3.0
     steps:
@@ -32,11 +32,11 @@ jobs:
         uses: actions/checkout@v3
       - run: cd examples/matlab/; octave runme.m
 
-  Run_Cython_example:
+  Cython:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-ubuntu
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 test.py
+      - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
       - run: cd examples/cython/ && pytest test.py
