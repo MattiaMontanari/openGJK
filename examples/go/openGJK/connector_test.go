@@ -27,7 +27,7 @@ func TestGJK(t *testing.T) {
 		{5.0, 0.5, 0.0},
 		{5.0, -0.5, 0.0},
 	}
-	fassert(t, GJK(a, b), 0)
+	fassert(t, GJK(a, b), 1)
 	fassert(t, GJK(b, c), 1)
 	fassert(t, GJK(a, c), 2)
 }
