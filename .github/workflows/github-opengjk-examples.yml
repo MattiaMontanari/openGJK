@@ -32,10 +32,11 @@ jobs:
         uses: actions/checkout@v3
       - run: cd examples/matlab/; octave runme.m
 
-  Run_CYthon_example:
+  Run_Cython_example:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-ubuntu
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: cd examples/cython/; python3 setup.py build_ext --inplace; python3 test.py
+      - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 test.py
+      - run: cd examples/cython/ && pytest test.py
