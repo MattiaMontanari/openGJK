@@ -2,8 +2,9 @@ name: Run all demos
 run-name: ${{ github.actor }} is running
 on: [push]
 jobs:
-  Run_C_example:
-    runs-on: mmontanari/devenv:buildenv-fedora
+  Run C example:
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-fedora
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
