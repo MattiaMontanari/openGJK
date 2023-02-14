@@ -2,7 +2,7 @@ name: Run all demos
 run-name: ${{ github.actor }} is running
 on: [push]
 jobs:
-  Run C example:
+  Run_C_example:
     runs-on: mmontanari/devenv:buildenv-fedora
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
