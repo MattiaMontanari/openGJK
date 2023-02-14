@@ -34,8 +34,7 @@ from Cython.Build import cythonize
 exts = Extension(
 	"openGJK_cython",
 	sources = ["openGJK_cython.pyx"],
-	extra_compile_args=['-I../../include/','-fopenmp'],
-	extra_link_args=['-fopenmp'],
+	extra_compile_args=['-I../../include/']
 )
 
 setup(
