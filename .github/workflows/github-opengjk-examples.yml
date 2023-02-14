@@ -30,7 +30,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: pwd
       - run: ls
-      - run: version
-      - run: cd examples/matlab/; run runme.m
+      - run: octave --version
+      - run: cd examples/matlab/; octave runme.m
