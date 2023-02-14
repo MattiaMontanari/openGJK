@@ -62,5 +62,3 @@ if(exist('OCTAVE_VERSION', 'builtin') == 0)
        % ... add light
        light('Position',[5 -10 20],'Style','local'); 
 end
-
-error("DOnnnnnt do it again!")
