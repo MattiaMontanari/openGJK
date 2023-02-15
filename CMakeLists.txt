@@ -61,6 +61,7 @@ endif()
 # Target . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 
 if(BUILD_MONO)
+    set( CMAKE_C_VISIBILITY_PRESET           default)
     add_compile_definitions(CS_MONO_BUILD)
 endif(BUILD_MONO)
 
