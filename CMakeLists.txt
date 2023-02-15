@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION          3.0) # You can downgrade to 2.8, but I d
 cmake_policy(SET CMP0048                NEW) 
 cmake_policy(SET CMP0063                NEW) # Visibility of preset and hidden lines on shared libs
 
-# set( CMAKE_C_VISIBILITY_PRESET           hidden)
+set( CMAKE_C_VISIBILITY_PRESET           hidden)
 set( CMAKE_VISIBILITY_INLINES_HIDDEN     FALSE)
 set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS    ON)
 
