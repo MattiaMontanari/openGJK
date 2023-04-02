@@ -47,11 +47,11 @@ public class Tester
         float dist;
         // Define array A with coordinates
         int nCoordsA = 9;
-        var inCoordsA = new float[3, 9] { { 0.0, 2.3, 8.1, 4.3, 2.5, 7.1, 1.0, 3.3, 6.0 }, { 5.5, 1.0, 4.0, 5.0, 1.0, 1.0, 1.5, 0.5, 1.4 }, { 0.0, -2.0, 2.4, 2.2, 2.3, 2.4, 0.3, 0.3, 0.2 } };
+        var inCoordsA = new float[3, 9] { { 0.0f, 2.3f, 8.1f, 4.3f, 2.5f, 7.1f, 1.0f, 3.3f, 6.0f }, { 5.5f, 1.0f, 4.0f, 5.0f, 1.0f, 1.0f, 1.5f, 0.5f, 1.4f }, { 0.0f, -2.0f, 2.4f, 2.2f, 2.3f, 2.4f, 0.3f, 0.3f, 0.2f } };
 
         // Define array B with coordinates 
         int nCoordsB = 9;
-        var inCoordsB = new float[3, 9] { { -0.0, -2.3, -8.1, -4.3, -2.5, -7.1, -1.0, -3.3, -6.0 }, { -5.5, -1.0, -4.0, -5.0, -1.0, -1.0, -1.5, -0.5, -1.4 }, { -0.0, 2.0, -2.4, -2.2, -2.3, -2.4, -0.3, -0.3, -0.2 } };
+        var inCoordsB = new float[3, 9] { { -0.0f, -2.3f, -8.1f, -4.3f, -2.5f, -7.1f, -1.0f, -3.3f, -6.0f }, { -5.5f, -1.0f, -4.0f, -5.0f, -1.0f, -1.0f, -1.5f, -0.5f, -1.4f }, { -0.0f, 2.0f, -2.4f, -2.2f, -2.3f, -2.4f, -0.3f, -0.3f, -0.2f } };
 
         // Invoke GJK to compute distance
         dist = compute_minimum_distance(nCoordsA, inCoordsA, nCoordsB, inCoordsB);
