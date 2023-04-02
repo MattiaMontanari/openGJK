@@ -867,7 +867,7 @@ mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 /**
  * @brief Invoke this function from C# applications
  */
-gkFloat
+extern gkFloat
 csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB, gkFloat* inCoordsB) {
   gkFloat distance = 0;
   int i, j;
