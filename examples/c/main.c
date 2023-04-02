@@ -68,11 +68,11 @@ readinput(const char* inputfile, gkFloat*** pts, int* out) {
       return 1;
     }
 #else
-    return 1;
-    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3) {}
+    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3) {
+      return 1;
+    }
 #endif
   }
-
   fclose(fp);
 
   *pts = arr;
