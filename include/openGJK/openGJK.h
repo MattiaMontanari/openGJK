@@ -23,7 +23,7 @@
 /**
  * @file openGJK.h
  * @author Mattia Montanari
- * @date 1 Jan 2022
+ * @date 1 Jan 2023
  * @brief Main interface of OpenGJK containing quick reference and API documentation.
  *
  * @see https://www.mattiamontanari.com/opengjk/
@@ -31,10 +31,6 @@
 
 #ifndef OPENGJK_H__
 #define OPENGJK_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*! @brief Precision of floating-point numbers.
  *
@@ -64,9 +60,5 @@ typedef struct gkSimplex_ {
    *
    * The simplex has to be initialised prior the call to this function. */
 gkFloat compute_minimum_distance(const gkPolytope p_, const gkPolytope q_, gkSimplex* s_);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // OPENGJK_H__
