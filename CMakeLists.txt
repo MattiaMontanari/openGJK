@@ -65,6 +65,10 @@ if(BUILD_MONO)
     add_compile_definitions(CS_MONO_BUILD)
 endif(BUILD_MONO)
 
+if(SINGLE_PRECISION)
+    add_compile_definitions(USE_32BITS)
+endif(SINGLE_PRECISION)
+
 add_library( obj_openGJK 
     OBJECT
         ${CMAKE_CURRENT_SOURCE_DIR}/openGJK.c 

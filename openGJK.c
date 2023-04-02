@@ -43,8 +43,8 @@
 #define mexPrintf printf
 #endif
 
-#define eps_rel22        1e-10
-#define eps_tot22        1e-12
+#define eps_rel22        (gkFloat) gkEpsilon * 1e4f
+#define eps_tot22        (gkFloat) gkEpsilon * 1e2f
 
 #define norm2(a)         (a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
 #define dotProduct(a, b) (a[0] * b[0] + a[1] * b[1] + a[2] * b[2])

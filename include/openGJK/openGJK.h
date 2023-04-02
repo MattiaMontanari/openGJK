@@ -32,10 +32,17 @@
 #ifndef OPENGJK_H__
 #define OPENGJK_H__
 
+#include <float.h>
 /*! @brief Precision of floating-point numbers.
  *
  * Default is set to 64-bit (Double). Change this to quickly play around with 16- and 32-bit. */
-#define gkFloat double
+#ifdef USE_32BITS
+#define gkFloat   float
+#define gkEpsilon FLT_EPSILON
+#else
+#define gkFloat   double
+#define gkEpsilon DBL_EPSILON
+#endif
 
 /*! @brief Data structure for convex polytopes.
    *

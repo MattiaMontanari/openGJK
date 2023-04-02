@@ -32,7 +32,7 @@
 
 /// @brief Function for reading input file with body's coordinates.
 int
-readinput(const char* inputfile, double*** pts, int* out) {
+readinput(const char* inputfile, gkFloat*** pts, int* out) {
   int npoints = 0;
   int idx = 0;
   FILE* fp;
@@ -56,16 +56,21 @@ readinput(const char* inputfile, double*** pts, int* out) {
   }
 
   /* Allocate memory. */
-  double** arr = (double**)malloc(npoints * sizeof(double*));
+  gkFloat** arr = (gkFloat**)malloc(npoints * sizeof(gkFloat*));
   for (int i = 0; i < npoints; i++) {
-    arr[i] = (double*)malloc(3 * sizeof(double));
+    arr[i] = (gkFloat*)malloc(3 * sizeof(gkFloat));
   }
 
   /* Read and store vertices' coordinates. */
   for (idx = 0; idx < npoints; idx++) {
-    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3) {
+#ifdef USE_32BITS
+    if (fscanf_s(fp, "%f %f %f\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3) {
       return 1;
     }
+#else
+    return 1;
+    if (fscanf_s(fp, "%lf %lf %lf\n", &arr[idx][0], &arr[idx][1], &arr[idx][2]) != 3) {}
+#endif
   }
 
   fclose(fp);
@@ -83,7 +88,7 @@ readinput(const char* inputfile, double*** pts, int* out) {
 int
 main() {
   /* Squared distance computed by openGJK.                                 */
-  double dd;
+  gkFloat dd;
   /* Structure of simplex used by openGJK.                                 */
   gkSimplex s;
   /* Number of vertices defining body 1 and body 2, respectively.          */
@@ -94,7 +99,7 @@ main() {
   /* Specify name of input files for body 1 and body 2, respectively.      */
   char inputfileA[40] = "userP.dat", inputfileB[40] = "userQ.dat";
   /* Pointers to vertices' coordinates of body 1 and body 2, respectively. */
-  double(**vrtx1) = NULL, (**vrtx2) = NULL;
+  gkFloat(**vrtx1) = NULL, (**vrtx2) = NULL;
 
   /* For importing openGJK this is Step 2: adapt the data structure for the
    * two bodies that will be passed to the GJK procedure. */
