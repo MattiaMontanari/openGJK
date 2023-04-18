@@ -20,12 +20,20 @@
 < ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS     >
 < FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           -->
 
-# Get started
+# OpenGJK
 
-On Linux, Mac or Windows, if you have a basic C/C++ toolchain installed (git, compiler and cmake) clone this repo:
+A fast and robust C implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm with interfaces for C#, Go, Matlab and Python. A Unity Plug-in [is also available in another repository](https://github.com/MattiaMontanari/urban-couscous).
+
+Useful links: [API references](https://www.mattiamontanari.com/opengjk/docsapi/), [documentation](https://www.mattiamontanari.com/opengjk/docs/) and [automated benchmarks](https://www.mattiamontanari.com/opengjk/docs/benchmarks/).
+
+## Getting started
+
+On Linux, Mac or Windows, install a basic C/C++ toolchain - for example: git, compiler and cmake.
+
+Next, clone this repo:
 
 ``` bash
-git clone https://github.com/MattiaMontanari/openGJK.git
+git clone https://github.com/MattiaMontanari/openGJK
 ```
 
 Then use these commands to build and run an example:
@@ -37,19 +45,21 @@ cmake --build build
 cmake -E chdir build/examples/c ./example_lib_opengjk_ce
 ```
 
-If you get no errors, the successfull output is:
+The successful output should be:
 
+>
 > `Distance between bodies 3.653650`
+>  
 
-However, if you do get an error - any error - please file a bug! Support requests are welcome too.
+However, if you do get an error - any error - please file a bug. Support requests are welcome.
 
-# Use OpenGJK in your project
+## Use OpenGJK in your project
 
-The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab and Python. I aim to publish few more for Julia and Unity.
+The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab and Python. I aim to publish few more for Julia.
 
 Take a look at the `examples` folder in this repo and have fun. File a request if you wish to see more!
 
-# Contribute
+## Contribute
 
 You are very welcome to:
 
