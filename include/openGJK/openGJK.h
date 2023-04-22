@@ -46,18 +46,18 @@
 
 /*! @brief Data structure for convex polytopes.
    *
-   * Polytopes are three-dimensional shapes and the GJK algorithm works directly on their convex-hull. However the convex-hull is never computed explicity, instead each GJK-iteraion employs a support function that has a cost linearly dependen on the number of points defining the polytope. */
+   * Polytopes are three-dimensional shapes and the GJK algorithm works directly on their convex-hull. However the convex-hull is never computed explicitly, instead each GJK-iteration employs a support function that has a cost linearly dependent on the number of points defining the polytope. */
 typedef struct gkPolytope_ {
   int numpoints; /*!< Number of points defining the polytope. */
   gkFloat s
-      [3]; /*!< Furthest point retunred by the support function and updated at each GJK-iteration. For the first itearion this value is a guess - and this guess not irrelevant. */
+      [3]; /*!< Furthest point returned by the support function and updated at each GJK-iteration. For the first iteration this value is a guess - and this guess not irrelevant. */
   gkFloat**
       coord; /*!< Coordinates of the points of the polytope. This is owned by user who manages and garbage-collects the memory for these coordinates. */
 } gkPolytope;
 
 /*! @brief Data structure for simplex.
    *
-   * The simplex is updated at each GJK-iteration. For the first itearion this value is a guess - and this guess not irrelevant. */
+   * The simplex is updated at each GJK-iteration. For the first iteration this value is a guess - and this guess not irrelevant. */
 typedef struct gkSimplex_ {
   int nvrtx;          /*!< Number of points defining the simplex. */
   gkFloat vrtx[4][3]; /*!< Coordinates of the points of the simplex. */

@@ -153,20 +153,20 @@
   s->vrtx[0][2] = s1[2];
 
 inline static gkFloat
-determinant(const gkFloat* p, const gkFloat* q, const gkFloat* r) {
+determinant(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
   return p[0] * ((q[1] * r[2]) - (r[1] * q[2])) - p[1] * (q[0] * r[2] - r[0] * q[2])
          + p[2] * (q[0] * r[1] - r[0] * q[1]);
 }
 
 inline static void
-crossProduct(const gkFloat* a, const gkFloat* b, gkFloat* c) {
+crossProduct(const gkFloat* restrict a, const gkFloat* restrict b, gkFloat* restrict c) {
   c[0] = a[1] * b[2] - a[2] * b[1];
   c[1] = a[2] * b[0] - a[0] * b[2];
   c[2] = a[0] * b[1] - a[1] * b[0];
 }
 
 inline static void
-projectOnLine(const gkFloat* p, const gkFloat* q, gkFloat* v) {
+projectOnLine(const gkFloat* restrict p, const gkFloat* restrict q, gkFloat* restrict v) {
   gkFloat pq[3];
   gkFloat tmp;
   pq[0] = p[0] - q[0];
@@ -181,7 +181,7 @@ projectOnLine(const gkFloat* p, const gkFloat* q, gkFloat* v) {
 }
 
 inline static void
-projectOnPlane(const gkFloat* p, const gkFloat* q, const gkFloat* r, gkFloat* v) {
+projectOnPlane(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r, gkFloat* restrict v) {
   gkFloat n[3], pq[3], pr[3];
   gkFloat tmp;
 
@@ -201,7 +201,7 @@ projectOnPlane(const gkFloat* p, const gkFloat* q, const gkFloat* r, gkFloat* v)
 }
 
 inline static int
-hff1(const gkFloat* p, const gkFloat* q) {
+hff1(const gkFloat* restrict p, const gkFloat* restrict q) {
   gkFloat tmp = 0;
 
   for (int i = 0; i < 3; i++) {
@@ -215,7 +215,7 @@ hff1(const gkFloat* p, const gkFloat* q) {
 }
 
 inline static int
-hff2(const gkFloat* p, const gkFloat* q, const gkFloat* r) {
+hff2(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
   gkFloat ntmp[3];
   gkFloat n[3], pq[3], pr[3];
   gkFloat tmp = 0;
@@ -242,7 +242,7 @@ hff2(const gkFloat* p, const gkFloat* q, const gkFloat* r) {
 }
 
 inline static int
-hff3(const gkFloat* p, const gkFloat* q, const gkFloat* r) {
+hff3(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
   gkFloat n[3], pq[3], pr[3];
   gkFloat tmp = 0;
 
@@ -268,8 +268,8 @@ hff3(const gkFloat* p, const gkFloat* q, const gkFloat* r) {
 
 inline static void
 S1D(gkSimplex* s, gkFloat* v) {
-  gkFloat* s1p = s->vrtx[1];
-  gkFloat* s2p = s->vrtx[0];
+  const gkFloat* restrict s1p = s->vrtx[1];
+  const gkFloat* restrict s2p = s->vrtx[0];
 
   if (hff1(s1p, s2p)) {
     projectOnLine(s1p, s2p, v); // Update v, no need to update s
@@ -622,7 +622,7 @@ S3D(gkSimplex* s, gkFloat* v) {
 }
 
 inline static void
-support(gkPolytope* body, const gkFloat* v) {
+support(gkPolytope* restrict body, const gkFloat* restrict v) {
   gkFloat s, maxs;
   gkFloat* vrt;
   int better = -1;
@@ -663,7 +663,7 @@ subalgorithm(gkSimplex* s, gkFloat* v) {
 }
 
 gkFloat
-compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* s) {
+compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) {
   int k = 0;   /**< Iteration counter            */
   int i;       /**< General purpose counter      */
   int mk = 25; /**< Maximum number of iterations of the GJK algorithm */
