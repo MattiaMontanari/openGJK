@@ -103,11 +103,6 @@
   for (t = 0; t < 3; t++)                                                                                              \
     s->vrtx[0][t] = sk[t];
 
-#define getvrtx(point, location)                                                                                       \
-  point[0] = s->vrtx[location][0];                                                                                     \
-  point[1] = s->vrtx[location][1];                                                                                     \
-  point[2] = s->vrtx[location][2];
-
 #define calculateEdgeVector(p1p2, p2)                                                                                  \
   p1p2[0] = p2[0] - s->vrtx[3][0];                                                                                     \
   p1p2[1] = p2[1] - s->vrtx[3][1];                                                                                     \
