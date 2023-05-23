@@ -168,12 +168,11 @@ crossProduct(const gkFloat* restrict a, const gkFloat* restrict b, gkFloat* rest
 inline static void
 projectOnLine(const gkFloat* restrict p, const gkFloat* restrict q, gkFloat* restrict v) {
   gkFloat pq[3];
-  gkFloat tmp;
   pq[0] = p[0] - q[0];
   pq[1] = p[1] - q[1];
   pq[2] = p[2] - q[2];
 
-  tmp = dotProduct(p, pq) / dotProduct(pq, pq);
+  const gkFloat tmp = dotProduct(p, pq) / dotProduct(pq, pq);
 
   for (int i = 0; i < 3; i++) {
     v[i] = p[i] - pq[i] * tmp;
@@ -183,7 +182,6 @@ projectOnLine(const gkFloat* restrict p, const gkFloat* restrict q, gkFloat* res
 inline static void
 projectOnPlane(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r, gkFloat* restrict v) {
   gkFloat n[3], pq[3], pr[3];
-  gkFloat tmp;
 
   for (int i = 0; i < 3; i++) {
     pq[i] = p[i] - q[i];
@@ -193,7 +191,7 @@ projectOnPlane(const gkFloat* restrict p, const gkFloat* restrict q, const gkFlo
   }
 
   crossProduct(pq, pr, n);
-  tmp = dotProduct(n, p) / dotProduct(n, n);
+  const gkFloat tmp = dotProduct(n, p) / dotProduct(n, n);
 
   for (int i = 0; i < 3; i++) {
     v[i] = n[i] * tmp;
@@ -218,7 +216,6 @@ inline static int
 hff2(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
   gkFloat ntmp[3];
   gkFloat n[3], pq[3], pr[3];
-  gkFloat tmp = 0;
 
   for (int i = 0; i < 3; i++) {
     pq[i] = q[i] - p[i];
@@ -230,21 +227,12 @@ hff2(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restri
   crossProduct(pq, pr, ntmp);
   crossProduct(pq, ntmp, n);
 
-  for (int i = 0; i < 3; i++) {
-    tmp = tmp + (p[i] * n[i]);
-  }
-
-  if (tmp < 0) {
-    return 1; // Discard r
-  }
-
-  return 0;
+  return dotProduct(p, n) < 0; // Discard r if true
 }
 
 inline static int
 hff3(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
   gkFloat n[3], pq[3], pr[3];
-  gkFloat tmp = 0;
 
   for (int i = 0; i < 3; i++) {
     pq[i] = q[i] - p[i];
@@ -254,16 +242,7 @@ hff3(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restri
   }
 
   crossProduct(pq, pr, n);
-
-  for (int i = 0; i < 3; i++) {
-    tmp = tmp + (p[i] * n[i]);
-  }
-
-  if (tmp > 0) {
-    return 0; // discard s
-  }
-
-  return 1;
+  return dotProduct(p, n) <= 0; // discard s if true
 }
 
 inline static void
@@ -282,17 +261,17 @@ S1D(gkSimplex* s, gkFloat* v) {
 
 inline static void
 S2D(gkSimplex* s, gkFloat* v) {
-  gkFloat* s1p = s->vrtx[2];
-  gkFloat* s2p = s->vrtx[1];
-  gkFloat* s3p = s->vrtx[0];
-  int hff1f_s12 = hff1(s1p, s2p);
-  int hff1f_s13 = hff1(s1p, s3p);
+  const gkFloat* s1p = s->vrtx[2];
+  const gkFloat* s2p = s->vrtx[1];
+  const gkFloat* s3p = s->vrtx[0];
+  const int hff1f_s12 = hff1(s1p, s2p);
+  const int hff1f_s13 = hff1(s1p, s3p);
 
   if (hff1f_s12) {
-    int hff2f_23 = !hff2(s1p, s2p, s3p);
+    const int hff2f_23 = !hff2(s1p, s2p, s3p);
     if (hff2f_23) {
       if (hff1f_s13) {
-        int hff2f_32 = !hff2(s1p, s3p, s2p);
+        const int hff2f_32 = !hff2(s1p, s3p, s2p);
         if (hff2f_32) {
           projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update c
           return;                           // Return V{1,2,3}
@@ -311,7 +290,7 @@ S2D(gkSimplex* s, gkFloat* v) {
       return;                     // Return V{1,2}
     }
   } else if (hff1f_s13) {
-    int hff2f_32 = !hff2(s1p, s3p, s2p);
+    const int hff2f_32 = !hff2(s1p, s3p, s2p);
     if (hff2f_32) {
       projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update v
       return;                           // Return V{1,2,3}
@@ -354,13 +333,8 @@ S3D(gkSimplex* s, gkFloat* v) {
     return;
   }
 
-  gkFloat det134 = determinant(s1s3, s1s4, s1s2);
-  int sss;
-  if (det134 > 0) {
-    sss = 0;
-  } else {
-    sss = 1;
-  }
+  const gkFloat det134 = determinant(s1s3, s1s4, s1s2);
+  const int sss = (det134 <= 0);
 
   testPlaneTwo = hff3(s1, s3, s4) - sss;
   testPlaneTwo = testPlaneTwo * testPlaneTwo;
@@ -664,21 +638,17 @@ subalgorithm(gkSimplex* s, gkFloat* v) {
 
 gkFloat
 compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) {
-  int k = 0;   /**< Iteration counter            */
-  int i;       /**< General purpose counter      */
-  int mk = 25; /**< Maximum number of iterations of the GJK algorithm */
-  int absTestin;
+  unsigned int k = 0;                /**< Iteration counter                 */
+  const int mk = 25;                 /**< Maximum number of GJK iterations  */
+  const gkFloat eps_rel = eps_rel22; /**< Tolerance on relative             */
+  const gkFloat eps_tot = eps_tot22; /**< Tolerance on absolute distance    */
+
+  const gkFloat eps_rel2 = eps_rel * eps_rel;
+  unsigned int i;
+  gkFloat w[3];
+  gkFloat v[3];
+  gkFloat vminus[3];
   gkFloat norm2Wmax = 0;
-  gkFloat tesnorm;
-  gkFloat v[3];                /**< Search direction             */
-  gkFloat vminus[3];           /**< Search direction * -1        */
-  gkFloat w[3];                /**< Vertex on CSO boundary given by the difference of support
-                                 functions on both bodies */
-  gkFloat eps_rel = eps_rel22; /**< Tolerance on relative        */
-  gkFloat eps_rel2 = eps_rel * eps_rel;
-  gkFloat eps_tot = eps_tot22;
-  gkFloat exeedtol_rel; /**< Test for 1st exit condition  */
-  int nullV = 0;
 
   /* Initialise search direction */
   v[0] = bd1.coord[0][0] - bd2.coord[0][0];
@@ -717,13 +687,12 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
 
     /* Test first exit condition (new point already in simplex/can't move
      * further) */
-    exeedtol_rel = (norm2(v) - dotProduct(v, w));
+    gkFloat exeedtol_rel = (norm2(v) - dotProduct(v, w));
     if (exeedtol_rel <= (eps_rel * norm2(v)) || exeedtol_rel < eps_tot22) {
       break;
     }
 
-    nullV = norm2(v) < eps_rel2;
-    if (nullV) {
+    if (norm2(v) < eps_rel2) { // it a null V
       break;
     }
 
@@ -739,14 +708,13 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
 
     /* Test */
     for (int jj = 0; jj < s->nvrtx; jj++) {
-      tesnorm = norm2(s->vrtx[jj]);
+      gkFloat tesnorm = norm2(s->vrtx[jj]);
       if (tesnorm > norm2Wmax) {
         norm2Wmax = tesnorm;
       }
     }
 
-    absTestin = (norm2(v) <= (eps_tot * eps_tot * norm2Wmax));
-    if (absTestin) {
+    if ((norm2(v) <= (eps_tot * eps_tot * norm2Wmax))) {
       break;
     }
 
