@@ -103,6 +103,11 @@
   for (t = 0; t < 3; t++)                                                                                              \
     s->vrtx[0][t] = sk[t];
 
+#define getvrtx(point, location)                                                                                       \
+  point[0] = s->vrtx[location][0];                                                                                     \
+  point[1] = s->vrtx[location][1];                                                                                     \
+  point[2] = s->vrtx[location][2];
+
 #define calculateEdgeVector(p1p2, p2)                                                                                  \
   p1p2[0] = p2[0] - s->vrtx[3][0];                                                                                     \
   p1p2[1] = p2[1] - s->vrtx[3][1];                                                                                     \
@@ -302,15 +307,15 @@ S2D(gkSimplex* s, gkFloat* v) {
 
 inline static void
 S3D(gkSimplex* s, gkFloat* v) {
-  gkFloat s1s2[3], s1s3[3], s1s4[3];
-  // gkFloat si[3], sj[3], sk[3];
+  gkFloat s1[3], s2[3], s3[3], s4[3], s1s2[3], s1s3[3], s1s4[3];
+  gkFloat si[3], sj[3], sk[3];
   int testLineThree, testLineFour, testPlaneTwo, testPlaneThree, testPlaneFour, dotTotal;
   int i, j, k, t;
 
-  const gkFloat* s1 = s->vrtx[3];
-  const gkFloat* s2 = s->vrtx[2];
-  const gkFloat* s3 = s->vrtx[1];
-  const gkFloat* s4 = s->vrtx[0];
+  getvrtx(s1, 3);
+  getvrtx(s2, 2);
+  getvrtx(s3, 1);
+  getvrtx(s4, 0);
   calculateEdgeVector(s1s2, s2);
   calculateEdgeVector(s1s3, s3);
   calculateEdgeVector(s1s4, s4);
@@ -395,9 +400,9 @@ S3D(gkSimplex* s, gkFloat* v) {
         j = 1;
       }
 
-      const gkFloat* si = s->vrtx[i];
-      const gkFloat* sj = s->vrtx[j];
-      const gkFloat* sk = s->vrtx[k];
+      getvrtx(si, i);
+      getvrtx(sj, j);
+      getvrtx(sk, k);
 
       if (dotTotal == 1) {
         if (hff1_tests[k]) {
@@ -531,10 +536,9 @@ S3D(gkSimplex* s, gkFloat* v) {
           i = 2; // s2
           j = 1;
         }
-
-        const gkFloat* si = s->vrtx[i];
-        const gkFloat* sj = s->vrtx[j];
-        const gkFloat* sk = s->vrtx[k];
+        getvrtx(si, i);
+        getvrtx(sj, j);
+        getvrtx(sk, k);
 
         if (!hff2(s1, si, sj)) {
           select_1ij();
@@ -562,10 +566,9 @@ S3D(gkSimplex* s, gkFloat* v) {
           i = 2; // s2
           j = 1;
         }
-
-        const gkFloat* si = s->vrtx[i];
-        const gkFloat* sj = s->vrtx[j];
-        const gkFloat* sk = s->vrtx[k];
+        getvrtx(si, i);
+        getvrtx(sj, j);
+        getvrtx(sk, k);
 
         if (!hff2(s1, sj, sk)) {
           if (!hff2(s1, sk, sj)) {
@@ -718,7 +721,8 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
   } while ((s->nvrtx != 4) && (k != mk));
 
   if (k == mk) {
-    mexPrintf("\n  MAXIMUM ITERATION NUMBER REACHED! \n");
+    mexPrintf("\n * * * * * * * * * * * * MAXIMUM ITERATION NUMBER REACHED!!!  "
+              " * * * * * * * * * * * * * * \n");
   }
 
   return sqrt(norm2(v));
