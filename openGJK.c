@@ -635,20 +635,17 @@ subalgorithm(gkSimplex* s, gkFloat* v) {
 
 gkFloat
 compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) {
-  unsigned int k = 0;                /**< Iteration counter            */
-  unsigned int i;                    /**< General purpose counter      */
-  const int mk = 25;                 /**< Maximum number of iterations of the GJK algorithm */
-  gkFloat v[3];                      /**< Search direction             */
-  gkFloat vminus[3];                 /**< Search direction * -1        */
-  gkFloat w[3];                      /**< Vertex on CSO boundary given by the difference of support
-                                 functions on both bodies */
-  const gkFloat eps_rel = eps_rel22; /**< Tolerance on relative        */
+  unsigned int k = 0;                /**< Iteration counter                 */
+  const int mk = 25;                 /**< Maximum number of GJK iterations  */
+  const gkFloat eps_rel = eps_rel22; /**< Tolerance on relative             */
+  const gkFloat eps_tot = eps_tot22; /**< Tolerance on absolute distance    */
+
   const gkFloat eps_rel2 = eps_rel * eps_rel;
-  const gkFloat eps_tot = eps_tot22;
-  gkFloat exeedtol_rel; /**< Test for 1st exit condition  */
-  int absTestin;
+  unsigned int i;
+  gkFloat w[3];
+  gkFloat v[3];
+  gkFloat vminus[3];
   gkFloat norm2Wmax = 0;
-  gkFloat tesnorm;
 
   /* Initialise search direction */
   v[0] = bd1.coord[0][0] - bd2.coord[0][0];
@@ -687,7 +684,7 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
 
     /* Test first exit condition (new point already in simplex/can't move
      * further) */
-    exeedtol_rel = (norm2(v) - dotProduct(v, w));
+    gkFloat exeedtol_rel = (norm2(v) - dotProduct(v, w));
     if (exeedtol_rel <= (eps_rel * norm2(v)) || exeedtol_rel < eps_tot22) {
       break;
     }
@@ -708,14 +705,13 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
 
     /* Test */
     for (int jj = 0; jj < s->nvrtx; jj++) {
-      tesnorm = norm2(s->vrtx[jj]);
+      gkFloat tesnorm = norm2(s->vrtx[jj]);
       if (tesnorm > norm2Wmax) {
         norm2Wmax = tesnorm;
       }
     }
 
-    absTestin = (norm2(v) <= (eps_tot * eps_tot * norm2Wmax));
-    if (absTestin) {
+    if ((norm2(v) <= (eps_tot * eps_tot * norm2Wmax))) {
       break;
     }
 
