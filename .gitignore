@@ -235,3 +235,7 @@ callgrind.out.*
 .pytest_cache
 .mypy_cache
 
+*.so
+*.dylib
+*.dll
+
