@@ -99,7 +99,7 @@ endif(BUILD_EXAMPLE)
 
 # Install  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 if (UNIX)
-    set(DESTDIR "/usr")
+    set(DESTDIR "/usr/local")
     INSTALL(TARGETS opengjk_ce 
         LIBRARY DESTINATION "${DESTDIR}/lib"
         PUBLIC_HEADER DESTINATION "${DESTDIR}/include"
