@@ -2,10 +2,7 @@
 build*/*
 *.so
 public/
-<<<<<<< HEAD
 *.exe
-=======
->>>>>>> master
 
 # Eclispe setting --- do not ignore *.cproject and *.project
 */**/.settings
@@ -237,8 +234,4 @@ callgrind.out.*
 .cache
 .pytest_cache
 .mypy_cache
-<<<<<<< HEAD
-=======
-=======
->>>>>>> master
->>>>>>> cmakeWin
+
