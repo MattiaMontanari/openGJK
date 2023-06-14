@@ -102,7 +102,10 @@ if (UNIX)
     set(DESTDIR "/usr/local")
     INSTALL(TARGETS opengjk_ce 
         LIBRARY DESTINATION "${DESTDIR}/lib"
-        PUBLIC_HEADER DESTINATION "${DESTDIR}/include"
+        PERMISSIONS WORLD_WRITE
+    )
+    INSTALL(TARGETS obj_openGJK
+        PUBLIC_HEADER DESTINATION "${DESTDIR}/include/openGJK"
         PERMISSIONS WORLD_WRITE
     )
 endif (UNIX)
