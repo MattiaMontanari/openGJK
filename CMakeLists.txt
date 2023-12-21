@@ -81,7 +81,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/include
 ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+IF (NOT WIN32)
 target_link_libraries(obj_openGJK PRIVATE m)
+ENDIF()
 
 set_target_properties(obj_openGJK 
     PROPERTIES 
