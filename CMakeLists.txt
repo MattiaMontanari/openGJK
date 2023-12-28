@@ -47,12 +47,14 @@ project(lib_opengjk_ce
 
 # Compiler flags  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 message(STATUS "Compiler in use: ${CMAKE_C_COMPILER_ID}")
-set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall")
-set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror")
 
 if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall")
+    set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall")
+    set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror")
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wunused-macros -Wno-unused-command-line-argument")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "Intel")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")

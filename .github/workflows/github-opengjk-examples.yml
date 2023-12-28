@@ -30,7 +30,8 @@ jobs:
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake ..
       - run: cmake --build build
-      - run: cmake -E chdir build/examples/c/Debug ./example_lib_opengjk_ce.exe
+      - run: cmake -E copy build/examples/c/Debug/example_lib_opengjk_ce.exe build/examples/c
+      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce.exe
 
   Cython:
     runs-on: ubuntu-latest
