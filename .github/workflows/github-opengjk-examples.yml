@@ -34,7 +34,8 @@ jobs:
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DSINGLE_PRECISION=ON ..
       - run: cmake --build build --target opengjk_ce
       - run: cmake -E chdir build make install
-      - run: cd examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
+      - run: cd examples/cs/ && cp ../../build/*opengjk_ce* .
+      - run: mcs -out:main.exe main.cs && mono main.exe
 
   GO:
     runs-on: ubuntu-latest
