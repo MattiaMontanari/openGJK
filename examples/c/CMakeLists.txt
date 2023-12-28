@@ -26,7 +26,12 @@ project(example_lib_opengjk_ce
 )
 
 add_executable(example_lib_opengjk_ce ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
+
+IF (WIN32)
+target_link_libraries(example_lib_opengjk_ce obj_openGJK)
+ELSE()
 target_link_libraries(example_lib_opengjk_ce obj_openGJK m)
+ENDIF()
 
 # Copy input files for this example after build
 add_custom_command(
