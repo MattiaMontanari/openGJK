@@ -2,7 +2,7 @@ name: Run all demos
 run-name: ${{ github.actor }} is running
 on: [push]
 jobs:
-  C:
+  C_GCC:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
     steps:
@@ -12,6 +12,26 @@ jobs:
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release ..
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
+
+  C_msvs:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Print env
+        run: |
+          echo github.event.action: ${{ github.event.action }}
+          echo github.event_name: ${{ github.event_name }}
+      - name: Install dependencies on windows
+        run: |
+          choco install ninja cmake
+          ninja --version
+          cmake --version
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake ..
+      - run: cmake --build build
+      - run: cmake -E copy build/examples/c/Debug/example_lib_opengjk_ce.exe build/examples/c
+      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce.exe
 
   Cython:
     runs-on: ubuntu-latest
@@ -34,6 +54,7 @@ jobs:
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DSINGLE_PRECISION=ON ..
       - run: cmake --build build --target opengjk_ce
       - run: cmake -E chdir build make install
+      - run: cmake -E copy build/*opengjk_ce* examples/cs/
       - run: cd examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
 
   GO:
