@@ -30,7 +30,7 @@ jobs:
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release ..
       - run: cmake --build build
-      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
+      - run: cmake -E chdir build/examples/c/ ls
 
   Cython:
     runs-on: ubuntu-latest
