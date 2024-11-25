@@ -10,7 +10,6 @@ pub fn build(b: *std.Build) void {
     // Add C source files for the library
     lib.addCSourceFile(.{
         .file = b.path("../../openGJK.c"),
-        .flags = &[_][]const u8{ "-std=c99", "-fPIC", "-v" },
     });
 
     lib.addIncludePath(b.path("../../include/"));
@@ -31,9 +30,6 @@ pub fn build(b: *std.Build) void {
     // Add C source file for the example
     example.addCSourceFile(.{
         .file = b.path("../c/main.c"),
-        .flags = &[_][]const u8{
-            "-std=c99",
-        },
     });
 
     example.addIncludePath(b.path("../../include/"));
