@@ -39,7 +39,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: apt-get update -y && apt-get install python3-setuptools numpy pytest scipy Cython -y
+      - run: apt-get update -y && apt-get install python3-setuptools 
+      - run: pip3 install numpy pytest scipy Cython -y
       - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
       - run: cd examples/cython/ && pytest test.py
 
