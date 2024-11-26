@@ -1,6 +1,9 @@
 name: Run all demos
 run-name: ${{ github.actor }} is running
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: '0 0 1,15 * *'
 jobs:
   C_GCC:
     runs-on: ubuntu-latest
