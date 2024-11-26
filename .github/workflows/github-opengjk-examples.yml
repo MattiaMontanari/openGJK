@@ -1,6 +1,9 @@
 name: Run all demos
 run-name: ${{ github.actor }} is running
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: '0 0 1,15 * *'
 jobs:
   C_GCC:
     runs-on: ubuntu-latest
@@ -39,6 +42,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - run: apt-get update -y && apt-get install python3-setuptools python3-pip -y
+      - run: pip3 install numpy pytest scipy Cython
       - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
       - run: cd examples/cython/ && pytest test.py
 
@@ -75,3 +80,14 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: cd examples/matlab/; octave runme.m
+      
+  Zig:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+      - name: Build and run
+        run: cd examples/zig && zig build && zig build run
