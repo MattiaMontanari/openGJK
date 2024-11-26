@@ -221,3 +221,7 @@ callgrind.out.*
 *.dylib
 *.dll
 
+# Zig
+
+.zig-cache/
+zig-out/
