@@ -85,6 +85,4 @@ jobs:
         with:
           version: 0.13.0
       - name: Build and run
-        run: cd examples/zig |
-          zig build
-          zig build run
+        run: cd examples/zig && zig build && zig build run
