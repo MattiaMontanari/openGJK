@@ -55,7 +55,7 @@ However, if you do get an error - any error - please file a bug. Support request
 
 ## Use OpenGJK in your project
 
-The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab and Python. I aim to publish few more for Julia.
+The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab, ZIg and Python. I aim to publish few more for Julia.
 
 Take a look at the `examples` folder in this repo and have fun. File a request if you wish to see more!
 
