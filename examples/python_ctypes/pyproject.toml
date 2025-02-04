@@ -12,6 +12,7 @@ authors = [
 description = "A fast and robust C implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm"
 dependencies = [
 ]
+readme = "README.md"
 
 [project.optional-dependencies]
 test = [

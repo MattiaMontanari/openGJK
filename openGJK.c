@@ -747,12 +747,33 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
     po[t] = -p[t];
   }
 
-  // Compute barycentric coordinates via matrix inversion
-  // TODO add Latex explaining what is going on
-  const gkFloat M00 = dotProduct(pq, pq);
-  const gkFloat M01 = dotProduct(pq, pr);
-  const gkFloat M11 = dotProduct(pr, pr);
-  const gkFloat det = M00 * M11 - M01 * M01;
+  /**
+   *  Compute barycentric coordinates via matrix inversion
+   *  Given the points $P$, $Q$, and $R$ forming a triangle
+   *  we want to find the barycentric coordinates of the origin
+   *  projected onto the triangle. We can do this
+   *  by inverting $\mathbf{T}$ in the linear equation below:
+   *
+   *  \begin{align*}
+   *  \mathbf{T}
+   *  \begin{bmatrix}
+   *  \lambda_q \\
+   *  \lambda_r
+   *  \end{bmatrix} &= \begin{bmatrix}
+   *  \overrightarrow{PQ}\cdot\overrightarrow{PO} \\
+   *  \overrightarrow{PR}\cdot\overrightarrow{PO}
+   *  \end{bmatrix} \\
+   *  \lambda_p &= 1 - \lambda_q - \lambda_r \\
+   *  \mathbf{T} &= \begin{bmatrix}
+   *  \overrightarrow{PQ}\cdot\overrightarrow{PQ} & \overrightarrow{PR}\cdot\overrightarrow{PQ} \\
+   *  \overrightarrow{PR}\cdot\overrightarrow{PQ} & \overrightarrow{PR}\cdot\overrightarrow{PR}
+   *  \end{bmatrix}
+   *  \end{align*}
+   */
+  const gkFloat T00 = dotProduct(pq, pq);
+  const gkFloat T01 = dotProduct(pq, pr);
+  const gkFloat T11 = dotProduct(pr, pr);
+  const gkFloat det = T00 * T11 - T01 * T01;
   if(det == 0.0){
     // Degenerate case
     W1D(bd1, bd2, smp);
@@ -760,13 +781,15 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
 
   const gkFloat b0 = dotProduct(pq, po);
   const gkFloat b1 = dotProduct(pr, po);
-  const gkFloat I00 = M11 / det;
-  const gkFloat I01 = -M01 / det;
-  const gkFloat I11 = M00 / det;
+  const gkFloat I00 = T11 / det;
+  const gkFloat I01 = -T01 / det;
+  const gkFloat I11 = T00 / det;
   const gkFloat a1 = I00 * b0 + I01 * b1;
   const gkFloat a2 = I01 * b0 + I11 * b1;
   const gkFloat a0 = 1.0 - a1 - a2;
 
+  // check if the origin is very close to one of the edges of the
+  // simplex. In this case, a 1D projection will be more accurate.
   if (a0 < gkEpsilon)
   {
     smp->nvrtx = 2;
@@ -794,7 +817,7 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
   }
 
   // Compute witness points
-  // This is done by blending the original points using
+  // This is done by blending the source points using
   // the barycentric coordinates
   const gkFloat* w00 = bd1->coord[smp->vrtx_idx[0][0]];
   const gkFloat* w01 = bd2->coord[smp->vrtx_idx[0][1]];
@@ -825,18 +848,43 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
     po[t] = -p[t];
   }
 
-  // Compute barycentric coordinates via matrix inversion
-  // TODO add Latex explaining what is going on
-  const gkFloat M00 = dotProduct(pq, pq);
-  const gkFloat M01 = dotProduct(pq, pr);
-  const gkFloat M02 = dotProduct(pq, ps);
-  const gkFloat M11 = dotProduct(pr, pr);
-  const gkFloat M12 = dotProduct(pr, ps);
-  const gkFloat M22 = dotProduct(ps, ps);
-  const gkFloat det00 = M11 * M22 - M12 * M12;
-  const gkFloat det01 = M01 * M22 - M02 * M12;
-  const gkFloat det02 = M01 * M12 - M02 * M11;
-  const gkFloat det = M00 * det00 - M01 * det01 + M02 * det02;
+  /**
+   *  Compute barycentric coordinates via matrix inversion
+   *  Given the points $P$, $Q$, and $R$, and $S$ forming a
+   *  tetrahedron we want to find the barycentric coordinates of
+   *  the origin. We can do this by inverting $\mathbf{T}$ in the
+   *  linear equation below:
+   *  
+   *  \begin{align*}
+   *  \mathbf{T}
+   *  \begin{bmatrix}
+   *  \lambda_q \\
+   *  \lambda_r \\
+   *  \lambda_s
+   *  \end{bmatrix} &= \begin{bmatrix}
+   *  \overrightarrow{PQ}\cdot\overrightarrow{PO} \\
+   *  \overrightarrow{PR}\cdot\overrightarrow{PO} \\
+   *  \overrightarrow{PS}\cdot\overrightarrow{PO}
+   *  \end{bmatrix} \\
+   *  \lambda_p &= 1 - \lambda_q - \lambda_r - \lambda_s \\
+   *  \mathbf{T} &= \begin{bmatrix}
+   *  \overrightarrow{PQ}\cdot\overrightarrow{PQ} & \overrightarrow{PQ}\cdot\overrightarrow{PR} & \overrightarrow{PQ}\cdot\overrightarrow{PS}\\
+   *  \overrightarrow{PR}\cdot\overrightarrow{PQ} & \overrightarrow{PR} \cdot \overrightarrow{PR} & \overrightarrow{PR}\cdot\overrightarrow{PS} \\
+   *  \overrightarrow{PS}\cdot\overrightarrow{PQ} & \overrightarrow{PS}\cdot\overrightarrow{PR} & \overrightarrow{PS}\cdot\overrightarrow{PS}
+   *  \end{bmatrix}
+   *  \end{align*}
+   */
+
+  const gkFloat T00 = dotProduct(pq, pq);
+  const gkFloat T01 = dotProduct(pq, pr);
+  const gkFloat T02 = dotProduct(pq, ps);
+  const gkFloat T11 = dotProduct(pr, pr);
+  const gkFloat T12 = dotProduct(pr, ps);
+  const gkFloat T22 = dotProduct(ps, ps);
+  const gkFloat det00 = T11 * T22 - T12 * T12;
+  const gkFloat det01 = T01 * T22 - T02 * T12;
+  const gkFloat det02 = T01 * T12 - T02 * T11;
+  const gkFloat det = T00 * det00 - T01 * det01 + T02 * det02;
   if (det == 0.0)
   {
     // Degenerate case
@@ -849,9 +897,9 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
 
   // inverse matrix
   // (the matrix is symmetric, so we can use the cofactor matrix)
-  const gkFloat det11 = M00 * M22 - M02 * M02;
-  const gkFloat det12 = M00 * M12 - M01 * M02;
-  const gkFloat det22 = M00 * M11 - M01 * M01;
+  const gkFloat det11 = T00 * T22 - T02 * T02;
+  const gkFloat det12 = T00 * T12 - T01 * T02;
+  const gkFloat det22 = T00 * T11 - T01 * T01;
   const gkFloat I00 = det00 / det;
   const gkFloat I01 = -det01 / det;
   const gkFloat I02 = det02 / det;
@@ -864,6 +912,8 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
   const gkFloat a3 = I02 * b0 + I12 * b1 + I22 * b2;
   const gkFloat a0 = 1.0 - a1 - a2 - a3;
 
+  // check if the origin is very close to one of the faces of the
+  // simplex. In this case, a 2D projection will be more accurate.
   if (a0 < gkEpsilon)
   {
     smp->nvrtx = 3;
