@@ -47,6 +47,42 @@ jobs:
       - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
       - run: cd examples/cython/ && pytest test.py
 
+  PythonCTypes:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Python ${{matrix.python_version}}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{matrix.python_version}}
+
+      - name: Get dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: CMake config
+        run: cmake -B ${{github.workspace}}/build
+        env:
+          BUILD_CTYPES: 1
+          CMAKE_BUILD_TYPE: Release
+
+      - name: CMake build
+        working-directory: ${{github.workspace}}/build
+        run: make
+
+      - name: Python build
+        working-directory: ${{github.workspace}}/examples/python_ctypes/
+        run: pip install -e .[test]
+
+      - name: Python test
+        working-directory: ${{github.workspace}}/examples/python_ctypes/
+        run: pytest -vv
+
   CSharp:
     runs-on: ubuntu-latest
     container: mono:latest
