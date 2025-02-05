@@ -356,14 +356,14 @@ inline static void
 S3D(gkSimplex* s, gkFloat* v) {
   gkFloat s1[3], s2[3], s3[3], s4[3], s1s2[3], s1s3[3], s1s4[3];
   gkFloat si[3], sj[3], sk[3];
-  int s1_idx[2];
+  int s1_idx[2], s2_idx[2], s3_idx[2];
   int si_idx[2], sj_idx[2], sk_idx[2];
   int testLineThree, testLineFour, testPlaneTwo, testPlaneThree, testPlaneFour, dotTotal;
   int i, j, k, t;
 
   getvrtxidx(s1, s1_idx, 3);
-  getvrtx(s2, 2);
-  getvrtx(s3, 1);
+  getvrtxidx(s2, s2_idx, 2);
+  getvrtxidx(s3, s3_idx, 1);
   getvrtx(s4, 0);
   calculateEdgeVector(s1s2, s2);
   calculateEdgeVector(s1s3, s3);
@@ -402,26 +402,43 @@ S3D(gkSimplex* s, gkFloat* v) {
       // 1,i,j, are the indices of the points on the triangle and remove k from
       // simplex
       s->nvrtx = 3;
-      if (!testPlaneTwo) { // k = 2;   removes s2
-        for (i = 0; i < 3; i++) {
+      if (!testPlaneTwo)
+      { // k = 2;   removes s2
+        for (i = 0; i < 3; i++)
+        {
           s->vrtx[2][i] = s->vrtx[3][i];
         }
-      } else if (!testPlaneThree) { // k = 1; // removes s3
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < 2; i++)
+        {
+          s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
+        }
+      }
+      else if (!testPlaneThree)
+      { // k = 1; // removes s3
+        for (i = 0; i < 3; i++)
+        {
           s->vrtx[1][i] = s2[i];
-        }
-        for (i = 0; i < 3; i++) {
           s->vrtx[2][i] = s->vrtx[3][i];
         }
-      } else if (!testPlaneFour) { // k = 0; // removes s4  and no need to reorder
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < 2; i++)
+        {
+          s->vrtx_idx[1][i] = s2_idx[i];
+          s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
+        }
+      }
+      else if (!testPlaneFour)
+      { // k = 0; // removes s4  and no need to reorder
+        for (i = 0; i < 3; i++)
+        {
           s->vrtx[0][i] = s3[i];
-        }
-        for (i = 0; i < 3; i++) {
           s->vrtx[1][i] = s2[i];
-        }
-        for (i = 0; i < 3; i++) {
           s->vrtx[2][i] = s->vrtx[3][i];
+        }
+        for (i = 0; i < 2; i++)
+        {
+          s->vrtx_idx[0][i] = s3_idx[i];
+          s->vrtx_idx[1][i] = s2_idx[i];
+          s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
         }
       }
       // Call S2D

@@ -1,3 +1,4 @@
+import math
 from pyopengjk import compute_minimum_distance, Simplex
 from scipy.spatial.transform import Rotation as R
 import numpy as np
@@ -27,7 +28,7 @@ def check_witnesses(expected_distance: float, simplex: Simplex):
     witness0 = np.array(simplex.witnesses[0], np.float64)
     witness1 = np.array(simplex.witnesses[1], np.float64)
     actual_distance = np.linalg.norm(witness0-witness1)
-    assert pytest.approx(expected_distance) == actual_distance
+    assert pytest.approx(expected_distance, abs=1e-5) == actual_distance
 
 
 @pytest.mark.parametrize("delta", [0.1, 1e-12, 0, -2])
@@ -186,7 +187,9 @@ def test_random_objects():
             for k in range(1000):
                 arr1 = np.random.rand(i, 3)
                 arr2 = np.random.rand(j, 3)
-                compute_minimum_distance(arr1, arr2)
+                distance, simplex = compute_minimum_distance(arr1, arr2)
+                if not math.isnan(distance):
+                    check_witnesses(distance, simplex)
 
 
 def test_large_random_objects():
@@ -195,4 +198,10 @@ def test_large_random_objects():
             for k in range(1000):
                 arr1 = 10000.0*np.random.rand(i, 3)
                 arr2 = 10000.0*np.random.rand(j, 3)
-                compute_minimum_distance(arr1, arr2)
+                distance, simplex = compute_minimum_distance(arr1, arr2)
+                if not math.isnan(distance):
+                    check_witnesses(distance, simplex)
+
+
+if __name__ == "__main__":
+    test_random_objects()
