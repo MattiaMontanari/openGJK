@@ -51,6 +51,7 @@ typedef struct gkPolytope_ {
   int numpoints; /*!< Number of points defining the polytope. */
   gkFloat s
       [3]; /*!< Furthest point returned by the support function and updated at each GJK-iteration. For the first iteration this value is a guess - and this guess not irrelevant. */
+  int s_idx; /*!< Index of the furthest point returned by the support function. */
   gkFloat**
       coord; /*!< Coordinates of the points of the polytope. This is owned by user who manages and garbage-collects the memory for these coordinates. */
 } gkPolytope;
@@ -61,6 +62,8 @@ typedef struct gkPolytope_ {
 typedef struct gkSimplex_ {
   int nvrtx;          /*!< Number of points defining the simplex. */
   gkFloat vrtx[4][3]; /*!< Coordinates of the points of the simplex. */
+  int vrtx_idx[4][2];    /*!< Indices of the points of the simplex. */
+  gkFloat witnesses[2][3]; /*!< Coordinates of the witness points. */
 } gkSimplex;
 
 /*! @brief Invoke the GJK algorithm to compute the minimum distance between two polytopes.

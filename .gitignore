@@ -225,3 +225,11 @@ callgrind.out.*
 
 .zig-cache/
 zig-out/
+
+# Python
+.env
+*.egg-info
+*.whl
+
+# VS Code
+.vscode/

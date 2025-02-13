@@ -21,17 +21,19 @@
 #  FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           #
 
 # User options . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-option(BUILD_EXAMPLE "Build demo"        ON )
-option(BUILD_MONO    "Build C# example"  OFF)
+option(BUILD_EXAMPLE "Build demo"                        ON )
+option(BUILD_MONO    "Build C# example"                  OFF)
+option(BUILD_CTYPES  "Expose symbols for Python cytpes"  OFF)
 
 # CMake setup  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-cmake_minimum_required(VERSION          3.0) # You can downgrade to 2.8, but I don't maintain it anymore
+cmake_minimum_required(VERSION          3.5) # You can downgrade to 2.8, but I don't maintain it anymore
 cmake_policy(SET CMP0048                NEW) 
 cmake_policy(SET CMP0063                NEW) # Visibility of preset and hidden lines on shared libs
 
 set( CMAKE_C_VISIBILITY_PRESET           hidden)
 set( CMAKE_VISIBILITY_INLINES_HIDDEN     FALSE)
 set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS    ON)
+set( CMAKE_EXPORT_COMPILE_COMMANDS       ON)
 
 # Project setup  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 set(GK_VERSION_MAJOR                      3)
@@ -61,6 +63,10 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # Target . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+
+if(BUILD_CTYPES)
+    set( CMAKE_C_VISIBILITY_PRESET           default)
+endif(BUILD_CTYPES)
 
 if(BUILD_MONO)
     set( CMAKE_C_VISIBILITY_PRESET           default)
@@ -95,6 +101,15 @@ set_target_properties(obj_openGJK
 )
 
 add_library(opengjk_ce SHARED $<TARGET_OBJECTS:obj_openGJK>)
+
+if (BUILD_CTYPES)
+    add_custom_command(
+        TARGET opengjk_ce
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "$<TARGET_FILE:opengjk_ce>"
+        "${CMAKE_CURRENT_SOURCE_DIR}/examples/python_ctypes/src/pyopengjk"
+    )
+endif(BUILD_CTYPES)
 
 # Build demo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 if(BUILD_EXAMPLE)

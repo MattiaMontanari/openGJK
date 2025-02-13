@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name =  "pyopengjk"
+version = "0.1.0"
+authors = [
+    { name="Mattia Montanari", email="mattia.montanari@it.ox.ac.uk" },
+    { name="Matthew Johnson", email="mj293@cam.ac.uk" },
+]
+description = "A fast and robust C implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm"
+dependencies = [
+]
+readme = "README.md"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "numpy",
+    "scipy"
+
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyopengjk = ["*.dll", "*.so", "*.dylib"]
