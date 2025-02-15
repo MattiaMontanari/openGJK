@@ -75,6 +75,13 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: make
 
+      - name: Copy library to module directory
+        run: |
+          # Create the destination directory if it doesn't exist
+          mkdir -p ${{github.workspace}}/examples/python_ctypes/src/pyopengjk/
+          # Copy the library to the module directory
+          cp ${{github.workspace}}/build/libopengjk_ce.so ${{github.workspace}}/examples/python_ctypes/src/pyopengjk/
+
       - name: Python build
         working-directory: ${{github.workspace}}/examples/python_ctypes/
         run: pip install -e .[test]
