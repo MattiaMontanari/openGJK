@@ -134,7 +134,6 @@ main() {
   dx = s.witnesses[0][0] - s.witnesses[1][0];
   dy = s.witnesses[0][1] - s.witnesses[1][1];
   dz = s.witnesses[0][2] - s.witnesses[1][2];
-  printf("Distance between witnesses %f\n", sqrt(dx * dx + dy * dy + dz * dz));
 
   /* Free memory */
   for (int i = 0; i < bd1.numpoints; i++) {

@@ -31,7 +31,7 @@ cmake_policy(SET CMP0048                NEW)
 cmake_policy(SET CMP0063                NEW) # Visibility of preset and hidden lines on shared libs
 
 set( CMAKE_C_VISIBILITY_PRESET           hidden)
-set( CMAKE_VISIBILITY_INLINES_HIDDEN     FALSE)
+set( CMAKE_VISIBILITY_INLINES_HIDDEN     ON)
 set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS    ON)
 set( CMAKE_EXPORT_COMPILE_COMMANDS       ON)
 
@@ -62,7 +62,10 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "Intel")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
+# Ends up being a bit messy, but supporting more languages it's easier this way
+add_compile_definitions(INCLUDE_CMAKE_HEADER)
 # Target . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+include(GenerateExportHeader)
 
 if(BUILD_CTYPES)
     set( CMAKE_C_VISIBILITY_PRESET           default)
@@ -110,6 +113,16 @@ if (BUILD_CTYPES)
         "${CMAKE_CURRENT_SOURCE_DIR}/examples/python_ctypes/src/pyopengjk"
     )
 endif(BUILD_CTYPES)
+
+generate_export_header(opengjk_ce
+    BASE_NAME OPENGJK
+    EXPORT_FILE_NAME opengjk_export.h
+)
+
+target_include_directories(opengjk_ce PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
 # Build demo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 if(BUILD_EXAMPLE)
