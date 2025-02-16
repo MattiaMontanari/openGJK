@@ -74,6 +74,13 @@ jobs:
       - name: CMake build
         working-directory: ${{github.workspace}}/build
         run: make
+        
+      - name: Debug library symbols
+        run: |
+          echo "Checking library symbols..."
+          nm -D ${{github.workspace}}/build/libopengjk_ce.so
+          echo "Checking library dependencies..."
+          ldd ${{github.workspace}}/build/libopengjk_ce.so
 
       - name: Copy library to module directory
         run: |
