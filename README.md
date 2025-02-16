@@ -20,6 +20,8 @@
 < ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS     >
 < FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           -->
 
+[![Run all demos](https://github.com/MattiaMontanari/openGJK/actions/workflows/github-opengjk-examples.yml/badge.svg)](https://github.com/MattiaMontanari/openGJK/actions/workflows/github-opengjk-examples.yml)
+
 # OpenGJK
 
 A fast and robust C implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm with interfaces for C#, Go, Matlab and Python. A Unity Plug-in [is also available in another repository](https://github.com/MattiaMontanari/urban-couscous).
