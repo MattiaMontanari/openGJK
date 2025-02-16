@@ -62,6 +62,8 @@ elseif (CMAKE_C_COMPILER_ID STREQUAL "Intel")
 elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
+# Ends up being a bit messy, but supporting more languages it's easier this way
+add_compile_definitions(INCLUDE_CMAKE_HEADER)
 # Target . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 include(GenerateExportHeader)
 

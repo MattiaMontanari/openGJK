@@ -34,7 +34,7 @@
 
 #include <float.h>
 
-#ifdef CMAKE_C_COMPILER
+#ifdef INCLUDE_CMAKE_HEADER
 #include "opengjk_export.h"  // CMake-generated header
 #else
 #define OPENGJK_EXPORT // Builds that don't use CMake (cythong, zig, ...) don't need a definiton here
