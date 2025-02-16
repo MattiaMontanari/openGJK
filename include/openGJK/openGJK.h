@@ -33,6 +33,12 @@
 #define OPENGJK_H__
 
 #include <float.h>
+#include "opengjk_export.h"  // CMake-generated header
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! @brief Precision of floating-point numbers.
  *
  * Default is set to 64-bit (Double). Change this to quickly play around with 16- and 32-bit. */
@@ -69,6 +75,10 @@ typedef struct gkSimplex_ {
 /*! @brief Invoke the GJK algorithm to compute the minimum distance between two polytopes.
    *
    * The simplex has to be initialised prior the call to this function. */
-gkFloat compute_minimum_distance(const gkPolytope p_, const gkPolytope q_, gkSimplex* s_);
+OPENGJK_EXPORT gkFloat compute_minimum_distance(const gkPolytope p_, const gkPolytope q_, gkSimplex* s_);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // OPENGJK_H__
