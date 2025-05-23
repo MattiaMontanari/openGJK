@@ -80,7 +80,8 @@ typedef struct gkSimplex_ {
 /*! @brief Invoke the GJK algorithm to compute the minimum distance between two polytopes.
    *
    * The simplex has to be initialised prior the call to this function. */
-OPENGJK_EXPORT gkFloat compute_minimum_distance(const gkPolytope p_, const gkPolytope q_, gkSimplex* s_);
+gkFloat
+compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s);
 
 #ifdef __cplusplus
 }
