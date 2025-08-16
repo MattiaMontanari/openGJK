@@ -960,8 +960,8 @@ inline static void compute_witnesses(const gkPolytope* bd1,
   }
 }
 
-OPENGJK_EXPORT gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
-                                                gkSimplex* restrict s) {
+gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
+                                 gkSimplex* restrict s) {
   unsigned int k = 0;                /**< Iteration counter                 */
   const int mk = 25;                 /**< Maximum number of GJK iterations  */
   const gkFloat eps_rel = eps_rel22; /**< Tolerance on relative             */
