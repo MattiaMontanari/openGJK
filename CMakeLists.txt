@@ -21,45 +21,43 @@
 #  FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           #
 
 # User options . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-option(BUILD_EXAMPLE "Build demo"                        ON )
-option(BUILD_MONO    "Build C# example"                  OFF)
-option(BUILD_CTYPES  "Expose symbols for Python cytpes"  OFF)
-
+option(BUILD_EXAMPLE "Build demo" ON)
+option(BUILD_MONO "Build C# example" OFF)
+option(BUILD_CTYPES "Expose symbols for Python cytpes" OFF)
+option(FORCE_CXX_COMPILER "Force C++ compiler for C files" OFF)
 # CMake setup  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-cmake_minimum_required(VERSION          3.5) # You can downgrade to 2.8, but I don't maintain it anymore
-cmake_policy(SET CMP0048                NEW) 
-cmake_policy(SET CMP0063                NEW) # Visibility of preset and hidden lines on shared libs
+cmake_minimum_required(VERSION 3.5) # You can downgrade to 2.8, but I don't maintain it anymore
+cmake_policy(SET CMP0048 NEW)
+cmake_policy(SET CMP0063 NEW) # Visibility of preset and hidden lines on shared libs
 
-set( CMAKE_C_VISIBILITY_PRESET           hidden)
-set( CMAKE_VISIBILITY_INLINES_HIDDEN     ON)
-set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS    ON)
-set( CMAKE_EXPORT_COMPILE_COMMANDS       ON)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project setup  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-set(GK_VERSION_MAJOR                      3)
-set(GK_VERSION_MINOR                      0)
-set(GK_VERSION_PATCH                      3)
+set(GK_VERSION_MAJOR 3)
+set(GK_VERSION_MINOR 0)
+set(GK_VERSION_PATCH 3)
 
-project(lib_opengjk_ce 
-    LANGUAGES C
-	DESCRIPTION "openGJK library community edition (CE)"
+project(lib_opengjk_ce
+    LANGUAGES C CXX
+    DESCRIPTION "openGJK library community edition (CE)"
     HOMEPAGE_URL "www.mattiamontanari.com/opengjk/"
     VERSION ${GK_VERSION_MAJOR}.${GK_VERSION_MINOR}.${GK_VERSION_PATCH}
 )
 
 # Compiler flags  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-message(STATUS "Compiler in use: ${CMAKE_C_COMPILER_ID}")
-
-if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall")
-    set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror")
-elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set( CMAKE_C_FLAGS_DEBUG                 "-O0 -g -Wall")
-    set( CMAKE_C_FLAGS_RELEASE               "-O3 -Werror")
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wunused-macros -Wno-unused-command-line-argument")
-elseif (CMAKE_C_COMPILER_ID STREQUAL "Intel")
-elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    set(CMAKE_C_FLAGS_DEBUG "-O0 -g -Wall")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -Werror")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_C_FLAGS_DEBUG "-O0 -g -Wall")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -Werror")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic -Wunused-macros -Wno-unused-command-line-argument")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "Intel")
+elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # Ends up being a bit messy, but supporting more languages it's easier this way
@@ -68,11 +66,11 @@ add_compile_definitions(INCLUDE_CMAKE_HEADER)
 include(GenerateExportHeader)
 
 if(BUILD_CTYPES)
-    set( CMAKE_C_VISIBILITY_PRESET           default)
+    set(CMAKE_C_VISIBILITY_PRESET default)
 endif(BUILD_CTYPES)
 
 if(BUILD_MONO)
-    set( CMAKE_C_VISIBILITY_PRESET           default)
+    set(CMAKE_C_VISIBILITY_PRESET default)
     add_compile_definitions(CS_MONO_BUILD)
 endif(BUILD_MONO)
 
@@ -80,32 +78,40 @@ if(SINGLE_PRECISION)
     add_compile_definitions(USE_32BITS)
 endif(SINGLE_PRECISION)
 
-add_library( obj_openGJK 
+if(FORCE_CXX_COMPILER)
+    file(GLOB_RECURSE CFILES "${CMAKE_CURRENT_SOURCE_DIR}/openGJK.c")
+    SET_SOURCE_FILES_PROPERTIES(${CFILES} PROPERTIES LANGUAGE CXX)
+endif(FORCE_CXX_COMPILER)
+
+add_library(obj_openGJK
     OBJECT
-        ${CMAKE_CURRENT_SOURCE_DIR}/openGJK.c 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/openGJK/openGJK.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/openGJK.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/openGJK/openGJK.h
 )
 
-target_include_directories( obj_openGJK 
-PUBLIC 
-${CMAKE_CURRENT_SOURCE_DIR}/include
-${CMAKE_CURRENT_BINARY_DIR}
+target_include_directories(obj_openGJK
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-IF (NOT WIN32)
-target_link_libraries(obj_openGJK PRIVATE m)
+IF(NOT WIN32)
+    target_link_libraries(obj_openGJK PRIVATE m)
 ENDIF()
 
-set_target_properties(obj_openGJK 
-    PROPERTIES 
-        C_STANDARD 11
-        PUBLIC_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/openGJK/openGJK.h
-        POSITION_INDEPENDENT_CODE 1
+set_target_properties(obj_openGJK
+    PROPERTIES
+    C_STANDARD 11
+    C_STANDARD_REQUIRED ON
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    PUBLIC_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/include/openGJK/openGJK.h
+    POSITION_INDEPENDENT_CODE 1
 )
 
 add_library(opengjk_ce SHARED $<TARGET_OBJECTS:obj_openGJK>)
 
-if (BUILD_CTYPES)
+if(BUILD_CTYPES)
     add_custom_command(
         TARGET opengjk_ce
         COMMAND ${CMAKE_COMMAND} -E copy
@@ -130,9 +136,9 @@ if(BUILD_EXAMPLE)
 endif(BUILD_EXAMPLE)
 
 # Install  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-if (UNIX)
+if(UNIX)
     set(DESTDIR "/usr/local")
-    INSTALL(TARGETS opengjk_ce 
+    INSTALL(TARGETS opengjk_ce
         LIBRARY DESTINATION "${DESTDIR}/lib"
         PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
     )
@@ -140,8 +146,8 @@ if (UNIX)
         PUBLIC_HEADER DESTINATION "${DESTDIR}/include/openGJK"
         PERMISSIONS WORLD_READ GROUP_READ OWNER_READ
     )
-endif (UNIX)
+endif(UNIX)
 
 # Wrap up  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-message(STATUS "Version     : " ${CMAKE_PROJECT_VERSION}  )
-message(STATUS "Build type  : " ${CMAKE_BUILD_TYPE} )
+message(STATUS "Version     : " ${CMAKE_PROJECT_VERSION})
+message(STATUS "Build type  : " ${CMAKE_BUILD_TYPE})

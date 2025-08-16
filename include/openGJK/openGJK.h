@@ -34,6 +34,10 @@
 
 #include <float.h>
 
+#ifdef __cplusplus
+#define restrict
+#endif
+
 #ifdef INCLUDE_CMAKE_HEADER
 #include "opengjk_export.h"  // CMake-generated header
 #else
