@@ -42,7 +42,7 @@ Then use these commands to build and run an example:
 
 ``` bash
 cmake -E make_directory build
-cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release .. 
+cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -G Ninja .. 
 cmake --build build 
 cmake -E chdir build/examples/c ./example_lib_opengjk_ce
 ```
@@ -51,7 +51,7 @@ The successful output should be:
 
 >
 > `Distance between bodies 3.653650`
->  
+> 
 
 However, if you do get an error - any error - please file a bug. Support requests are welcome.
 
