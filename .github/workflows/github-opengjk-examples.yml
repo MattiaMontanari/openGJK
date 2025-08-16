@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is running
 on:
   push:
   schedule:
-    - cron: '0 0 1,15 * *'
+    - cron: "0 0 1,15 * *"
 jobs:
   C_GCC:
     runs-on: ubuntu-latest
@@ -74,7 +74,7 @@ jobs:
       - name: CMake build
         working-directory: ${{github.workspace}}/build
         run: make
-        
+
       - name: Debug library symbols
         run: |
           echo "Checking library symbols..."
@@ -99,7 +99,7 @@ jobs:
 
   CSharp:
     runs-on: ubuntu-latest
-    container: mono:latest
+    container: mono:6.12.0.182-jammy
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -130,7 +130,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: cd examples/matlab/; octave runme.m
-      
+
   Zig:
     runs-on: ubuntu-latest
     steps:
