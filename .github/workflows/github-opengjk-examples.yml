@@ -16,6 +16,17 @@ jobs:
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
 
+  C_GCC_CXX:
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-fedora
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DFORCE_CXX_COMPILER=ON ..
+      - run: cmake --build build
+      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
+
   C_msvs:
     runs-on: windows-latest
     steps:
