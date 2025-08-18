@@ -20,26 +20,32 @@
 #  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS   #
 #  FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           #
 
-project(example_lib_opengjk_ce 
-    LANGUAGES C
-    VERSION 1.0.0 
+project(example_lib_opengjk_ce
+    LANGUAGES C CXX
+    VERSION 1.0.0
 )
+
+# Force C++ compiler for C files
+if(FORCE_CXX_COMPILER)
+    file(GLOB_RECURSE CFILES "${CMAKE_CURRENT_SOURCE_DIR}/main.c")
+    SET_SOURCE_FILES_PROPERTIES(${CFILES} PROPERTIES LANGUAGE CXX)
+endif(FORCE_CXX_COMPILER)
 
 add_executable(example_lib_opengjk_ce ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
 
-IF (WIN32)
-target_link_libraries(example_lib_opengjk_ce obj_openGJK)
+IF(WIN32)
+    target_link_libraries(example_lib_opengjk_ce obj_openGJK)
 ELSE()
-target_link_libraries(example_lib_opengjk_ce obj_openGJK m)
+    target_link_libraries(example_lib_opengjk_ce obj_openGJK m)
 ENDIF()
 
 # Copy input files for this example after build
 add_custom_command(
     TARGET example_lib_opengjk_ce POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/userP.dat
-            ${CMAKE_CURRENT_BINARY_DIR}/userP.dat 
+    ${CMAKE_CURRENT_SOURCE_DIR}/userP.dat
+    ${CMAKE_CURRENT_BINARY_DIR}/userP.dat
     COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/userQ.dat
-            ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat 
+    ${CMAKE_CURRENT_SOURCE_DIR}/userQ.dat
+    ${CMAKE_CURRENT_BINARY_DIR}/userQ.dat
 )

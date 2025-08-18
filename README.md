@@ -32,6 +32,23 @@ Useful links: [API references](https://www.mattiamontanari.com/opengjk/docsapi/)
 
 On Linux, Mac or Windows, install a basic C/C++ toolchain - for example: git, compiler and cmake.
 
+### Prerequisites
+
+**Required:**
+- Git
+- C/C++ compiler (GCC, Clang, or MSVC)
+- CMake (version 3.5 or higher)
+
+**Recommended for faster builds:**
+- Ninja build system (provides ~60% faster compilation)
+
+```bash
+# Install Ninja (if not already installed)
+# Ubuntu/Debian: sudo apt install ninja-build
+# macOS: brew install ninja
+# Windows: choco install ninja
+```
+
 Next, clone this repo:
 
 ``` bash
@@ -42,7 +59,7 @@ Then use these commands to build and run an example:
 
 ``` bash
 cmake -E make_directory build
-cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release .. 
+cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -G Ninja .. 
 cmake --build build 
 cmake -E chdir build/examples/c ./example_lib_opengjk_ce
 ```
@@ -51,9 +68,24 @@ The successful output should be:
 
 >
 > `Distance between bodies 3.653650`
->  
+> 
 
 However, if you do get an error - any error - please file a bug. Support requests are welcome.
+
+## Build Options
+
+OpenGJK supports several CMake options to customize the build:
+
+- `BUILD_EXAMPLE` (default: ON) - Build the C demo example
+- `BUILD_MONO` (default: OFF) - Build C# example (requires Mono)
+- `BUILD_CTYPES` (default: OFF) - Expose symbols for Python ctypes
+- `FORCE_CXX_COMPILER` (default: OFF) - Force C++ compiler for C files (useful for cross-compilation)
+- `SINGLE_PRECISION` (default: OFF) - Use 32-bit floating point instead of 64-bit
+
+Example with custom options:
+```bash
+cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DFORCE_CXX_COMPILER=ON -G Ninja ..
+```
 
 ## Use OpenGJK in your project
 

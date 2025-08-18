@@ -1,24 +1,26 @@
-//                           _____      _ _  __                                   //
-//                          / ____|    | | |/ /                                   //
-//    ___  _ __   ___ _ __ | |  __     | | ' /                                    //
-//   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <                                     //
-//  | (_) | |_) |  __/ | | | |__| | |__| | . \                                    //
-//   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\                                   //
-//        | |                                                                     //
-//        |_|                                                                     //
+//                           _____      _ _  __ //
+//                          / ____|    | | |/ / //
+//    ___  _ __   ___ _ __ | |  __     | | ' / //
+//   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  < //
+//  | (_) | |_) |  __/ | | | |__| | |__| | . \ //
+//   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\ //
+//        | | //
+//        |_| //
 //                                                                                //
-// Copyright 2022 Mattia Montanari, University of Oxford                          //
+// Copyright 2022 Mattia Montanari, University of Oxford //
 //                                                                                //
-// This program is free software: you can redistribute it and/or modify it under  //
-// the terms of the GNU General Public License as published by the Free Software  //
-// Foundation, either version 3 of the License. You should have received a copy   //
-// of the GNU General Public License along with this program. If not, visit       //
+// This program is free software: you can redistribute it and/or modify it under
+// // the terms of the GNU General Public License as published by the Free
+// Software  // Foundation, either version 3 of the License. You should have
+// received a copy   // of the GNU General Public License along with this
+// program. If not, visit       //
 //                                                                                //
-//     https://www.gnu.org/licenses/                                              //
+//     https://www.gnu.org/licenses/ //
 //                                                                                //
-// This program is distributed in the hope that it will be useful, but WITHOUT    //
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS  //
-// FOR A PARTICULAR PURPOSE. See GNU General Public License for details.          //
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS  // FOR A PARTICULAR PURPOSE. See GNU General Public License for
+// details.          //
 
 /**
  * @file openGJK.c
@@ -43,177 +45,151 @@
 #define mexPrintf printf
 #endif
 
-#define eps_rel22        (gkFloat) gkEpsilon * 1e4f
-#define eps_tot22        (gkFloat) gkEpsilon * 1e2f
+#define eps_rel22 (gkFloat) gkEpsilon * 1e4f
+#define eps_tot22 (gkFloat) gkEpsilon * 1e2f
 
-#define norm2(a)         (a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
+#define norm2(a) (a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
 #define dotProduct(a, b) (a[0] * b[0] + a[1] * b[1] + a[2] * b[2])
 
-#define S3Dregion1234()                                                                                                \
-  v[0] = 0;                                                                                                            \
-  v[1] = 0;                                                                                                            \
-  v[2] = 0;                                                                                                            \
+#define S3Dregion1234() \
+  v[0] = 0;             \
+  v[1] = 0;             \
+  v[2] = 0;             \
   s->nvrtx = 4;
 
-#define select_1ik()                                                                                                   \
-  s->nvrtx = 3;                                                                                                        \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[2][t] = s->vrtx[3][t];                                                                                     \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[2][t] = s->vrtx_idx[3][t];                                                                             \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[1][t] = si[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[1][t] = si_idx[t];                                                                                     \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[0][t] = sk[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[0][t] = sk_idx[t];
+#define select_1ik()                                             \
+  s->nvrtx = 3;                                                  \
+  for (t = 0; t < 3; t++) s->vrtx[2][t] = s->vrtx[3][t];         \
+  for (t = 0; t < 2; t++) s->vrtx_idx[2][t] = s->vrtx_idx[3][t]; \
+  for (t = 0; t < 3; t++) s->vrtx[1][t] = si[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[1][t] = si_idx[t];         \
+  for (t = 0; t < 3; t++) s->vrtx[0][t] = sk[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[0][t] = sk_idx[t];
 
-#define select_1ij()                                                                                                   \
-  s->nvrtx = 3;                                                                                                        \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[2][t] = s->vrtx[3][t];                                                                                     \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[2][t] = s->vrtx_idx[3][t];                                                                             \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[1][t] = si[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[1][t] = si_idx[t];                                                                                     \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[0][t] = sj[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[0][t] = sj_idx[t];
+#define select_1ij()                                             \
+  s->nvrtx = 3;                                                  \
+  for (t = 0; t < 3; t++) s->vrtx[2][t] = s->vrtx[3][t];         \
+  for (t = 0; t < 2; t++) s->vrtx_idx[2][t] = s->vrtx_idx[3][t]; \
+  for (t = 0; t < 3; t++) s->vrtx[1][t] = si[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[1][t] = si_idx[t];         \
+  for (t = 0; t < 3; t++) s->vrtx[0][t] = sj[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[0][t] = sj_idx[t];
 
-#define select_1jk()                                                                                                   \
-  s->nvrtx = 3;                                                                                                        \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[2][t] = s->vrtx[3][t];                                                                                     \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[2][t] = s->vrtx_idx[3][t];                                                                             \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[1][t] = sj[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[1][t] = sj_idx[t];                                                                                     \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[0][t] = sk[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[0][t] = sk_idx[t];
+#define select_1jk()                                             \
+  s->nvrtx = 3;                                                  \
+  for (t = 0; t < 3; t++) s->vrtx[2][t] = s->vrtx[3][t];         \
+  for (t = 0; t < 2; t++) s->vrtx_idx[2][t] = s->vrtx_idx[3][t]; \
+  for (t = 0; t < 3; t++) s->vrtx[1][t] = sj[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[1][t] = sj_idx[t];         \
+  for (t = 0; t < 3; t++) s->vrtx[0][t] = sk[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[0][t] = sk_idx[t];
 
-#define select_1i()                                                                                                    \
-  s->nvrtx = 2;                                                                                                        \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[1][t] = s->vrtx[3][t];                                                                                     \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[1][t] = s->vrtx_idx[3][t];                                                                             \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[0][t] = si[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[0][t] = si_idx[t];
+#define select_1i()                                              \
+  s->nvrtx = 2;                                                  \
+  for (t = 0; t < 3; t++) s->vrtx[1][t] = s->vrtx[3][t];         \
+  for (t = 0; t < 2; t++) s->vrtx_idx[1][t] = s->vrtx_idx[3][t]; \
+  for (t = 0; t < 3; t++) s->vrtx[0][t] = si[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[0][t] = si_idx[t];
 
-#define select_1j()                                                                                                    \
-  s->nvrtx = 2;                                                                                                        \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[1][t] = s->vrtx[3][t];                                                                                     \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[1][t] = s->vrtx_idx[3][t];                                                                             \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[0][t] = sj[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[0][t] = sj_idx[t];
+#define select_1j()                                              \
+  s->nvrtx = 2;                                                  \
+  for (t = 0; t < 3; t++) s->vrtx[1][t] = s->vrtx[3][t];         \
+  for (t = 0; t < 2; t++) s->vrtx_idx[1][t] = s->vrtx_idx[3][t]; \
+  for (t = 0; t < 3; t++) s->vrtx[0][t] = sj[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[0][t] = sj_idx[t];
 
-#define select_1k()                                                                                                    \
-  s->nvrtx = 2;                                                                                                        \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[1][t] = s->vrtx[3][t];                                                                                     \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[1][t] = s->vrtx_idx[3][t];                                                                             \
-  for (t = 0; t < 3; t++)                                                                                              \
-    s->vrtx[0][t] = sk[t];                                                                                             \
-  for (t = 0; t < 2; t++)                                                                                              \
-    s->vrtx_idx[0][t] = sk_idx[t];
+#define select_1k()                                              \
+  s->nvrtx = 2;                                                  \
+  for (t = 0; t < 3; t++) s->vrtx[1][t] = s->vrtx[3][t];         \
+  for (t = 0; t < 2; t++) s->vrtx_idx[1][t] = s->vrtx_idx[3][t]; \
+  for (t = 0; t < 3; t++) s->vrtx[0][t] = sk[t];                 \
+  for (t = 0; t < 2; t++) s->vrtx_idx[0][t] = sk_idx[t];
 
-#define getvrtx(point, location)                                                                                       \
-  point[0] = s->vrtx[location][0];                                                                                     \
-  point[1] = s->vrtx[location][1];                                                                                     \
+#define getvrtx(point, location)   \
+  point[0] = s->vrtx[location][0]; \
+  point[1] = s->vrtx[location][1]; \
   point[2] = s->vrtx[location][2];
 
-#define getvrtxidx(point, index, location)                                                                             \
-  point[0] = s->vrtx[location][0];                                                                                     \
-  point[1] = s->vrtx[location][1];                                                                                     \
-  point[2] = s->vrtx[location][2];                                                                                     \
-  index[0] = s->vrtx_idx[location][0];                                                                                 \
+#define getvrtxidx(point, index, location) \
+  point[0] = s->vrtx[location][0];         \
+  point[1] = s->vrtx[location][1];         \
+  point[2] = s->vrtx[location][2];         \
+  index[0] = s->vrtx_idx[location][0];     \
   index[1] = s->vrtx_idx[location][1];
 
-#define calculateEdgeVector(p1p2, p2)                                                                                  \
-  p1p2[0] = p2[0] - s->vrtx[3][0];                                                                                     \
-  p1p2[1] = p2[1] - s->vrtx[3][1];                                                                                     \
+#define calculateEdgeVector(p1p2, p2) \
+  p1p2[0] = p2[0] - s->vrtx[3][0];    \
+  p1p2[1] = p2[1] - s->vrtx[3][1];    \
   p1p2[2] = p2[2] - s->vrtx[3][2];
 
-#define S1Dregion1()                                                                                                   \
-  v[0] = s->vrtx[1][0];                                                                                                \
-  v[1] = s->vrtx[1][1];                                                                                                \
-  v[2] = s->vrtx[1][2];                                                                                                \
-  s->nvrtx = 1;                                                                                                        \
-  s->vrtx[0][0] = s->vrtx[1][0];                                                                                       \
-  s->vrtx[0][1] = s->vrtx[1][1];                                                                                       \
-  s->vrtx[0][2] = s->vrtx[1][2];                                                                                       \
-  s->vrtx_idx[0][0] = s->vrtx_idx[1][0];                                                                               \
+#define S1Dregion1()                     \
+  v[0] = s->vrtx[1][0];                  \
+  v[1] = s->vrtx[1][1];                  \
+  v[2] = s->vrtx[1][2];                  \
+  s->nvrtx = 1;                          \
+  s->vrtx[0][0] = s->vrtx[1][0];         \
+  s->vrtx[0][1] = s->vrtx[1][1];         \
+  s->vrtx[0][2] = s->vrtx[1][2];         \
+  s->vrtx_idx[0][0] = s->vrtx_idx[1][0]; \
   s->vrtx_idx[0][1] = s->vrtx_idx[1][1];
 
-#define S2Dregion1()                                                                                                   \
-  v[0] = s->vrtx[2][0];                                                                                                \
-  v[1] = s->vrtx[2][1];                                                                                                \
-  v[2] = s->vrtx[2][2];                                                                                                \
-  s->nvrtx = 1;                                                                                                        \
-  s->vrtx[0][0] = s->vrtx[2][0];                                                                                       \
-  s->vrtx[0][1] = s->vrtx[2][1];                                                                                       \
-  s->vrtx[0][2] = s->vrtx[2][2];                                                                                       \
-  s->vrtx_idx[0][0] = s->vrtx_idx[2][0];                                                                               \
+#define S2Dregion1()                     \
+  v[0] = s->vrtx[2][0];                  \
+  v[1] = s->vrtx[2][1];                  \
+  v[2] = s->vrtx[2][2];                  \
+  s->nvrtx = 1;                          \
+  s->vrtx[0][0] = s->vrtx[2][0];         \
+  s->vrtx[0][1] = s->vrtx[2][1];         \
+  s->vrtx[0][2] = s->vrtx[2][2];         \
+  s->vrtx_idx[0][0] = s->vrtx_idx[2][0]; \
   s->vrtx_idx[0][1] = s->vrtx_idx[2][1];
 
-#define S2Dregion12()                                                                                                  \
-  s->nvrtx = 2;                                                                                                        \
-  s->vrtx[0][0] = s->vrtx[2][0];                                                                                       \
-  s->vrtx[0][1] = s->vrtx[2][1];                                                                                       \
-  s->vrtx[0][2] = s->vrtx[2][2];                                                                                       \
-  s->vrtx_idx[0][0] = s->vrtx_idx[2][0];                                                                               \
+#define S2Dregion12()                    \
+  s->nvrtx = 2;                          \
+  s->vrtx[0][0] = s->vrtx[2][0];         \
+  s->vrtx[0][1] = s->vrtx[2][1];         \
+  s->vrtx[0][2] = s->vrtx[2][2];         \
+  s->vrtx_idx[0][0] = s->vrtx_idx[2][0]; \
   s->vrtx_idx[0][1] = s->vrtx_idx[2][1];
 
-#define S2Dregion13()                                                                                                  \
-  s->nvrtx = 2;                                                                                                        \
-  s->vrtx[1][0] = s->vrtx[2][0];                                                                                       \
-  s->vrtx[1][1] = s->vrtx[2][1];                                                                                       \
-  s->vrtx[1][2] = s->vrtx[2][2];                                                                                       \
-  s->vrtx_idx[1][0] = s->vrtx_idx[2][0];                                                                               \
+#define S2Dregion13()                    \
+  s->nvrtx = 2;                          \
+  s->vrtx[1][0] = s->vrtx[2][0];         \
+  s->vrtx[1][1] = s->vrtx[2][1];         \
+  s->vrtx[1][2] = s->vrtx[2][2];         \
+  s->vrtx_idx[1][0] = s->vrtx_idx[2][0]; \
   s->vrtx_idx[1][1] = s->vrtx_idx[2][1];
 
-#define S3Dregion1()                                                                                                   \
-  v[0] = s1[0];                                                                                                        \
-  v[1] = s1[1];                                                                                                        \
-  v[2] = s1[2];                                                                                                        \
-  s->nvrtx = 1;                                                                                                        \
-  s->vrtx[0][0] = s1[0];                                                                                               \
-  s->vrtx[0][1] = s1[1];                                                                                               \
-  s->vrtx[0][2] = s1[2];                                                                                               \
-  s->vrtx_idx[0][0] = s1_idx[0];                                                                                       \
+#define S3Dregion1()             \
+  v[0] = s1[0];                  \
+  v[1] = s1[1];                  \
+  v[2] = s1[2];                  \
+  s->nvrtx = 1;                  \
+  s->vrtx[0][0] = s1[0];         \
+  s->vrtx[0][1] = s1[1];         \
+  s->vrtx[0][2] = s1[2];         \
+  s->vrtx_idx[0][0] = s1_idx[0]; \
   s->vrtx_idx[0][1] = s1_idx[1];
 
-inline static gkFloat
-determinant(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
-  return p[0] * ((q[1] * r[2]) - (r[1] * q[2])) - p[1] * (q[0] * r[2] - r[0] * q[2])
-         + p[2] * (q[0] * r[1] - r[0] * q[1]);
+inline static gkFloat determinant(const gkFloat* restrict p,
+                                  const gkFloat* restrict q,
+                                  const gkFloat* restrict r) {
+  return p[0] * ((q[1] * r[2]) - (r[1] * q[2])) -
+         p[1] * (q[0] * r[2] - r[0] * q[2]) +
+         p[2] * (q[0] * r[1] - r[0] * q[1]);
 }
 
-inline static void
-crossProduct(const gkFloat* restrict a, const gkFloat* restrict b, gkFloat* restrict c) {
+inline static void crossProduct(const gkFloat* restrict a,
+                                const gkFloat* restrict b,
+                                gkFloat* restrict c) {
   c[0] = a[1] * b[2] - a[2] * b[1];
   c[1] = a[2] * b[0] - a[0] * b[2];
   c[2] = a[0] * b[1] - a[1] * b[0];
 }
 
-inline static void
-projectOnLine(const gkFloat* restrict p, const gkFloat* restrict q, gkFloat* restrict v) {
+inline static void projectOnLine(const gkFloat* restrict p,
+                                 const gkFloat* restrict q,
+                                 gkFloat* restrict v) {
   gkFloat pq[3];
   pq[0] = p[0] - q[0];
   pq[1] = p[1] - q[1];
@@ -226,8 +202,10 @@ projectOnLine(const gkFloat* restrict p, const gkFloat* restrict q, gkFloat* res
   }
 }
 
-inline static void
-projectOnPlane(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r, gkFloat* restrict v) {
+inline static void projectOnPlane(const gkFloat* restrict p,
+                                  const gkFloat* restrict q,
+                                  const gkFloat* restrict r,
+                                  gkFloat* restrict v) {
   gkFloat n[3], pq[3], pr[3];
 
   for (int i = 0; i < 3; i++) {
@@ -245,8 +223,7 @@ projectOnPlane(const gkFloat* restrict p, const gkFloat* restrict q, const gkFlo
   }
 }
 
-inline static int
-hff1(const gkFloat* restrict p, const gkFloat* restrict q) {
+inline static int hff1(const gkFloat* restrict p, const gkFloat* restrict q) {
   gkFloat tmp = 0;
 
   for (int i = 0; i < 3; i++) {
@@ -254,13 +231,13 @@ hff1(const gkFloat* restrict p, const gkFloat* restrict q) {
   }
 
   if (tmp > 0) {
-    return 1; // keep q
+    return 1;  // keep q
   }
   return 0;
 }
 
-inline static int
-hff2(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
+inline static int hff2(const gkFloat* restrict p, const gkFloat* restrict q,
+                       const gkFloat* restrict r) {
   gkFloat ntmp[3];
   gkFloat n[3], pq[3], pr[3];
 
@@ -274,11 +251,11 @@ hff2(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restri
   crossProduct(pq, pr, ntmp);
   crossProduct(pq, ntmp, n);
 
-  return dotProduct(p, n) < 0; // Discard r if true
+  return dotProduct(p, n) < 0;  // Discard r if true
 }
 
-inline static int
-hff3(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restrict r) {
+inline static int hff3(const gkFloat* restrict p, const gkFloat* restrict q,
+                       const gkFloat* restrict r) {
   gkFloat n[3], pq[3], pr[3];
 
   for (int i = 0; i < 3; i++) {
@@ -289,25 +266,23 @@ hff3(const gkFloat* restrict p, const gkFloat* restrict q, const gkFloat* restri
   }
 
   crossProduct(pq, pr, n);
-  return dotProduct(p, n) <= 0; // discard s if true
+  return dotProduct(p, n) <= 0;  // discard s if true
 }
 
-inline static void
-S1D(gkSimplex* s, gkFloat* v) {
+inline static void S1D(gkSimplex* s, gkFloat* v) {
   const gkFloat* restrict s1p = s->vrtx[1];
   const gkFloat* restrict s2p = s->vrtx[0];
 
   if (hff1(s1p, s2p)) {
-    projectOnLine(s1p, s2p, v); // Update v, no need to update s
-    return;                     // Return V{1,2}
+    projectOnLine(s1p, s2p, v);  // Update v, no need to update s
+    return;                      // Return V{1,2}
   } else {
-    S1Dregion1(); // Update v and s
-    return;       // Return V{1}
+    S1Dregion1();  // Update v and s
+    return;        // Return V{1}
   }
 }
 
-inline static void
-S2D(gkSimplex* s, gkFloat* v) {
+inline static void S2D(gkSimplex* s, gkFloat* v) {
   const gkFloat* s1p = s->vrtx[2];
   const gkFloat* s2p = s->vrtx[1];
   const gkFloat* s3p = s->vrtx[0];
@@ -320,45 +295,45 @@ S2D(gkSimplex* s, gkFloat* v) {
       if (hff1f_s13) {
         const int hff2f_32 = !hff2(s1p, s3p, s2p);
         if (hff2f_32) {
-          projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update c
-          return;                           // Return V{1,2,3}
+          projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update c
+          return;                            // Return V{1,2,3}
         } else {
-          projectOnLine(s1p, s3p, v); // Update v
-          S2Dregion13();              // Update s
-          return;                     // Return V{1,3}
+          projectOnLine(s1p, s3p, v);  // Update v
+          S2Dregion13();               // Update s
+          return;                      // Return V{1,3}
         }
       } else {
-        projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update c
-        return;                           // Return V{1,2,3}
+        projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update c
+        return;                            // Return V{1,2,3}
       }
     } else {
-      projectOnLine(s1p, s2p, v); // Update v
-      S2Dregion12();              // Update s
-      return;                     // Return V{1,2}
+      projectOnLine(s1p, s2p, v);  // Update v
+      S2Dregion12();               // Update s
+      return;                      // Return V{1,2}
     }
   } else if (hff1f_s13) {
     const int hff2f_32 = !hff2(s1p, s3p, s2p);
     if (hff2f_32) {
-      projectOnPlane(s1p, s2p, s3p, v); // Update s, no need to update v
-      return;                           // Return V{1,2,3}
+      projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update v
+      return;                            // Return V{1,2,3}
     } else {
-      projectOnLine(s1p, s3p, v); // Update v
-      S2Dregion13();              // Update s
-      return;                     // Return V{1,3}
+      projectOnLine(s1p, s3p, v);  // Update v
+      S2Dregion13();               // Update s
+      return;                      // Return V{1,3}
     }
   } else {
-    S2Dregion1(); // Update s and v
-    return;       // Return V{1}
+    S2Dregion1();  // Update s and v
+    return;        // Return V{1}
   }
 }
 
-inline static void
-S3D(gkSimplex* s, gkFloat* v) {
+inline static void S3D(gkSimplex* s, gkFloat* v) {
   gkFloat s1[3], s2[3], s3[3], s4[3], s1s2[3], s1s3[3], s1s4[3];
   gkFloat si[3], sj[3], sk[3];
   int s1_idx[2], s2_idx[2], s3_idx[2];
   int si_idx[2], sj_idx[2], sk_idx[2];
-  int testLineThree, testLineFour, testPlaneTwo, testPlaneThree, testPlaneFour, dotTotal;
+  int testLineThree, testLineFour, testPlaneTwo, testPlaneThree, testPlaneFour,
+      dotTotal;
   int i, j, k, t;
 
   getvrtxidx(s1, s1_idx, 3);
@@ -402,40 +377,30 @@ S3D(gkSimplex* s, gkFloat* v) {
       // 1,i,j, are the indices of the points on the triangle and remove k from
       // simplex
       s->nvrtx = 3;
-      if (!testPlaneTwo)
-      { // k = 2;   removes s2
-        for (i = 0; i < 3; i++)
-        {
+      if (!testPlaneTwo) {  // k = 2;   removes s2
+        for (i = 0; i < 3; i++) {
           s->vrtx[2][i] = s->vrtx[3][i];
         }
-        for (i = 0; i < 2; i++)
-        {
+        for (i = 0; i < 2; i++) {
           s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
         }
-      }
-      else if (!testPlaneThree)
-      { // k = 1; // removes s3
-        for (i = 0; i < 3; i++)
-        {
+      } else if (!testPlaneThree) {  // k = 1; // removes s3
+        for (i = 0; i < 3; i++) {
           s->vrtx[1][i] = s2[i];
           s->vrtx[2][i] = s->vrtx[3][i];
         }
-        for (i = 0; i < 2; i++)
-        {
+        for (i = 0; i < 2; i++) {
           s->vrtx_idx[1][i] = s2_idx[i];
           s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
         }
-      }
-      else if (!testPlaneFour)
-      { // k = 0; // removes s4  and no need to reorder
-        for (i = 0; i < 3; i++)
-        {
+      } else if (!testPlaneFour) {  // k = 0; // removes s4  and no need to
+                                    // reorder
+        for (i = 0; i < 3; i++) {
           s->vrtx[0][i] = s3[i];
           s->vrtx[1][i] = s2[i];
           s->vrtx[2][i] = s->vrtx[3][i];
         }
-        for (i = 0; i < 2; i++)
-        {
+        for (i = 0; i < 2; i++) {
           s->vrtx_idx[0][i] = s3_idx[i];
           s->vrtx_idx[1][i] = s2_idx[i];
           s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
@@ -453,15 +418,15 @@ S3D(gkSimplex* s, gkFloat* v) {
       // simplex
       s->nvrtx = 3;
       if (testPlaneTwo) {
-        k = 2; // s2
+        k = 2;  // s2
         i = 1;
         j = 0;
       } else if (testPlaneThree) {
-        k = 1; // s3
+        k = 1;  // s3
         i = 0;
         j = 2;
       } else {
-        k = 0; // s4
+        k = 0;  // s4
         i = 2;
         j = 1;
       }
@@ -479,7 +444,7 @@ S3D(gkSimplex* s, gkFloat* v) {
             select_1jk();
             projectOnPlane(s1, sj, sk, v);
           } else {
-            select_1k(); // select region 1i
+            select_1k();  // select region 1i
             projectOnLine(s1, sk, v);
           }
         } else if (hff1_tests[i]) {
@@ -487,7 +452,7 @@ S3D(gkSimplex* s, gkFloat* v) {
             select_1ik();
             projectOnPlane(s1, si, sk, v);
           } else {
-            select_1i(); // select region 1i
+            select_1i();  // select region 1i
             projectOnLine(s1, si, v);
           }
         } else {
@@ -495,49 +460,49 @@ S3D(gkSimplex* s, gkFloat* v) {
             select_1jk();
             projectOnPlane(s1, sj, sk, v);
           } else {
-            select_1j(); // select region 1i
+            select_1j();  // select region 1i
             projectOnLine(s1, sj, v);
           }
         }
       } else if (dotTotal == 2) {
         // Two edges have positive hff1, meaning that for two edges the origin's
         // project fall on the segement.
-        //  Certainly the edge 1,k supports the the point of minimum norm, and so
-        //  hff1_1k is positive
+        //  Certainly the edge 1,k supports the the point of minimum norm, and
+        //  so hff1_1k is positive
 
         if (hff1_tests[i]) {
           if (!hff2(s1, sk, si)) {
             if (!hff2(s1, si, sk)) {
-              select_1ik(); // select region 1ik
+              select_1ik();  // select region 1ik
               projectOnPlane(s1, si, sk, v);
             } else {
-              select_1k(); // select region 1k
+              select_1k();  // select region 1k
               projectOnLine(s1, sk, v);
             }
           } else {
             if (!hff2(s1, sk, sj)) {
-              select_1jk(); // select region 1jk
+              select_1jk();  // select region 1jk
               projectOnPlane(s1, sj, sk, v);
             } else {
-              select_1k(); // select region 1k
+              select_1k();  // select region 1k
               projectOnLine(s1, sk, v);
             }
           }
-        } else if (hff1_tests[j]) { //  there is no other choice
+        } else if (hff1_tests[j]) {  //  there is no other choice
           if (!hff2(s1, sk, sj)) {
             if (!hff2(s1, sj, sk)) {
-              select_1jk(); // select region 1jk
+              select_1jk();  // select region 1jk
               projectOnPlane(s1, sj, sk, v);
             } else {
-              select_1j(); // select region 1j
+              select_1j();  // select region 1j
               projectOnLine(s1, sj, v);
             }
           } else {
             if (!hff2(s1, sk, si)) {
-              select_1ik(); // select region 1ik
+              select_1ik();  // select region 1ik
               projectOnPlane(s1, si, sk, v);
             } else {
-              select_1k(); // select region 1k
+              select_1k();  // select region 1k
               projectOnLine(s1, sk, v);
             }
           }
@@ -591,15 +556,15 @@ S3D(gkSimplex* s, gkFloat* v) {
         // Here si is set such that hff(s1,si) > 0
         if (testLineThree) {
           k = 2;
-          i = 1; // s3
+          i = 1;  // s3
           j = 0;
         } else if (testLineFour) {
-          k = 1; // s3
+          k = 1;  // s3
           i = 0;
           j = 2;
         } else {
           k = 0;
-          i = 2; // s2
+          i = 2;  // s2
           j = 1;
         }
         getvrtxidx(si, si_idx, i);
@@ -621,15 +586,15 @@ S3D(gkSimplex* s, gkFloat* v) {
         s->nvrtx = 3;
         if (!testLineThree) {
           k = 2;
-          i = 1; // s3
+          i = 1;  // s3
           j = 0;
         } else if (!testLineFour) {
           k = 1;
-          i = 0; // s4
+          i = 0;  // s4
           j = 2;
         } else {
           k = 0;
-          i = 2; // s2
+          i = 2;  // s2
           j = 1;
         }
         getvrtxidx(si, si_idx, i);
@@ -638,7 +603,7 @@ S3D(gkSimplex* s, gkFloat* v) {
 
         if (!hff2(s1, sj, sk)) {
           if (!hff2(s1, sk, sj)) {
-            select_1jk(); // select region 1jk
+            select_1jk();  // select region 1jk
             projectOnPlane(s1, sj, sk, v);
           } else if (!hff2(s1, sk, si)) {
             select_1ik();
@@ -661,8 +626,8 @@ S3D(gkSimplex* s, gkFloat* v) {
   }
 }
 
-inline static void
-support(gkPolytope* restrict body, const gkFloat* restrict v) {
+inline static void support(gkPolytope* restrict body,
+                           const gkFloat* restrict v) {
   gkFloat s, maxs;
   gkFloat* vrt;
   int better = -1;
@@ -686,8 +651,7 @@ support(gkPolytope* restrict body, const gkFloat* restrict v) {
   }
 }
 
-inline static void
-subalgorithm(gkSimplex* s, gkFloat* v) {
+inline static void subalgorithm(gkSimplex* s, gkFloat* v) {
   switch (s->nvrtx) {
     case 4:
       S3D(s, v);
@@ -703,26 +667,24 @@ subalgorithm(gkSimplex* s, gkFloat* v) {
   }
 }
 
-inline static void W0D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *smp)
-{
-  const gkFloat *w00 = bd1->coord[smp->vrtx_idx[0][0]];
-  const gkFloat *w01 = bd2->coord[smp->vrtx_idx[0][1]];
-  for (int t = 0; t < 3; t++)
-  {
+inline static void W0D(const gkPolytope* bd1, const gkPolytope* bd2,
+                       gkSimplex* smp) {
+  const gkFloat* w00 = bd1->coord[smp->vrtx_idx[0][0]];
+  const gkFloat* w01 = bd2->coord[smp->vrtx_idx[0][1]];
+  for (int t = 0; t < 3; t++) {
     smp->witnesses[0][t] = w00[t];
     smp->witnesses[1][t] = w01[t];
   }
 }
 
-inline static void W1D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *smp)
-{
+inline static void W1D(const gkPolytope* bd1, const gkPolytope* bd2,
+                       gkSimplex* smp) {
   gkFloat pq[3], po[3];
 
-  const gkFloat *p = smp->vrtx[0];
-  const gkFloat *q = smp->vrtx[1];
+  const gkFloat* p = smp->vrtx[0];
+  const gkFloat* q = smp->vrtx[1];
 
-  for (int t = 0; t < 3; t++)
-  {
+  for (int t = 0; t < 3; t++) {
     pq[t] = q[t] - p[t];
     po[t] = -p[t];
   }
@@ -730,7 +692,7 @@ inline static void W1D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
   // Compute barycentric coordinates via matrix inversion
   // (in the linear case the matrix is 1x1 thus simplified)
   const gkFloat det = dotProduct(pq, pq);
-  if(det == 0.0){
+  if (det == 0.0) {
     // Degenerate case
     W0D(bd1, bd2, smp);
   }
@@ -739,26 +701,25 @@ inline static void W1D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
   const gkFloat a0 = 1.0 - a1;
 
   // Compute witness points
-  const gkFloat *w00 = bd1->coord[smp->vrtx_idx[0][0]];
-  const gkFloat *w01 = bd2->coord[smp->vrtx_idx[0][1]];
-  const gkFloat *w10 = bd1->coord[smp->vrtx_idx[1][0]];
-  const gkFloat *w11 = bd2->coord[smp->vrtx_idx[1][1]];
-  for (int t = 0; t < 3; t++)
-  {
+  const gkFloat* w00 = bd1->coord[smp->vrtx_idx[0][0]];
+  const gkFloat* w01 = bd2->coord[smp->vrtx_idx[0][1]];
+  const gkFloat* w10 = bd1->coord[smp->vrtx_idx[1][0]];
+  const gkFloat* w11 = bd2->coord[smp->vrtx_idx[1][1]];
+  for (int t = 0; t < 3; t++) {
     smp->witnesses[0][t] = w00[t] * a0 + w10[t] * a1;
     smp->witnesses[1][t] = w01[t] * a0 + w11[t] * a1;
   }
 }
 
-inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* smp)
-{
+inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2,
+                       gkSimplex* smp) {
   gkFloat pq[3], pr[3], po[3];
 
   const gkFloat* p = smp->vrtx[0];
   const gkFloat* q = smp->vrtx[1];
   const gkFloat* r = smp->vrtx[2];
 
-  for(int t=0; t < 3; t++){
+  for (int t = 0; t < 3; t++) {
     pq[t] = q[t] - p[t];
     pr[t] = r[t] - p[t];
     po[t] = -p[t];
@@ -782,8 +743,10 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
    *  \end{bmatrix} \\
    *  \lambda_p &= 1 - \lambda_q - \lambda_r \\
    *  \mathbf{T} &= \begin{bmatrix}
-   *  \overrightarrow{PQ}\cdot\overrightarrow{PQ} & \overrightarrow{PR}\cdot\overrightarrow{PQ} \\
-   *  \overrightarrow{PR}\cdot\overrightarrow{PQ} & \overrightarrow{PR}\cdot\overrightarrow{PR}
+   *  \overrightarrow{PQ}\cdot\overrightarrow{PQ} &
+   * \overrightarrow{PR}\cdot\overrightarrow{PQ} \\
+   *  \overrightarrow{PR}\cdot\overrightarrow{PQ} &
+   * \overrightarrow{PR}\cdot\overrightarrow{PR}
    *  \end{bmatrix}
    *  \end{align*}
    */
@@ -791,7 +754,7 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
   const gkFloat T01 = dotProduct(pq, pr);
   const gkFloat T11 = dotProduct(pr, pr);
   const gkFloat det = T00 * T11 - T01 * T01;
-  if(det == 0.0){
+  if (det == 0.0) {
     // Degenerate case
     W1D(bd1, bd2, smp);
   }
@@ -807,8 +770,7 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
 
   // check if the origin is very close to one of the edges of the
   // simplex. In this case, a 1D projection will be more accurate.
-  if (a0 < gkEpsilon)
-  {
+  if (a0 < gkEpsilon) {
     smp->nvrtx = 2;
     smp->vrtx[0][0] = smp->vrtx[2][0];
     smp->vrtx[0][1] = smp->vrtx[2][1];
@@ -816,9 +778,7 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
     smp->vrtx_idx[0][0] = smp->vrtx_idx[2][0];
     smp->vrtx_idx[0][1] = smp->vrtx_idx[2][1];
     W1D(bd1, bd2, smp);
-  }
-  else if (a1 < gkEpsilon)
-  {
+  } else if (a1 < gkEpsilon) {
     smp->nvrtx = 2;
     smp->vrtx[1][0] = smp->vrtx[2][0];
     smp->vrtx[1][1] = smp->vrtx[2][1];
@@ -826,9 +786,7 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
     smp->vrtx_idx[1][0] = smp->vrtx_idx[2][0];
     smp->vrtx_idx[1][1] = smp->vrtx_idx[2][1];
     W1D(bd1, bd2, smp);
-  }
-  else if (a2 < gkEpsilon)
-  {
+  } else if (a2 < gkEpsilon) {
     smp->nvrtx = 2;
     W1D(bd1, bd2, smp);
   }
@@ -842,23 +800,22 @@ inline static void W2D(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* 
   const gkFloat* w11 = bd2->coord[smp->vrtx_idx[1][1]];
   const gkFloat* w20 = bd1->coord[smp->vrtx_idx[2][0]];
   const gkFloat* w21 = bd2->coord[smp->vrtx_idx[2][1]];
-  for(int t=0; t < 3; t++){
+  for (int t = 0; t < 3; t++) {
     smp->witnesses[0][t] = w00[t] * a0 + w10[t] * a1 + w20[t] * a2;
     smp->witnesses[1][t] = w01[t] * a0 + w11[t] * a1 + w21[t] * a2;
   }
 }
 
-inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *smp)
-{
+inline static void W3D(const gkPolytope* bd1, const gkPolytope* bd2,
+                       gkSimplex* smp) {
   gkFloat pq[3], pr[3], ps[3], po[3];
 
-  const gkFloat *p = smp->vrtx[0];
-  const gkFloat *q = smp->vrtx[1];
-  const gkFloat *r = smp->vrtx[2];
-  const gkFloat *s = smp->vrtx[3];
+  const gkFloat* p = smp->vrtx[0];
+  const gkFloat* q = smp->vrtx[1];
+  const gkFloat* r = smp->vrtx[2];
+  const gkFloat* s = smp->vrtx[3];
 
-  for (int t = 0; t < 3; t++)
-  {
+  for (int t = 0; t < 3; t++) {
     pq[t] = q[t] - p[t];
     pr[t] = r[t] - p[t];
     ps[t] = s[t] - p[t];
@@ -871,7 +828,7 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
    *  tetrahedron we want to find the barycentric coordinates of
    *  the origin. We can do this by inverting $\mathbf{T}$ in the
    *  linear equation below:
-   *  
+   *
    *  \begin{align*}
    *  \mathbf{T}
    *  \begin{bmatrix}
@@ -885,9 +842,14 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
    *  \end{bmatrix} \\
    *  \lambda_p &= 1 - \lambda_q - \lambda_r - \lambda_s \\
    *  \mathbf{T} &= \begin{bmatrix}
-   *  \overrightarrow{PQ}\cdot\overrightarrow{PQ} & \overrightarrow{PQ}\cdot\overrightarrow{PR} & \overrightarrow{PQ}\cdot\overrightarrow{PS}\\
-   *  \overrightarrow{PR}\cdot\overrightarrow{PQ} & \overrightarrow{PR} \cdot \overrightarrow{PR} & \overrightarrow{PR}\cdot\overrightarrow{PS} \\
-   *  \overrightarrow{PS}\cdot\overrightarrow{PQ} & \overrightarrow{PS}\cdot\overrightarrow{PR} & \overrightarrow{PS}\cdot\overrightarrow{PS}
+   *  \overrightarrow{PQ}\cdot\overrightarrow{PQ} &
+   * \overrightarrow{PQ}\cdot\overrightarrow{PR} &
+   * \overrightarrow{PQ}\cdot\overrightarrow{PS}\\
+   *  \overrightarrow{PR}\cdot\overrightarrow{PQ} & \overrightarrow{PR} \cdot
+   * \overrightarrow{PR} & \overrightarrow{PR}\cdot\overrightarrow{PS} \\
+   *  \overrightarrow{PS}\cdot\overrightarrow{PQ} &
+   * \overrightarrow{PS}\cdot\overrightarrow{PR} &
+   * \overrightarrow{PS}\cdot\overrightarrow{PS}
    *  \end{bmatrix}
    *  \end{align*}
    */
@@ -902,8 +864,7 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
   const gkFloat det01 = T01 * T22 - T02 * T12;
   const gkFloat det02 = T01 * T12 - T02 * T11;
   const gkFloat det = T00 * det00 - T01 * det01 + T02 * det02;
-  if (det == 0.0)
-  {
+  if (det == 0.0) {
     // Degenerate case
     W2D(bd1, bd2, smp);
   }
@@ -931,8 +892,7 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
 
   // check if the origin is very close to one of the faces of the
   // simplex. In this case, a 2D projection will be more accurate.
-  if (a0 < gkEpsilon)
-  {
+  if (a0 < gkEpsilon) {
     smp->nvrtx = 3;
     smp->vrtx[0][0] = smp->vrtx[3][0];
     smp->vrtx[0][1] = smp->vrtx[3][1];
@@ -940,9 +900,7 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
     smp->vrtx_idx[0][0] = smp->vrtx_idx[3][0];
     smp->vrtx_idx[0][1] = smp->vrtx_idx[3][1];
     W2D(bd1, bd2, smp);
-  }
-  else if (a1 < gkEpsilon)
-  {
+  } else if (a1 < gkEpsilon) {
     smp->nvrtx = 3;
     smp->vrtx[1][0] = smp->vrtx[3][0];
     smp->vrtx[1][1] = smp->vrtx[3][1];
@@ -950,9 +908,7 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
     smp->vrtx_idx[1][0] = smp->vrtx_idx[3][0];
     smp->vrtx_idx[1][1] = smp->vrtx_idx[3][1];
     W2D(bd1, bd2, smp);
-  }
-  else if (a2 < gkEpsilon)
-  {
+  } else if (a2 < gkEpsilon) {
     smp->nvrtx = 3;
     smp->vrtx[2][0] = smp->vrtx[3][0];
     smp->vrtx[2][1] = smp->vrtx[3][1];
@@ -960,9 +916,7 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
     smp->vrtx_idx[2][0] = smp->vrtx_idx[3][0];
     smp->vrtx_idx[2][1] = smp->vrtx_idx[3][1];
     W2D(bd1, bd2, smp);
-  }
-  else if(a3 < gkEpsilon)
-  {
+  } else if (a3 < gkEpsilon) {
     smp->nvrtx = 3;
     W2D(bd1, bd2, smp);
   }
@@ -970,25 +924,25 @@ inline static void W3D(const gkPolytope *bd1, const gkPolytope *bd2, gkSimplex *
   // Compute witness points
   // This is done by blending the original points using
   // the barycentric coordinates
-  const gkFloat *w00 = bd1->coord[smp->vrtx_idx[0][0]];
-  const gkFloat *w01 = bd2->coord[smp->vrtx_idx[0][1]];
-  const gkFloat *w10 = bd1->coord[smp->vrtx_idx[1][0]];
-  const gkFloat *w11 = bd2->coord[smp->vrtx_idx[1][1]];
-  const gkFloat *w20 = bd1->coord[smp->vrtx_idx[2][0]];
-  const gkFloat *w21 = bd2->coord[smp->vrtx_idx[2][1]];
-  const gkFloat *w30 = bd1->coord[smp->vrtx_idx[3][0]];
-  const gkFloat *w31 = bd2->coord[smp->vrtx_idx[3][1]];
-  for (int t = 0; t < 3; t++)
-  {
-    smp->witnesses[0][t] = w00[t] * a0 + w10[t] * a1 + w20[t] * a2 + w30[t] * a3;
-    smp->witnesses[1][t] = w01[t] * a0 + w11[t] * a1 + w21[t] * a2 + w31[t] * a3;
+  const gkFloat* w00 = bd1->coord[smp->vrtx_idx[0][0]];
+  const gkFloat* w01 = bd2->coord[smp->vrtx_idx[0][1]];
+  const gkFloat* w10 = bd1->coord[smp->vrtx_idx[1][0]];
+  const gkFloat* w11 = bd2->coord[smp->vrtx_idx[1][1]];
+  const gkFloat* w20 = bd1->coord[smp->vrtx_idx[2][0]];
+  const gkFloat* w21 = bd2->coord[smp->vrtx_idx[2][1]];
+  const gkFloat* w30 = bd1->coord[smp->vrtx_idx[3][0]];
+  const gkFloat* w31 = bd2->coord[smp->vrtx_idx[3][1]];
+  for (int t = 0; t < 3; t++) {
+    smp->witnesses[0][t] =
+        w00[t] * a0 + w10[t] * a1 + w20[t] * a2 + w30[t] * a3;
+    smp->witnesses[1][t] =
+        w01[t] * a0 + w11[t] * a1 + w21[t] * a2 + w31[t] * a3;
   }
 }
 
-inline static void
-compute_witnesses(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* smp)
-{
-  switch(smp->nvrtx){
+inline static void compute_witnesses(const gkPolytope* bd1,
+                                     const gkPolytope* bd2, gkSimplex* smp) {
+  switch (smp->nvrtx) {
     case 4:
       W3D(bd1, bd2, smp);
       break;
@@ -1006,8 +960,8 @@ compute_witnesses(const gkPolytope* bd1, const gkPolytope* bd2, gkSimplex* smp)
   }
 }
 
-gkFloat
-compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) {
+gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
+                                 gkSimplex* restrict s) {
   unsigned int k = 0;                /**< Iteration counter                 */
   const int mk = 25;                 /**< Maximum number of GJK iterations  */
   const gkFloat eps_rel = eps_rel22; /**< Tolerance on relative             */
@@ -1072,7 +1026,7 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
       break;
     }
 
-    if (norm2(v) < eps_rel2) { // it a null V
+    if (norm2(v) < eps_rel2) {  // it a null V
       break;
     }
 
@@ -1103,8 +1057,9 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
   } while ((s->nvrtx != 4) && (k != mk));
 
   if (k == mk) {
-    mexPrintf("\n * * * * * * * * * * * * MAXIMUM ITERATION NUMBER REACHED!!!  "
-              " * * * * * * * * * * * * * * \n");
+    mexPrintf(
+        "\n * * * * * * * * * * * * MAXIMUM ITERATION NUMBER REACHED!!!  "
+        " * * * * * * * * * * * * * * \n");
   }
 
   compute_witnesses(&bd1, &bd2, s);
@@ -1115,8 +1070,7 @@ compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* restrict s) 
 /**
  * @brief Mex function for Matlab.
  */
-void
-mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   gkFloat* inCoordsA;
   gkFloat* inCoordsB;
   size_t nCoordsA;
@@ -1142,21 +1096,25 @@ mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
   /* make sure the two input arguments are any numerical type */
   /* .. first input */
   if (!mxIsNumeric(prhs[0])) {
-    mexErrMsgIdAndTxt("MyToolbox:gjk:notNumeric", "Input matrix must be type numeric.");
+    mexErrMsgIdAndTxt("MyToolbox:gjk:notNumeric",
+                      "Input matrix must be type numeric.");
   }
   /* .. second input */
   if (!mxIsNumeric(prhs[1])) {
-    mexErrMsgIdAndTxt("MyToolbox:gjk:notNumeric", "Input matrix must be type numeric.");
+    mexErrMsgIdAndTxt("MyToolbox:gjk:notNumeric",
+                      "Input matrix must be type numeric.");
   }
 
   /* make sure the two input arguments have 3 columns */
   /* .. first input */
   if (mxGetM(prhs[0]) != 3) {
-    mexErrMsgIdAndTxt("MyToolbox:gjk:notColumnVector", "First input must have 3 columns.");
+    mexErrMsgIdAndTxt("MyToolbox:gjk:notColumnVector",
+                      "First input must have 3 columns.");
   }
   /* .. second input */
   if (mxGetM(prhs[1]) != 3) {
-    mexErrMsgIdAndTxt("MyToolbox:gjk:notColumnVector", "Second input must have 3 columns.");
+    mexErrMsgIdAndTxt("MyToolbox:gjk:notColumnVector",
+                      "Second input must have 3 columns.");
   }
 
   /*----------------------------------------------------------------*/
@@ -1218,8 +1176,8 @@ mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 /**
  * @brief Invoke this function from C# applications
  */
-extern gkFloat
-csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB, gkFloat* inCoordsB) {
+extern gkFloat csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB,
+                          gkFloat* inCoordsB) {
   gkFloat distance = 0;
   int i, j;
 
@@ -1280,4 +1238,4 @@ csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB, gkFloat* inCoordsB) {
 
   return distance;
 }
-#endif //CS_MONO_BUILD
+#endif  // CS_MONO_BUILD
