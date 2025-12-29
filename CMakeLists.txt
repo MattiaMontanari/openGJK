@@ -111,6 +111,9 @@ set_target_properties(obj_openGJK
 
 add_library(opengjk_ce SHARED $<TARGET_OBJECTS:obj_openGJK>)
 
+# allows target_link_libraries with openGJK::openGJK
+add_library(openGJK::openGJK ALIAS opengjk_ce)
+
 if(BUILD_CTYPES)
     add_custom_command(
         TARGET opengjk_ce
