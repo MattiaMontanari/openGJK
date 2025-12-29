@@ -45,8 +45,6 @@
 #define mexPrintf printf
 #endif
 
-/* ============================================================================
-
 /** Maximum number of GJK iterations before termination */
 #define GJK_MAX_ITERATIONS 25
 
@@ -61,10 +59,6 @@
 
 /** Absolute tolerance for convergence (scaled machine epsilon) */
 #define GJK_EPSILON_ABS ((gkFloat)(gkEpsilon * GJK_EPSILON_ABS_MULT))
-
-/* Legacy macro names for backward compatibility */
-#define eps_rel22 GJK_EPSILON_REL
-#define eps_tot22 GJK_EPSILON_ABS
 
 #define norm2(a) (a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
 #define dotProduct(a, b) (a[0] * b[0] + a[1] * b[1] + a[2] * b[2])
@@ -981,9 +975,10 @@ inline static void compute_witnesses(const gkPolytope* bd1,
 gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
                                  gkSimplex* restrict s) {
   unsigned int k = 0;                /**< Iteration counter                 */
-  const int mk = GJK_MAX_ITERATIONS; /**< Maximum GJK iterations */
-  const gkFloat eps_rel = GJK_EPSILON_REL; /**< Relative tolerance */
-  const gkFloat eps_tot = GJK_EPSILON_ABS; /**< Absolute tolerance */
+  const int mk = GJK_MAX_ITERATIONS; /**< Maximum number of GJK iterations  */
+  const gkFloat eps_rel = GJK_EPSILON_REL; /**< Tolerance on relative */
+  const gkFloat eps_tot =
+      GJK_EPSILON_ABS; /**< Tolerance on absolute distance    */
 
   const gkFloat eps_rel2 = eps_rel * eps_rel;
   unsigned int i;
