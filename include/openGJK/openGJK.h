@@ -42,10 +42,10 @@
 #endif
 
 #ifdef INCLUDE_CMAKE_HEADER
-#include "opengjk_export.h"  // CMake-generated header
+#include "opengjk_export.h" /* CMake-generated export header for shared library symbols */
 #else
-#define OPENGJK_EXPORT  // Builds that don't use CMake (cythong, zig, ...) don't
-                        // need a definiton here
+#define OPENGJK_EXPORT /* Builds that don't use CMake (cython, zig, ...) don't
+                           need a definition here */
 #endif
 
 #ifdef __cplusplus
@@ -57,10 +57,10 @@ extern "C" {
  * Default is set to 64-bit (Double). Change this to quickly play around with
  * 16- and 32-bit. */
 #ifdef USE_32BITS
-#define gkFloat float
+#define gkFloat   float
 #define gkEpsilon FLT_EPSILON
 #else
-#define gkFloat double
+#define gkFloat   double
 #define gkEpsilon DBL_EPSILON
 #endif
 
@@ -71,11 +71,11 @@ extern "C" {
  * instead each GJK-iteration employs a support function that has a cost
  * linearly dependent on the number of points defining the polytope. */
 typedef struct gkPolytope_ {
-  int numpoints; /*!< Number of points defining the polytope. */
-  gkFloat s[3]; /*!< Furthest point returned by the support function and updated
+  int numpoints;   /*!< Number of points defining the polytope. */
+  gkFloat s[3];    /*!< Furthest point returned by the support function and updated
                    at each GJK-iteration. For the first iteration this value is
                    a guess - and this guess not irrelevant. */
-  int s_idx; /*!< Index of the furthest point returned by the support function.
+  int s_idx;       /*!< Index of the furthest point returned by the support function.
               */
   gkFloat** coord; /*!< Coordinates of the points of the polytope. This is owned
                       by user who manages and garbage-collects the memory for
@@ -90,18 +90,32 @@ typedef struct gkSimplex_ {
   int nvrtx;               /*!< Number of points defining the simplex. */
   gkFloat vrtx[4][3];      /*!< Coordinates of the points of the simplex. */
   int vrtx_idx[4][2];      /*!< Indices of the points of the simplex. */
-  gkFloat witnesses[2][3]; /*!< Coordinates of the witness points. */
+  gkFloat witnesses[2][3]; /*!< Witness points (closest points on each body).
+                              After calling compute_minimum_distance():
+                              - witnesses[0] contains the closest point on bd1
+                              - witnesses[1] contains the closest point on bd2
+                              These are computed using barycentric coordinates
+                              from the final simplex vertices. */
 } gkSimplex;
 
 /*! @brief Invoke the GJK algorithm to compute the minimum distance between two
  * polytopes.
  *
- * The simplex has to be initialised prior the call to this function. */
-OPENGJK_EXPORT gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
-                                                gkSimplex* s);
+ * @param[in]     bd1  First polytope (passed by value, modified internally).
+ * @param[in]     bd2  Second polytope (passed by value, modified internally).
+ * @param[in,out] s    Simplex structure. Must be initialized (set nvrtx = 0)
+ *                     before first call. After return, contains the final
+ *                     simplex and witness points in s->witnesses.
+ * @return The minimum Euclidean distance between the two polytopes.
+ *         Returns 0 if the polytopes are intersecting or touching.
+ *
+ * @note The simplex has to be initialised prior the call to this function.
+ *       Witness points are automatically computed and stored in s->witnesses.
+ */
+OPENGJK_EXPORT gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* s);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // OPENGJK_H__
+#endif /* OPENGJK_H__ */
