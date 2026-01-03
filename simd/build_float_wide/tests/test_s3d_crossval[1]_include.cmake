@@ -1,0 +1,5 @@
+if(EXISTS "/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_float_wide/tests/test_s3d_crossval[1]_tests.cmake")
+  include("/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_float_wide/tests/test_s3d_crossval[1]_tests.cmake")
+else()
+  add_test(test_s3d_crossval_NOT_BUILT test_s3d_crossval_NOT_BUILT)
+endif()

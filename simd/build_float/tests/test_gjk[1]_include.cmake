@@ -1,0 +1,5 @@
+if(EXISTS "/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_float/tests/test_gjk[1]_tests.cmake")
+  include("/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_float/tests/test_gjk[1]_tests.cmake")
+else()
+  add_test(test_gjk_NOT_BUILT test_gjk_NOT_BUILT)
+endif()

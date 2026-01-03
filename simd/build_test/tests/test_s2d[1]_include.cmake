@@ -1,0 +1,5 @@
+if(EXISTS "/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_test/tests/test_s2d[1]_tests.cmake")
+  include("/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_test/tests/test_s2d[1]_tests.cmake")
+else()
+  add_test(test_s2d_NOT_BUILT test_s2d_NOT_BUILT)
+endif()

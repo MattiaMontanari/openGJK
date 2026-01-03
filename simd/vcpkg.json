@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "opengjk-simd",
+  "version": "1.0.0",
+  "description": "SIMD implementation of the GJK algorithm using Google Highway",
+  "license": "GPL-3.0-or-later",
+  "dependencies": [
+    {
+      "name": "highway",
+      "version>=": "1.0.7"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.14.0"
+    }
+  ]
+}
+
