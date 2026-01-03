@@ -1,15 +1,26 @@
 # Tests for OpenGJK SIMD
 
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.14.0
-)
-# Force static linking to avoid dylib issues on macOS
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+# Use local GoogleTest from ext/ if available, otherwise fallback to FetchContent
+set(GTEST_EXT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../ext/googletest")
+if(EXISTS "${GTEST_EXT_PATH}/CMakeLists.txt")
+    message(STATUS "Using local GoogleTest from ${GTEST_EXT_PATH}")
+    # Force static linking to avoid dylib issues on macOS
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    add_subdirectory(${GTEST_EXT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "Fetching GoogleTest from GitHub...")
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.14.0
+    )
+    # Force static linking to avoid dylib issues on macOS
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
 
 include(GoogleTest)
 
