@@ -1,0 +1,22 @@
+@PACKAGE_INIT@
+
+# OpenGJK CMake Package Configuration
+#
+# This file provides CMake targets for OpenGJK.
+# Usage:
+#   find_package(opengjk CONFIG)
+#   target_link_libraries(my_target opengjk::scalar)  # For C scalar version
+#   target_link_libraries(my_target opengjk::simd)    # For C++ SIMD version
+
+include(CMakeFindDependencyMacro)
+
+# Check for required dependencies
+if(@BUILD_SIMD@)
+    find_dependency(hwy CONFIG)
+endif()
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/opengjk-targets.cmake")
+
+check_required_components(opengjk)
+
