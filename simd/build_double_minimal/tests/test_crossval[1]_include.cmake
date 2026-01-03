@@ -1,5 +1,0 @@
-if(EXISTS "/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_double_minimal/tests/test_crossval[1]_tests.cmake")
-  include("/Users/mattiamontanari/repos/opengjk_3d/src/simd/build_double_minimal/tests/test_crossval[1]_tests.cmake")
-else()
-  add_test(test_crossval_NOT_BUILT test_crossval_NOT_BUILT)
-endif()
