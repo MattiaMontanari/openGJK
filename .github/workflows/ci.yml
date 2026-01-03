@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, feature/*]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }} (${{ matrix.precision }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        precision: [double, float]
+        include:
+          - precision: double
+            use_32bits: OFF
+          - precision: float
+            use_32bits: ON
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libcmocka-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake cmocka
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=ON \
+            -DBUILD_SCALAR=ON \
+            -DBUILD_SIMD=ON \
+            -DUSE_32BITS=${{ matrix.use_32bits }}
+
+      - name: Build
+        run: cmake --build build --parallel 4
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure -C Release
+
+  # Separate job for Windows (CMocka not easily available)
+  build-and-test-windows:
+    name: Windows (SIMD only, ${{ matrix.precision }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        precision: [double, float]
+        include:
+          - precision: double
+            use_32bits: OFF
+          - precision: float
+            use_32bits: ON
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        run: |
+          cmake -B build `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_TESTS=ON `
+            -DBUILD_SCALAR=OFF `
+            -DBUILD_SIMD=ON `
+            -DUSE_32BITS=${{ matrix.use_32bits }}
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure -C Release
+
