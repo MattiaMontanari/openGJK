@@ -109,6 +109,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         -Wall -Wextra -Wpedantic
         -fno-exceptions
     )
+    # Suppress warnings from external Highway library code
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(opengjk_simd PRIVATE
+            -Wno-gnu-zero-variadic-macro-arguments  # Highway uses GNU extension
+        )
+    endif()
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options(opengjk_simd PRIVATE
+            -Wno-pedantic  # Highway uses __int128 which triggers -Wpedantic
+        )
+    endif()
 endif()
 
 if(MSVC)
