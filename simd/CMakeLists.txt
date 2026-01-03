@@ -49,7 +49,10 @@ if(EXISTS "${HWY_EXT_PATH}/CMakeLists.txt")
     set(HWY_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
     set(HWY_ENABLE_CONTRIB OFF CACHE BOOL "" FORCE)
     set(HWY_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
-    add_subdirectory(${HWY_EXT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/highway EXCLUDE_FROM_ALL)
+    # Only add Highway if not already added by another target
+    if(NOT TARGET hwy)
+        add_subdirectory(${HWY_EXT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/highway EXCLUDE_FROM_ALL)
+    endif()
     set(HWY_LIBRARY hwy)
 else()
     # Fall back to system Highway
