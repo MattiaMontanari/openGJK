@@ -114,6 +114,18 @@ typedef struct gkSimplex_ {
  */
 OPENGJK_EXPORT gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* s);
 
+/*! @brief Testing wrappers - expose internal functions for cross-validation.
+ *
+ * These functions allow testing the internal simplex sub-algorithms (S1D, S2D, S3D)
+ * against SIMD implementations. Vertex ordering convention:
+ *   - S1D: vrtx[1] = newest (p), vrtx[0] = oldest (q)
+ *   - S2D: vrtx[2] = newest (p), vrtx[1] = q, vrtx[0] = oldest (r)
+ *   - S3D: vrtx[3] = newest (p), vrtx[2] = q, vrtx[1] = r, vrtx[0] = oldest (t)
+ */
+OPENGJK_EXPORT void opengjk_test_S1D(gkSimplex* s, gkFloat* v);
+OPENGJK_EXPORT void opengjk_test_S2D(gkSimplex* s, gkFloat* v);
+OPENGJK_EXPORT void opengjk_test_S3D(gkSimplex* s, gkFloat* v);
+
 #ifdef __cplusplus
 }
 #endif

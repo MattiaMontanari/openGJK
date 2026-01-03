@@ -1253,3 +1253,31 @@ extern gkFloat csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB,
   return distance;
 }
 #endif  // CS_MONO_BUILD
+
+/* ========================================================================== */
+/* Testing wrappers - expose internal functions for cross-validation         */
+/* ========================================================================== */
+
+/**
+ * @brief Wrapper to expose S1D for testing.
+ *
+ * @param[in,out] s  Simplex with nvrtx=2. vrtx[1] is newest, vrtx[0] is oldest.
+ * @param[out]    v  Closest point to origin.
+ */
+void opengjk_test_S1D(gkSimplex* s, gkFloat* v) { S1D(s, v); }
+
+/**
+ * @brief Wrapper to expose S2D for testing.
+ *
+ * @param[in,out] s  Simplex with nvrtx=3. vrtx[2] is newest, vrtx[0] is oldest.
+ * @param[out]    v  Closest point to origin.
+ */
+void opengjk_test_S2D(gkSimplex* s, gkFloat* v) { S2D(s, v); }
+
+/**
+ * @brief Wrapper to expose S3D for testing.
+ *
+ * @param[in,out] s  Simplex with nvrtx=4. vrtx[3] is newest, vrtx[0] is oldest.
+ * @param[out]    v  Closest point to origin.
+ */
+void opengjk_test_S3D(gkSimplex* s, gkFloat* v) { S3D(s, v); }
