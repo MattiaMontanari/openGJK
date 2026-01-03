@@ -60,6 +60,10 @@ message(STATUS "Using 32-bit floats: ${USE_32BITS}")
 # ============================================================================
 
 if(BUILD_SCALAR)
+    # Forward BUILD_TESTS option to scalar library
+    if(BUILD_TESTS)
+        set(OPENGJK_SCALAR_BUILD_TESTS ON CACHE BOOL "" FORCE)
+    endif()
     add_subdirectory(scalar)
 endif()
 
