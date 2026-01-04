@@ -20,6 +20,11 @@ jobs:
             use_32bits: OFF
           - precision: float
             use_32bits: ON
+          # macOS ARM has SVE issues with SIMD code (sizeless types in arrays)
+          - os: macos-latest
+            build_simd: OFF
+          - os: ubuntu-latest
+            build_simd: ON
 
     steps:
       - name: Checkout
@@ -44,7 +49,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTS=ON \
             -DBUILD_SCALAR=ON \
-            -DBUILD_SIMD=ON \
+            -DBUILD_SIMD=${{ matrix.build_simd }} \
             -DUSE_32BITS=${{ matrix.use_32bits }}
 
       - name: Build
