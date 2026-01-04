@@ -14,7 +14,7 @@ jobs:
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SIMD=OFF ..
       - run: cmake --build build
-      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
+      - run: cmake -E chdir build/scalar/examples/c/ ./example_lib_opengjk_ce
 
   C_GCC_CXX:
     runs-on: ubuntu-latest
@@ -25,7 +25,7 @@ jobs:
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DFORCE_CXX_COMPILER=ON -DBUILD_SIMD=OFF ..
       - run: cmake --build build
-      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
+      - run: cmake -E chdir build/scalar/examples/c/ ./example_lib_opengjk_ce
 
   C_msvs:
     runs-on: windows-latest
@@ -44,8 +44,8 @@ jobs:
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DBUILD_SIMD=OFF ..
       - run: cmake --build build
-      - run: cmake -E copy build/examples/c/Debug/example_lib_opengjk_ce.exe build/examples/c
-      - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce.exe
+      - run: cmake -E copy build/scalar/examples/c/Debug/example_lib_opengjk_ce.exe build/scalar/examples/c
+      - run: cmake -E chdir build/scalar/examples/c/ ./example_lib_opengjk_ce.exe
 
   Cython:
     runs-on: ubuntu-latest
@@ -55,8 +55,8 @@ jobs:
         uses: actions/checkout@v4
       - run: apt-get update -y && apt-get install python3-setuptools python3-pip -y
       - run: pip3 install numpy pytest scipy Cython
-      - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
-      - run: cd examples/cython/ && pytest test.py
+      - run: cd scalar/examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
+      - run: cd scalar/examples/cython/ && pytest test.py
 
   PythonCTypes:
     runs-on: ubuntu-latest
@@ -79,7 +79,6 @@ jobs:
       - name: CMake config
         run: cmake -B ${{github.workspace}}/build -DBUILD_SIMD=OFF
         env:
-          BUILD_CTYPES: 1
           CMAKE_BUILD_TYPE: Release
 
       - name: CMake build
@@ -89,23 +88,23 @@ jobs:
       - name: Debug library symbols
         run: |
           echo "Checking library symbols..."
-          nm -D ${{github.workspace}}/build/libopengjk_ce.so
+          nm -D ${{github.workspace}}/build/scalar/libopengjk_scalar.so
           echo "Checking library dependencies..."
-          ldd ${{github.workspace}}/build/libopengjk_ce.so
+          ldd ${{github.workspace}}/build/scalar/libopengjk_scalar.so
 
       - name: Copy library to module directory
         run: |
           # Create the destination directory if it doesn't exist
-          mkdir -p ${{github.workspace}}/examples/python_ctypes/src/pyopengjk/
-          # Copy the library to the module directory
-          cp ${{github.workspace}}/build/libopengjk_ce.so ${{github.workspace}}/examples/python_ctypes/src/pyopengjk/
+          mkdir -p ${{github.workspace}}/scalar/examples/python_ctypes/src/pyopengjk/
+          # Copy the library to the module directory (renamed for compatibility)
+          cp ${{github.workspace}}/build/scalar/libopengjk_scalar.so ${{github.workspace}}/scalar/examples/python_ctypes/src/pyopengjk/libopengjk_ce.so
 
       - name: Python build
-        working-directory: ${{github.workspace}}/examples/python_ctypes/
+        working-directory: ${{github.workspace}}/scalar/examples/python_ctypes/
         run: pip install -e .[test]
 
       - name: Python test
-        working-directory: ${{github.workspace}}/examples/python_ctypes/
+        working-directory: ${{github.workspace}}/scalar/examples/python_ctypes/
         run: pytest -vv
 
   CSharp:
@@ -121,11 +120,10 @@ jobs:
           apt-get install gcc g++ cmake mono-devel -y
       - run: cmake -E make_directory build
       # Using single precision
-      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DSINGLE_PRECISION=ON -DBUILD_SIMD=OFF ..
-      - run: cmake --build build --target opengjk_ce
-      - run: cmake -E chdir build make install
-      - run: cmake -E copy build/*opengjk_ce* examples/cs/
-      - run: cd examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DUSE_32BITS=ON -DBUILD_SIMD=OFF ..
+      - run: cmake --build build --target opengjk_scalar
+      - run: cmake -E copy build/scalar/*opengjk_scalar* scalar/examples/cs/
+      - run: cd scalar/examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
 
   GO:
     runs-on: ubuntu-latest
@@ -136,7 +134,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.15
-      - run: cd examples/go/openGJK && go build && go test -v
+      - run: cd scalar/examples/go/openGJK && go build && go test -v
 
   Octave:
     runs-on: ubuntu-latest
@@ -144,7 +142,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - run: cd examples/matlab/; octave runme.m
+      - run: cd scalar/examples/matlab/; octave runme.m
 
   Zig:
     runs-on: ubuntu-latest
@@ -155,5 +153,5 @@ jobs:
         with:
           version: 0.13.0
       - name: Build and run
-        run: cd examples/zig && zig build && zig build run
+        run: cd scalar/examples/zig && zig build && zig build run
 

@@ -117,3 +117,8 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
+# Examples
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples/c)
+endif()
+
