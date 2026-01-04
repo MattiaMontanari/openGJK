@@ -1,4 +1,4 @@
-name: CI
+name: Build and Test
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.os }} (${{ matrix.precision }})
+    name: 🔧 ${{ matrix.os }} • ${{ matrix.precision }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -56,7 +56,7 @@ jobs:
 
   # Separate job for Windows (CMocka not easily available)
   build-and-test-windows:
-    name: Windows (SIMD only, ${{ matrix.precision }})
+    name: 🪟 Windows SIMD • ${{ matrix.precision }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -88,4 +88,3 @@ jobs:
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure -C Release
-
