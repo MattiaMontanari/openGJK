@@ -35,9 +35,9 @@ using System.Runtime.InteropServices;
 public class Tester
 {
 #if UNIX
-    [DllImport("libopengjk_ce.so", EntryPoint="csFunction", CallingConvention = CallingConvention.StdCall)]
+    [DllImport("libopengjk_scalar.so", EntryPoint="csFunction", CallingConvention = CallingConvention.StdCall)]
 #else 
-    [DllImport("libopengjk_ce", EntryPoint = "csFunction", CallingConvention = CallingConvention.StdCall)]
+    [DllImport("opengjk_scalar", EntryPoint = "csFunction", CallingConvention = CallingConvention.StdCall)]
 #endif
 
     static extern float compute_minimum_distance(int na, float[,] ia, int nb, float[,] ib);

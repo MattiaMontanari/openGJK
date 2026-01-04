@@ -41,23 +41,41 @@ option(BUILD_TESTS "Build unit tests" ON)
 option(USE_32BITS "Use float instead of double" ON)
 option(USE_MINIMAL_SIMD "Use smallest viable SIMD width instead of widest" OFF)
 
-# Find Highway - prefer local ext directory
+# Find Highway - prefer local ext directory, then system, then FetchContent
 set(HWY_EXT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../ext/highway")
 if(EXISTS "${HWY_EXT_PATH}/CMakeLists.txt")
-    message(STATUS "Using local Highway from ${HWY_EXT_PATH}")
+    message(STATUS "[opengjk_simd] Using local Highway from ${HWY_EXT_PATH}")
     set(HWY_ENABLE_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(HWY_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
     set(HWY_ENABLE_CONTRIB OFF CACHE BOOL "" FORCE)
     set(HWY_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
-    # Only add Highway if not already added by another target
     if(NOT TARGET hwy)
         add_subdirectory(${HWY_EXT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/highway EXCLUDE_FROM_ALL)
     endif()
     set(HWY_LIBRARY hwy)
 else()
-    # Fall back to system Highway
-    find_package(hwy CONFIG REQUIRED)
-    set(HWY_LIBRARY hwy::hwy)
+    # Try system Highway first
+    find_package(hwy CONFIG QUIET)
+    if(hwy_FOUND)
+        message(STATUS "[opengjk_simd] Using system Highway")
+        set(HWY_LIBRARY hwy::hwy)
+    else()
+        # Fall back to FetchContent
+        message(STATUS "[opengjk_simd] Fetching Highway via FetchContent")
+        include(FetchContent)
+        FetchContent_Declare(
+            highway
+            GIT_REPOSITORY https://github.com/google/highway.git
+            GIT_TAG 1.2.0
+            GIT_SHALLOW TRUE
+        )
+        set(HWY_ENABLE_EXAMPLES OFF CACHE BOOL "" FORCE)
+        set(HWY_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+        set(HWY_ENABLE_CONTRIB OFF CACHE BOOL "" FORCE)
+        set(HWY_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(highway)
+        set(HWY_LIBRARY hwy)
+    endif()
 endif()
 
 # Precision definition - enables float instead of double

@@ -120,8 +120,8 @@ jobs:
       - run: cmake -E make_directory build
       - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DUSE_32BITS=ON -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF ..
       - run: cmake --build build --target opengjk_scalar
-      - run: cmake -E copy build/scalar/*opengjk_scalar* scalar/examples/cs/
-      - run: cd scalar/examples/cs/ && mcs -out:main.exe main.cs && mono main.exe
+      - run: cp build/scalar/libopengjk_scalar.so scalar/examples/cs/
+      - run: cd scalar/examples/cs/ && mcs -define:UNIX -out:main.exe main.cs && LD_LIBRARY_PATH=. mono main.exe
 
   go:
     name: 🔵 Go
