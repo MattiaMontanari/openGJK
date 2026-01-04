@@ -112,12 +112,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     # Suppress warnings from external Highway library code
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(opengjk_simd PRIVATE
-            -Wno-gnu-zero-variadic-macro-arguments  # Highway uses GNU extension
+            -Wno-gnu-zero-variadic-macro-arguments # Highway uses GNU extension
         )
     endif()
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_compile_options(opengjk_simd PRIVATE
-            -Wno-pedantic  # Highway uses __int128 which triggers -Wpedantic
+            -Wno-pedantic # Highway uses __int128 which triggers -Wpedantic
         )
     endif()
 endif()
@@ -131,8 +131,6 @@ add_library(opengjk::simd ALIAS opengjk_simd)
 
 # Tests
 if(BUILD_TESTS)
-    enable_testing()
-
     # Add scalar library for cross-validation tests (only if not already added)
     set(SCALAR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../scalar")
     if(NOT TARGET opengjk_scalar_static)

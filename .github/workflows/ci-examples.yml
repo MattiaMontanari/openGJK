@@ -10,9 +10,9 @@ jobs:
     container: mmontanari/devenv:buildenv-fedora
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: cmake -E make_directory build
-      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release ..
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SIMD=OFF ..
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
 
@@ -21,9 +21,9 @@ jobs:
     container: mmontanari/devenv:buildenv-fedora
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: cmake -E make_directory build
-      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DFORCE_CXX_COMPILER=ON ..
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DFORCE_CXX_COMPILER=ON -DBUILD_SIMD=OFF ..
       - run: cmake --build build
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce
 
@@ -31,7 +31,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Print env
         run: |
           echo github.event.action: ${{ github.event.action }}
@@ -42,7 +42,7 @@ jobs:
           ninja --version
           cmake --version
       - run: cmake -E make_directory build
-      - run: cmake -E chdir build cmake ..
+      - run: cmake -E chdir build cmake -DBUILD_SIMD=OFF ..
       - run: cmake --build build
       - run: cmake -E copy build/examples/c/Debug/example_lib_opengjk_ce.exe build/examples/c
       - run: cmake -E chdir build/examples/c/ ./example_lib_opengjk_ce.exe
@@ -52,7 +52,7 @@ jobs:
     container: mmontanari/devenv:buildenv-ubuntu
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: apt-get update -y && apt-get install python3-setuptools python3-pip -y
       - run: pip3 install numpy pytest scipy Cython
       - run: cd examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
@@ -77,7 +77,7 @@ jobs:
           python -m pip install --upgrade pip
 
       - name: CMake config
-        run: cmake -B ${{github.workspace}}/build
+        run: cmake -B ${{github.workspace}}/build -DBUILD_SIMD=OFF
         env:
           BUILD_CTYPES: 1
           CMAKE_BUILD_TYPE: Release
@@ -113,7 +113,7 @@ jobs:
     container: mono:6.12.0.182-slim
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: |
           sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list
           sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list
@@ -121,7 +121,7 @@ jobs:
           apt-get install gcc g++ cmake mono-devel -y
       - run: cmake -E make_directory build
       # Using single precision
-      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DSINGLE_PRECISION=ON ..
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DSINGLE_PRECISION=ON -DBUILD_SIMD=OFF ..
       - run: cmake --build build --target opengjk_ce
       - run: cmake -E chdir build make install
       - run: cmake -E copy build/*opengjk_ce* examples/cs/
@@ -131,7 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     container: mmontanari/devenv:buildenv-fedora
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -143,16 +143,17 @@ jobs:
     container: gnuoctave/octave:7.3.0
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: cd examples/matlab/; octave runme.m
 
   Zig:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
         with:
           version: 0.13.0
       - name: Build and run
         run: cd examples/zig && zig build && zig build run
+

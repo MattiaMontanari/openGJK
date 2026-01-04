@@ -56,14 +56,20 @@ message(STATUS "Building tests: ${BUILD_TESTS}")
 message(STATUS "Using 32-bit floats: ${USE_32BITS}")
 
 # ============================================================================
+# Testing (before subdirectories so both scalar and SIMD can register tests)
+# ============================================================================
+
+if(BUILD_TESTS)
+    enable_testing()
+    include(CTest)
+    message(STATUS "Tests enabled. Run 'ctest' or 'make test' to run tests.")
+endif()
+
+# ============================================================================
 # Scalar Implementation
 # ============================================================================
 
 if(BUILD_SCALAR)
-    # Forward BUILD_TESTS option to scalar library
-    if(BUILD_TESTS)
-        set(OPENGJK_SCALAR_BUILD_TESTS ON CACHE BOOL "" FORCE)
-    endif()
     add_subdirectory(scalar)
 endif()
 
@@ -75,18 +81,6 @@ if(BUILD_SIMD)
     add_subdirectory(simd)
 endif()
 
-# ============================================================================
-# Testing
-# ============================================================================
-
-if(BUILD_TESTS)
-    enable_testing()
-
-    # Add CTest dashboard support
-    include(CTest)
-
-    message(STATUS "Tests enabled. Run 'ctest' or 'make test' to run tests.")
-endif()
 
 # ============================================================================
 # Package Configuration

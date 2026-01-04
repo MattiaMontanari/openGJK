@@ -34,7 +34,6 @@ project(opengjk_scalar
 # User options
 option(OPENGJK_SCALAR_BUILD_SHARED "Build shared library" ON)
 option(OPENGJK_SCALAR_SINGLE_PRECISION "Use single precision (float)" OFF)
-option(OPENGJK_SCALAR_BUILD_TESTS "Build CMocka unit tests" OFF)
 
 # Compiler flags
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -114,8 +113,7 @@ message(STATUS "[opengjk_scalar] Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "[opengjk_scalar] Single precision: ${OPENGJK_SCALAR_SINGLE_PRECISION}")
 
 # Tests
-if(OPENGJK_SCALAR_BUILD_TESTS)
-    enable_testing()
+if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
