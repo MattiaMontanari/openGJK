@@ -75,7 +75,7 @@ jobs:
       - name: Install pip
         run: python -m pip install --upgrade pip
       - name: Configure CMake
-        run: cmake -B ${{ github.workspace }}/build -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF
+        run: cmake -B ${{ github.workspace }}/build -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF -DUSE_32BITS=OFF
         env:
           CMAKE_BUILD_TYPE: Release
       - name: Build
