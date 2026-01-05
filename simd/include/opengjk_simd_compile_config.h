@@ -21,4 +21,4 @@
 #endif
 #endif
 
-#endif  // OPENGJK_SIMD_COMPILE_CONFIG_H_
+#endif // OPENGJK_SIMD_COMPILE_CONFIG_H_
