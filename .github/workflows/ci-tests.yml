@@ -16,16 +16,22 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         precision: [double, float]
         include:
+          # Precision settings
           - precision: double
             use_32bits: OFF
           - precision: float
             use_32bits: ON
-          # macOS ARM uses NEON only (Apple Silicon doesn't support SVE)
-          # SVE targets are disabled via HWY_DISABLED_TARGETS in opengjk_simd_config.h
-          - os: macos-latest
-            build_simd: ON
+          # Ubuntu: SIMD works for both precisions (AVX2 has 4 double lanes)
           - os: ubuntu-latest
             build_simd: ON
+          # macOS ARM (NEON): only 2 double lanes, need 4 for double precision
+          # Float works fine (4 float lanes)
+          - os: macos-latest
+            precision: float
+            build_simd: ON
+          - os: macos-latest
+            precision: double
+            build_simd: OFF
 
     steps:
       - name: Checkout
