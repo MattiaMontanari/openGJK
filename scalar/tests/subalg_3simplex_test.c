@@ -1,24 +1,21 @@
-//                           _____      _ _  __                                   //
-//                          / ____|    | | |/ /                                   //
-//    ___  _ __   ___ _ __ | |  __     | | ' /                                    //
-//   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <                                     //
-//  | (_) | |_) |  __/ | | | |__| | |__| | . \                                    //
-//   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\                                   //
-//        | |                                                                     //
-//        |_|                                                                     //
-//                                                                                //
-// Copyright 2022 Mattia Montanari, University of Oxford                          //
-//                                                                                //
-// This program is free software: you can redistribute it and/or modify it under  //
-// the terms of the GNU General Public License as published by the Free Software  //
-// Foundation, either version 3 of the License. You should have received a copy   //
-// of the GNU General Public License along with this program. If not, visit       //
-//                                                                                //
-//     https://www.gnu.org/licenses/                                              //
-//                                                                                //
-// This program is distributed in the hope that it will be useful, but WITHOUT    //
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS  //
-// FOR A PARTICULAR PURPOSE. See GNU General Public License for details.          //
+/*
+ *                          _____      _ _  __
+ *                         / ____|    | | |/ /
+ *   ___  _ __   ___ _ __ | |  __     | | ' /
+ *  / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <
+ * | (_) | |_) |  __/ | | | |__| | |__| | . \
+ *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
+ *       | |
+ *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
+ */
 
 #include <setjmp.h>
 #include <stdarg.h>
@@ -61,7 +58,6 @@ subalg_3simplex_tets_v1(void** state) {
   assert_float_equal(v[2], 0.5, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 1);
 
-  /* Baseline test # 1*/
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 1.0;
@@ -90,7 +86,6 @@ subalg_3simplex_tets_v12(void** state) {
 
   UNUSED(state);
 
-  // Degenerate case
   s.nvrtx = 4;
 
   s.vrtx[3][0] = -2.0;
@@ -135,7 +130,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], 0.5, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 3*/
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -7.0;
@@ -158,7 +152,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.4281524926, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 7 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -2.0;
@@ -181,7 +174,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.030676389238119162, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 8 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -2.0;
@@ -204,7 +196,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.030676389238119162, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 12 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 5.0;
@@ -227,7 +218,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.23529411764705882, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 14 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 1.0;
@@ -250,7 +240,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.29927007299270075, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 17 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2.5;
@@ -273,7 +262,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.057037364666064239, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 18 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 3.1;
@@ -293,7 +281,6 @@ subalg_3simplex_tets_v12(void** state) {
 
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 20 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 4.5;
@@ -319,7 +306,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[1], 1.0647413809e-01, FLOAT_TOL);
   assert_float_equal(v[2], -3.6795566008e-01, FLOAT_TOL);
 
-  /* Baseline test # 22 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2.5;
@@ -342,7 +328,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.364336417, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 23 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2;
@@ -365,7 +350,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -0.17647058823529416, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 26 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2;
@@ -388,7 +372,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -2.9300776914539401, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 30 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -1;
@@ -411,7 +394,6 @@ subalg_3simplex_tets_v12(void** state) {
   assert_float_equal(v[2], -4.947526236881559, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 2);
 
-  /* Baseline test # 31 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 1;
@@ -440,7 +422,6 @@ subalg_3simplex_tets_v13(void** state) {
 
   UNUSED(state);
 
-  // Degenerate case
   s.nvrtx = 4;
 
   s.vrtx[3][0] = 0.0;
@@ -491,7 +472,6 @@ subalg_3simplex_tets_v14(void** state) {
 
   UNUSED(state);
 
-  // Degenerate case
   s.nvrtx = 4;
 
   s.vrtx[3][0] = 8.0;
@@ -542,7 +522,6 @@ subalg_3simplex_tets_v123(void** state) {
 
   UNUSED(state);
 
-  // Degenerate case
   s.nvrtx = 4;
   s.vrtx[3][0] = -2.0;
   s.vrtx[3][1] = -10.0;
@@ -562,7 +541,6 @@ subalg_3simplex_tets_v123(void** state) {
   assert_float_equal(v[0], 0, FLOAT_TOL);
   assert_float_equal(v[1], -10, FLOAT_TOL);
   assert_float_equal(v[2], 0, FLOAT_TOL);
-  // assert_int_equal(s.nvrtx, 3); - EG fails this
 
   s.nvrtx = 4;
 
@@ -614,7 +592,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], 0.6666666666666666, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 9 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -2.0;
@@ -637,7 +614,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.40000000000, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 10 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -5.0;
@@ -657,7 +633,6 @@ subalg_3simplex_tets_v124(void** state) {
 
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 11 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -5.0;
@@ -680,7 +655,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.2689340671012505, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 12 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2.0;
@@ -703,7 +677,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.30225214667717809, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 15 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 3.1;
@@ -726,7 +699,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.0028841380592822302, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 16 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 3.1;
@@ -749,7 +721,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.01219520457965729, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 19 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 10;
@@ -771,7 +742,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.0095369557, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 21 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 10;
@@ -794,7 +764,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -0.0095369557033504852, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 24 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2;
@@ -814,7 +783,6 @@ subalg_3simplex_tets_v124(void** state) {
 
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 27 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 1.25;
@@ -837,7 +805,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -4.927857935627081, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 25 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2;
@@ -860,7 +827,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -2.91712707182, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 28 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -1.25;
@@ -883,7 +849,6 @@ subalg_3simplex_tets_v124(void** state) {
   assert_float_equal(v[2], -4.927857935627, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 29 */
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 2;
@@ -912,14 +877,13 @@ subalg_3simplex_tets_v134(void** state) {
 
   UNUSED(state);
 
-  // Degenerate case
   s.nvrtx = 4;
 
   s.vrtx[3][0] = 0.0;
   s.vrtx[3][1] = -10.0;
   s.vrtx[3][2] = 10;
   s.vrtx[2][0] = 5.0;
-  s.vrtx[2][1] = -11.0; // This to -10 makes EG fail!
+  s.vrtx[2][1] = -11.0;
   s.vrtx[2][2] = -10;
   s.vrtx[1][0] = 2.0;
   s.vrtx[1][1] = -10.0;
@@ -935,7 +899,6 @@ subalg_3simplex_tets_v134(void** state) {
   assert_float_equal(v[2], 0.0, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 3);
 
-  /* Baseline test # 4*/
   s.nvrtx = 4;
 
   s.vrtx[0][0] = -17.0;
@@ -1008,7 +971,6 @@ subalg_3simplex_tets_v1234(void** state) {
   assert_float_equal(v[2], 0.0, FLOAT_TOL);
   assert_int_equal(s.nvrtx, 4);
 
-  /* Baseline test # 2*/
   s.nvrtx = 4;
 
   s.vrtx[0][0] = 1.0;

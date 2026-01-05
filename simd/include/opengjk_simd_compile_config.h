@@ -1,10 +1,21 @@
-// OpenGJK SIMD Configuration Header
-//
-// This header is included before Highway headers for configuration.
-// Target selection is now done at runtime via opengjk_simd_init.h
-// using Highway's SetSupportedTargetsForTest() mechanism.
-//
-// This approach is future-proof and works on x86, ARM, and future architectures.
+/*
+ *                          _____      _ _  __
+ *                         / ____|    | | |/ /
+ *   ___  _ __   ___ _ __ | |  __     | | ' /
+ *  / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <
+ * | (_) | |_) |  __/ | | | |__| | |__| | . \
+ *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
+ *       | |
+ *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
+ */
 
 #ifndef OPENGJK_SIMD_CONFIG_H_
 #define OPENGJK_SIMD_CONFIG_H_

@@ -1,24 +1,21 @@
-//                           _____      _ _  __                                   //
-//                          / ____|    | | |/ /                                   //
-//    ___  _ __   ___ _ __ | |  __     | | ' /                                    //
-//   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <                                     //
-//  | (_) | |_) |  __/ | | | |__| | |__| | . \                                    //
-//   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\                                   //
-//        | |                                                                     //
-//        |_|                                                                     //
-//                                                                                //
-// Copyright 2022 Mattia Montanari, University of Oxford                          //
-//                                                                                //
-// This program is free software: you can redistribute it and/or modify it under  //
-// the terms of the GNU General Public License as published by the Free Software  //
-// Foundation, either version 3 of the License. You should have received a copy   //
-// of the GNU General Public License along with this program. If not, visit       //
-//                                                                                //
-//     https://www.gnu.org/licenses/                                              //
-//                                                                                //
-// This program is distributed in the hope that it will be useful, but WITHOUT    //
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS  //
-// FOR A PARTICULAR PURPOSE. See GNU General Public License for details.          //
+/*
+ *                          _____      _ _  __
+ *                         / ____|    | | |/ /
+ *   ___  _ __   ___ _ __ | |  __     | | ' /
+ *  / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <
+ * | (_) | |_) |  __/ | | | |__| | |__| | . \
+ *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
+ *       | |
+ *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
+ */
 
 #include <setjmp.h>
 #include <stdarg.h>
@@ -55,7 +52,6 @@ subalg_1simplex_tets_v1(void** state) {
   assert_float_equal(v[1], 0.0, FLOAT_TOL);
   assert_float_equal(v[2], 0.0, FLOAT_TOL);
 
-  /*Baseline test 1*/
   s.nvrtx = 2;
 
   s.vrtx[0][0] = -1.0;
@@ -96,7 +92,6 @@ subalg_1simplex_tets_v12(void** state) {
   assert_float_equal(v[1], 9.900990e-02, FLOAT_TOL);
   assert_float_equal(v[2], 0.000000e+00, FLOAT_TOL);
 
-  /* Baseline test 2*/
   s.nvrtx = 2;
 
   s.vrtx[0][0] = -1.0;

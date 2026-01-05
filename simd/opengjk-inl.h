@@ -7,16 +7,15 @@
  *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
  *       | |
  *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
  */
-//
-// Copyright 2022-2026 Mattia Montanari, University of Oxford
-//
-// SIMD kernels for GJK algorithm using Google Highway.
-// This file uses Highway's per-target include guards and must be included
-// after foreach_target.h with HWY_TARGET_INCLUDE defined.
-//
-// NOTE: opengjk_simd_compile_config.h must be included in the main .cc file BEFORE
-// foreach_target.h to properly configure HWY_DISABLED_TARGETS (e.g., SVE on Apple).
 
 #if defined(OPENGJK_SIMD_INL_H_TARGET) == defined(HWY_TARGET_TOGGLE)
 #ifdef OPENGJK_SIMD_INL_H_TARGET

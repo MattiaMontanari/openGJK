@@ -1,10 +1,21 @@
-// OpenGJK SIMD Runtime Target Initialization
-//
-// This header provides runtime control over which SIMD targets Highway uses.
-// Call InitSIMDTargets() once at program startup before any SIMD code runs.
-//
-// This approach is future-proof because it filters targets based on properties
-// (vector width) rather than hardcoded target lists.
+/*
+ *                          _____      _ _  __
+ *                         / ____|    | | |/ /
+ *   ___  _ __   ___ _ __ | |  __     | | ' /
+ *  / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <
+ * | (_) | |_) |  __/ | | | |__| | |__| | . \
+ *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
+ *       | |
+ *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
+ */
 
 #ifndef OPENGJK_SIMD_INIT_H_
 #define OPENGJK_SIMD_INIT_H_
