@@ -7,7 +7,7 @@
 <        | |                                                                        >
 <        |_|                                                                        >
 <                                                                                   >
-< Copyright 2022 Mattia Montanari, University of Oxford                             >
+< Copyright 2022-2026 Mattia Montanari, University of Oxford                        >
 <                                                                                   >
 < This program is free software: you can redistribute it and/or modify it under     >
 < the terms of the GNU General Public License as published by the Free Software     >
@@ -20,11 +20,17 @@
 < ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS     >
 < FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           -->
 
-[![Run all demos](https://github.com/MattiaMontanari/openGJK/actions/workflows/github-opengjk-examples.yml/badge.svg)](https://github.com/MattiaMontanari/openGJK/actions/workflows/github-opengjk-examples.yml)
+[![Language Bindings](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-examples.yml/badge.svg)](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-examples.yml)
+[![Tests](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-tests.yml)
 
 # OpenGJK
 
-A fast and robust C implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm with interfaces for C#, Go, Matlab and Python. A Unity Plug-in [is also available in another repository](https://github.com/MattiaMontanari/urban-couscous).
+A fast and robust implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm for computing minimum distances between convex polytopes. Available in two flavors:
+
+- **Scalar** (`scalar/`): Portable C implementation with interfaces for C#, Go, Matlab, Python, and Zig
+- **SIMD** (`simd/`): High-performance C++ implementation using [Google Highway](https://github.com/google/highway) for automatic SIMD acceleration (SSE4, AVX2, AVX-512, NEON)
+
+A Unity Plug-in [is also available in another repository](https://github.com/MattiaMontanari/urban-couscous).
 
 Useful links: [API references](https://www.mattiamontanari.com/opengjk/docsapi/), [documentation](https://www.mattiamontanari.com/opengjk/docs/) and [automated benchmarks](https://www.mattiamontanari.com/opengjk/docs/benchmarks/).
 
@@ -35,11 +41,13 @@ On Linux, Mac or Windows, install a basic C/C++ toolchain - for example: git, co
 ### Prerequisites
 
 **Required:**
+
 - Git
 - C/C++ compiler (GCC, Clang, or MSVC)
 - CMake (version 3.5 or higher)
 
 **Recommended for faster builds:**
+
 - Ninja build system (provides ~60% faster compilation)
 
 ```bash
@@ -68,7 +76,7 @@ The successful output should be:
 
 >
 > `Distance between bodies 3.653650`
-> 
+>
 
 However, if you do get an error - any error - please file a bug. Support requests are welcome.
 
@@ -82,14 +90,31 @@ OpenGJK supports several CMake options to customize the build:
 - `FORCE_CXX_COMPILER` (default: OFF) - Force C++ compiler for C files (useful for cross-compilation)
 - `SINGLE_PRECISION` (default: OFF) - Use 32-bit floating point instead of 64-bit
 
+### SIMD Build (simd/)
+
+The SIMD implementation requires the [Google Highway](https://github.com/google/highway) library. It's fetched automatically via CMake FetchContent:
+
+```bash
+cd simd
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build
+```
+
+SIMD-specific options:
+
+- `OPENGJK_SIMD_USE_FLOAT` - Use 32-bit float (default: 64-bit double)
+- `OPENGJK_SIMD_MINIMAL_WIDTH` - Prefer smallest viable SIMD width
+
 Example with custom options:
+
 ```bash
 cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DFORCE_CXX_COMPILER=ON -G Ninja ..
 ```
 
 ## Use OpenGJK in your project
 
-The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab, ZIg and Python. I aim to publish few more for Julia.
+The best source to learn how to use OpenGJK are the examples. They are listed [here](https://www.mattiamontanari.com/opengjk/docs/examples/) for C, C#, Go, Matlab, Zig and Python. I aim to publish a few more for Julia.
 
 Take a look at the `examples` folder in this repo and have fun. File a request if you wish to see more!
 
