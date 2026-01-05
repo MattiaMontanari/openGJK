@@ -17,7 +17,7 @@
 // here to ensure compile-time safety regardless of Highway version.
 #if HWY_ARCH_ARM_A64 && HWY_OS_APPLE
 #ifndef HWY_DISABLED_TARGETS
-#define HWY_DISABLED_TARGETS (HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128)
+// #define HWY_DISABLED_TARGETS (HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128)
 #endif
 #endif
 
