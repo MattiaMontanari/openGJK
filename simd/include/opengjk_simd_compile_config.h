@@ -1,12 +1,13 @@
-// OpenGJK SIMD Compile-Time Configuration Header
+// OpenGJK SIMD Configuration Header
 //
-// This header MUST be included BEFORE any Highway headers (foreach_target.h).
-// It configures HWY_DISABLED_TARGETS to exclude incompatible SIMD targets.
+// This header is included before Highway headers for configuration.
+// Target selection is now done at runtime via opengjk_simd_init.h
+// using Highway's SetSupportedTargetsForTest() mechanism.
 //
-// Runtime target selection is done separately via opengjk_simd_init.h.
+// This approach is future-proof and works on x86, ARM, and future architectures.
 
-#ifndef OPENGJK_SIMD_COMPILE_CONFIG_H_
-#define OPENGJK_SIMD_COMPILE_CONFIG_H_
+#ifndef OPENGJK_SIMD_CONFIG_H_
+#define OPENGJK_SIMD_CONFIG_H_
 
 #include "hwy/detect_compiler_arch.h"
 
@@ -17,8 +18,8 @@
 // here to ensure compile-time safety regardless of Highway version.
 #if HWY_ARCH_ARM_A64 && HWY_OS_APPLE
 #ifndef HWY_DISABLED_TARGETS
-// #define HWY_DISABLED_TARGETS (HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128)
+#define HWY_DISABLED_TARGETS (HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128)
 #endif
 #endif
 
-#endif // OPENGJK_SIMD_COMPILE_CONFIG_H_
+#endif // OPENGJK_SIMD_CONFIG_H_
