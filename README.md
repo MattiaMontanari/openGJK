@@ -1,24 +1,3 @@
-<!--                        _____      _ _  __                                      >
-<                          / ____|    | | |/ /                                      >
-<    ___  _ __   ___ _ __ | |  __     | | ' /                                       >
-<   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <                                        >
-<  | (_) | |_) |  __/ | | | |__| | |__| | . \                                       >
-<   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\                                      >
-<        | |                                                                        >
-<        |_|                                                                        >
-<                                                                                   >
-< Copyright 2022-2026 Mattia Montanari, University of Oxford                        >
-<                                                                                   >
-< This program is free software: you can redistribute it and/or modify it under     >
-< the terms of the GNU General Public License as published by the Free Software     >
-< Foundation, either version 3 of the License. You should have received a copy      >
-< of the GNU General Public License along with this program. If not, visit          >
-<                                                                                   >
-<     https://www.gnu.org/licenses/                                                 >
-<                                                                                   >
-< This program is distributed in the hope that it will be useful, but WITHOUT       >
-< ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS     >
-< FOR A PARTICULAR PURPOSE. See GNU General Public License for details.           -->
 
 [![Language Bindings](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-examples.yml/badge.svg)](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-examples.yml)
 [![Tests](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-tests.yml)
@@ -105,6 +84,31 @@ SIMD-specific options:
 
 - `OPENGJK_SIMD_USE_FLOAT` - Use 32-bit float (default: 64-bit double)
 - `OPENGJK_SIMD_MINIMAL_WIDTH` - Prefer smallest viable SIMD width
+
+#### Supported SIMD Targets
+
+The GJK algorithm operates on 3D vectors, requiring 4 SIMD lanes (3 coordinates + 1 padding). This constrains which instruction sets work with each precision:
+
+| Target | Width | float (32-bit) | double (64-bit) | Notes |
+|--------|-------|----------------|-----------------|-------|
+| **SSE4** | 128-bit | ✅ 4 lanes | ❌ 2 lanes | x86/x64 |
+| **AVX2** | 256-bit | ✅ 8 lanes | ✅ 4 lanes | x86/x64, minimum for double |
+| **AVX-512** | 512-bit | ✅ 16 lanes | ✅ 8 lanes | Modern x86, can disable with `MINIMAL_WIDTH` |
+| **NEON** | 128-bit | ✅ 4 lanes | ❌ 2 lanes | ARM64 (Apple Silicon, Raspberry Pi) |
+| **SVE/SVE2** | Variable | ❌ | ❌ | **Not supported** - uses sizeless types incompatible with our simplex arrays |
+
+**Why no SVE?** ARM's Scalable Vector Extension uses "sizeless types" that cannot be stored in fixed-size arrays. Our simplex code uses `V (&S)[4]` arrays, making SVE fundamentally incompatible. NEON is used instead on ARM platforms.
+
+#### CI Test Matrix
+
+All SIMD targets are tested in CI: [Build and Test workflow](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-tests.yml)
+
+| Platform | Architecture | float | double | SIMD Target |
+|----------|--------------|-------|--------|-------------|
+| **Linux** (Ubuntu) | x86_64 | ✅ | ✅ | AVX2 |
+| **macOS** (Intel) | x86_64 | ✅ | ✅ | SSE4/AVX2 |
+| **macOS** (Apple Silicon) | ARM64 | ✅ | ❌ scalar | NEON |
+| **Windows** | x86_64 | ✅ | ✅ | AVX2/AVX-512 |
 
 Example with custom options:
 
