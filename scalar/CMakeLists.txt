@@ -47,6 +47,7 @@ if(OPENGJK_SCALAR_SINGLE_PRECISION)
 endif()
 
 add_compile_definitions(INCLUDE_CMAKE_HEADER)
+add_compile_definitions(CS_MONO_BUILD)
 
 # Object library for the scalar implementation
 add_library(opengjk_scalar_obj OBJECT
