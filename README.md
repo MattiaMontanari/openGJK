@@ -97,8 +97,6 @@ The GJK algorithm operates on 3D vectors, requiring 4 SIMD lanes (3 coordinates 
 | **NEON** | 128-bit | ✅ 4 lanes | ❌ 2 lanes | ARM64 (Apple Silicon, Raspberry Pi) |
 | **SVE/SVE2** | Variable | ❌ | ❌ | **Not supported** - uses sizeless types incompatible with our simplex arrays |
 
-**Why no SVE?** ARM's Scalable Vector Extension uses "sizeless types" that cannot be stored in fixed-size arrays. Our simplex code uses `V (&S)[4]` arrays, making SVE fundamentally incompatible. NEON is used instead on ARM platforms.
-
 #### CI Test Matrix
 
 All SIMD targets are tested in CI: [Build and Test workflow](https://github.com/MattiaMontanari/openGJK/actions/workflows/ci-tests.yml)
