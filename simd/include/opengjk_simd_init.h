@@ -20,11 +20,8 @@ namespace simd {
 
 // 128-bit or smaller targets (not suitable for double precision 3D vectors)
 // Includes: SSE2, SSSE3, SSE4, NEON (128-bit), WASM, EMU128, SCALAR
-inline constexpr int64_t kTargets128BitOrLess =
-    HWY_SCALAR | HWY_EMU128 |
-    HWY_SSE2 | HWY_SSSE3 | HWY_SSE4 |
-    HWY_NEON | HWY_NEON_WITHOUT_AES |
-    HWY_WASM | HWY_WASM_EMU256;
+inline constexpr int64_t kTargets128BitOrLess = HWY_SCALAR | HWY_EMU128 | HWY_SSE2 | HWY_SSSE3 | HWY_SSE4 | HWY_NEON
+                                                | HWY_NEON_WITHOUT_AES | HWY_WASM | HWY_WASM_EMU256;
 
 // 256-bit targets (minimum for double precision, optional for float)
 // Includes: AVX2, SVE_256, SVE2_128 (can be 256-bit in some configs)
@@ -33,8 +30,20 @@ inline constexpr int64_t kTargets256Bit = HWY_AVX2;
 // 512-bit+ targets (AVX-512 variants, large SVE)
 // These may be disabled when preferring minimal width
 inline constexpr int64_t kTargets512BitPlus =
-    HWY_AVX3 | HWY_AVX3_DL | HWY_AVX3_ZEN4 | HWY_AVX3_SPR |
-    HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128;
+    HWY_AVX3 | HWY_AVX3_DL | HWY_AVX3_ZEN4 | HWY_AVX3_SPR | HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128;
+
+// SVE targets (ARM Scalable Vector Extension)
+// SVE uses "sizeless types" which cannot be stored in arrays. Our simplex code
+// uses V (&S)[4] arrays, making SVE incompatible. SVE is also NOT supported on
+// Apple Silicon (M1/M2/M3/M4) - only NEON. SVE is primarily for ARM servers
+// (AWS Graviton3, Fujitsu A64FX, etc.).
+// Note: SVE is disabled at compile-time in opengjk_simd_compile_config.h for Apple.
+inline constexpr int64_t kTargetsSVE = HWY_SVE | HWY_SVE2 | HWY_SVE_256 | HWY_SVE2_128;
+
+// NEON targets (ARM Advanced SIMD)
+// NEON is the primary SIMD instruction set for Apple Silicon and most ARM64.
+// Always 128-bit vectors. This is what Apple Silicon uses.
+inline constexpr int64_t kTargetsNEON = HWY_NEON | HWY_NEON_WITHOUT_AES | HWY_NEON_BF16;
 
 // Returns true if target provides at least 256-bit vectors (4 doubles)
 inline bool
@@ -55,6 +64,12 @@ Is512BitOrMore(int64_t target) {
   return (target & kTargets512BitPlus) != 0;
 }
 
+// Returns true if target is an SVE variant (incompatible with array storage)
+inline bool
+IsSVE(int64_t target) {
+  return (target & kTargetsSVE) != 0;
+}
+
 // Filter supported targets based on requirements
 // Returns a mask of targets that meet the specified criteria
 inline int64_t
@@ -63,13 +78,19 @@ FilterTargets(int64_t supported, bool require_256bit, bool prefer_minimal_width)
 
   // Iterate through each supported target
   for (int64_t remaining = supported; remaining != 0;) {
-    int64_t target = remaining & -remaining;  // Extract lowest set bit
-    remaining &= remaining - 1;               // Clear lowest bit
+    int64_t target = remaining & -remaining; // Extract lowest set bit
+    remaining &= remaining - 1;              // Clear lowest bit
 
     bool keep = true;
 
+    // Always filter out SVE targets - our code uses V (&S)[4] arrays which
+    // are incompatible with SVE's sizeless types. NEON is used instead on ARM.
+    if (IsSVE(target)) {
+      keep = false;
+    }
+
     // Filter out targets that don't meet minimum width requirement
-    if (require_256bit && !IsAtLeast256Bit(target)) {
+    if (keep && require_256bit && !IsAtLeast256Bit(target)) {
       keep = false;
     }
 
@@ -125,9 +146,9 @@ InitSIMDTargets(bool require_256bit, bool prefer_minimal_width) {
 inline void
 InitSIMDTargetsFromConfig() {
 #ifdef OPENGJK_SIMD_USE_FLOAT
-  constexpr bool kRequire256Bit = false;  // float works with 128-bit
+  constexpr bool kRequire256Bit = false; // float works with 128-bit
 #else
-  constexpr bool kRequire256Bit = true;   // double needs 256-bit
+  constexpr bool kRequire256Bit = true; // double needs 256-bit
 #endif
 
 #ifdef OPENGJK_SIMD_MINIMAL_WIDTH
@@ -143,7 +164,7 @@ InitSIMDTargetsFromConfig() {
 // Useful for testing or when you want to restore default behavior
 inline void
 ResetSIMDTargets() {
-  hwy::SetSupportedTargetsForTest(0);  // 0 means auto-detect
+  hwy::SetSupportedTargetsForTest(0); // 0 means auto-detect
 }
 
 // Get human-readable description of current SIMD configuration
@@ -151,21 +172,20 @@ inline const char*
 GetSIMDConfigDescription() {
 #ifdef OPENGJK_SIMD_USE_FLOAT
 #ifdef OPENGJK_SIMD_MINIMAL_WIDTH
-  return "float (128-bit SSE4 preferred)";
+  return "float (128-bit SSE4/NEON preferred)";
 #else
-  return "float (widest available)";
+  return "float (widest available, NEON on ARM)";
 #endif
 #else
 #ifdef OPENGJK_SIMD_MINIMAL_WIDTH
-  return "double (256-bit AVX2 preferred)";
+  return "double (256-bit AVX2 preferred, NEON on ARM)";
 #else
-  return "double (widest available)";
+  return "double (widest available, NEON on ARM)";
 #endif
 #endif
 }
 
-}  // namespace simd
-}  // namespace opengjk
+} // namespace simd
+} // namespace opengjk
 
-#endif  // OPENGJK_SIMD_INIT_H_
-
+#endif // OPENGJK_SIMD_INIT_H_

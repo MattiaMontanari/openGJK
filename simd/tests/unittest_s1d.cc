@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 // Must be included before Highway headers to configure target selection
-#include "opengjk_simd_config.h"
+#include "opengjk_simd_compile_config.h"
 
 #undef HWY_TARGET_INCLUDE
 #define HWY_TARGET_INCLUDE "unittest_s1d.cc"

@@ -14,6 +14,9 @@
 // SIMD kernels for GJK algorithm using Google Highway.
 // This file uses Highway's per-target include guards and must be included
 // after foreach_target.h with HWY_TARGET_INCLUDE defined.
+//
+// NOTE: opengjk_simd_compile_config.h must be included in the main .cc file BEFORE
+// foreach_target.h to properly configure HWY_DISABLED_TARGETS (e.g., SVE on Apple).
 
 #if defined(OPENGJK_SIMD_INL_H_TARGET) == defined(HWY_TARGET_TOGGLE)
 #ifdef OPENGJK_SIMD_INL_H_TARGET
@@ -21,9 +24,6 @@
 #else
 #define OPENGJK_SIMD_INL_H_TARGET
 #endif
-
-// Must be included before highway.h to configure target selection
-#include "include/opengjk_simd_config.h"
 
 #include <hwy/highway.h>
 

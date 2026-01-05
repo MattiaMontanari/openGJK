@@ -16,6 +16,9 @@
 #include <cmath>
 #include <cstdio>
 
+// MUST be included BEFORE any Highway headers to configure HWY_DISABLED_TARGETS
+#include "include/opengjk_simd_compile_config.h"
+
 #undef HWY_TARGET_INCLUDE
 #define HWY_TARGET_INCLUDE "opengjk.cc"
 #include <hwy/foreach_target.h>
