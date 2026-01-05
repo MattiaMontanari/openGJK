@@ -20,9 +20,10 @@ jobs:
             use_32bits: OFF
           - precision: float
             use_32bits: ON
-          # macOS ARM has SVE issues with SIMD code (sizeless types in arrays)
+          # macOS ARM uses NEON only (Apple Silicon doesn't support SVE)
+          # SVE targets are disabled via HWY_DISABLED_TARGETS in opengjk_simd_config.h
           - os: macos-latest
-            build_simd: OFF
+            build_simd: ON
           - os: ubuntu-latest
             build_simd: ON
 
