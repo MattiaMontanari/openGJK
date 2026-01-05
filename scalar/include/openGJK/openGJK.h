@@ -1,26 +1,21 @@
-//                           _____      _ _  __ //
-//                          / ____|    | | |/ / //
-//    ___  _ __   ___ _ __ | |  __     | | ' / //
-//   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  < //
-//  | (_) | |_) |  __/ | | | |__| | |__| | . \ //
-//   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\ //
-//        | | //
-//        |_| //
-//                                                                                //
-// Copyright 2022 Mattia Montanari, University of Oxford //
-//                                                                               //
-// This program is free software: you can redistribute it and/or modify it under
-// // the terms of the GNU General Public License as published by the Free
-// Software  // Foundation, either version 3 of the License. You should have
-// received a copy   // of the GNU General Public License along with this
-// program. If not, visit       //
-//                                                                                //
-//     https://www.gnu.org/licenses/ //
-//                                                                                //
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS  // FOR A PARTICULAR PURPOSE. See GNU General Public License for
-// details.          //
+/*
+ *                          _____      _ _  __
+ *                         / ____|    | | |/ /
+ *   ___  _ __   ___ _ __ | |  __     | | ' /
+ *  / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <
+ * | (_) | |_) |  __/ | | | |__| | |__| | . \
+ *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
+ *       | |
+ *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
+ */
 
 /**
  * @file openGJK.h
@@ -113,6 +108,18 @@ typedef struct gkSimplex_ {
  *       Witness points are automatically computed and stored in s->witnesses.
  */
 OPENGJK_EXPORT gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2, gkSimplex* s);
+
+/*! @brief Testing wrappers - expose internal functions for cross-validation.
+ *
+ * These functions allow testing the internal simplex sub-algorithms (S1D, S2D, S3D)
+ * against SIMD implementations. Vertex ordering convention:
+ *   - S1D: vrtx[1] = newest (p), vrtx[0] = oldest (q)
+ *   - S2D: vrtx[2] = newest (p), vrtx[1] = q, vrtx[0] = oldest (r)
+ *   - S3D: vrtx[3] = newest (p), vrtx[2] = q, vrtx[1] = r, vrtx[0] = oldest (t)
+ */
+OPENGJK_EXPORT void opengjk_test_S1D(gkSimplex* s, gkFloat* v);
+OPENGJK_EXPORT void opengjk_test_S2D(gkSimplex* s, gkFloat* v);
+OPENGJK_EXPORT void opengjk_test_S3D(gkSimplex* s, gkFloat* v);
 
 #ifdef __cplusplus
 }
