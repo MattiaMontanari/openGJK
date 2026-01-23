@@ -4,10 +4,11 @@
 
 # OpenGJK
 
-A fast and robust implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm for computing minimum distances between convex polytopes. Available in two flavors:
+A fast and robust implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm for computing minimum distances between convex polytopes. Available in three flavors:
 
 - **Scalar** (`scalar/`): Portable C implementation with interfaces for C#, Go, Matlab, Python, and Zig
 - **SIMD** (`simd/`): High-performance C++ implementation using [Google Highway](https://github.com/google/highway) for automatic SIMD acceleration (SSE4, AVX2, AVX-512, NEON)
+- **GPU** (`gpu/`): CUDA implementation with warp-level parallelism for batch collision detection on NVIDIA GPUs
 
 A Unity Plug-in [is also available in another repository](https://github.com/MattiaMontanari/urban-couscous).
 
@@ -113,6 +114,50 @@ Example with custom options:
 ```bash
 cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DFORCE_CXX_COMPILER=ON -G Ninja ..
 ```
+
+### GPU Build (gpu/)
+
+The GPU implementation uses CUDA for massively parallel collision detection. It processes multiple polytope pairs in parallel using warp-level parallelism (16 threads per collision pair).
+
+**Prerequisites:**
+- NVIDIA GPU with CUDA support (compute capability 6.0+)
+- CUDA Toolkit (11.0 or higher)
+- CMake 3.18 or higher (for CUDA language support)
+
+```bash
+cd gpu
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+GPU-specific options:
+
+- `USE_32BITS` - Use 32-bit float precision (default: 64-bit double)
+
+**API Variants:**
+
+Three API levels for different use cases:
+
+1. **High-level API** (`compute_minimum_distance`):
+   - Handles all GPU memory allocation, transfers, computation, and cleanup automatically
+   - Best for one-off computations or simple integration
+
+2. **Mid-level API** (`allocate_and_copy_device_arrays` + `compute_minimum_distance_device` + `free_device_arrays`):
+   - Separate allocation, computation, and deallocation phases
+   - Ideal for static objects that persist across multiple frames
+   - Example: Allocate once, compute many times, free when done
+
+3. **Low-level API** (`compute_minimum_distance_device` only):
+   - Takes device pointers, assumes data already on GPU
+   - For users managing their own GPU memory with cudaMalloc/cudaFree
+   - Maximum control and flexibility
+
+**Files:**
+- `gjk_kernel.cu` - CUDA kernel implementation with warp-level parallelism
+- `opengjk_gpu.cu` - Public API implementation (memory management and kernel launches)
+- `include/opengjk_gpu.h` - Public API header
+
+Based on [OpenGJK-GPU](https://github.com/vismaychuriwala/OpenGJK-GPU) by Vismay Churiwala and Marcus Hedlund.
 
 ## Use OpenGJK in your project
 
