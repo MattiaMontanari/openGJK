@@ -125,19 +125,24 @@ The GPU implementation uses CUDA for massively parallel collision detection. It 
 - CMake 3.18 or higher (for CUDA language support)
 
 ```bash
-cd gpu
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-./build/examples/gpu/example_lib_opengjk_gpu
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_GPU=ON -DBUILD_SCALAR=OFF -DBUILD_SIMD=OFF
+cmake --build build --config Release
+cd build/gpu/examples/gpu/Release
+./example_lib_opengjk_gpu.exe
 ```
 
 The successful output should be:
 
 > `Distance between bodies 3.653650`
 
+**Note:** On Windows with Visual Studio, executables are built in `Release/` or `Debug/` subdirectories.
+
 GPU-specific options:
 
-- `USE_32BITS` - Use 32-bit float precision (default: 64-bit double)
+- `BUILD_GPU` - Enable GPU build (default: OFF)
+- `BUILD_SCALAR` - Build scalar implementation (set to OFF for GPU-only)
+- `BUILD_SIMD` - Build SIMD implementation (set to OFF for GPU-only)
+- `USE_32BITS` - Use 32-bit float precision (default: ON)
 
 **API Variants:**
 
