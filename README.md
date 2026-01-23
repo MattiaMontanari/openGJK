@@ -135,8 +135,6 @@ The successful output should be:
 
 > `Distance between bodies 3.653650`
 
-**Note:** On Windows with Visual Studio, executables are built in `Release/` or `Debug/` subdirectories.
-
 GPU-specific options:
 
 - `BUILD_GPU` - Enable GPU build (default: OFF)
