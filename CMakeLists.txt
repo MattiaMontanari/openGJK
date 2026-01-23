@@ -41,6 +41,7 @@ endif()
 # Options
 option(BUILD_SCALAR "Build scalar (C) implementation" ON)
 option(BUILD_SIMD "Build SIMD (C++ Highway) implementation" ON)
+option(BUILD_GPU "Build GPU (CUDA) implementation" OFF)
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_EXAMPLES "Build example applications" ON)
 option(USE_32BITS "Use float instead of double" ON)
@@ -53,6 +54,7 @@ endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Building scalar: ${BUILD_SCALAR}")
 message(STATUS "Building SIMD: ${BUILD_SIMD}")
+message(STATUS "Building GPU: ${BUILD_GPU}")
 message(STATUS "Building tests: ${BUILD_TESTS}")
 message(STATUS "Building examples: ${BUILD_EXAMPLES}")
 message(STATUS "Using 32-bit floats: ${USE_32BITS}")
@@ -83,6 +85,15 @@ if(BUILD_SIMD)
     add_subdirectory(simd)
 endif()
 
+# ============================================================================
+# GPU Implementation
+# ============================================================================
+
+if(BUILD_GPU)
+    enable_language(CUDA)
+    add_subdirectory(gpu)
+endif()
+
 
 # ============================================================================
 # Package Configuration
@@ -110,6 +121,7 @@ message(STATUS "")
 message(STATUS "OpenGJK v${PROJECT_VERSION} Configuration Summary:")
 message(STATUS "  - Scalar library: ${BUILD_SCALAR}")
 message(STATUS "  - SIMD library: ${BUILD_SIMD}")
+message(STATUS "  - GPU library: ${BUILD_GPU}")
 message(STATUS "  - Tests: ${BUILD_TESTS}")
 message(STATUS "  - Examples: ${BUILD_EXAMPLES}")
 message(STATUS "  - Precision: ${USE_32BITS} (32-bit float)")
