@@ -151,6 +151,26 @@ void allocate_and_copy_device_arrays(
 );
 
 /**
+ * @brief Copy computation results from device to host memory.
+ *
+ * Copies simplices and distances from GPU to host. Use this with the mid-level API
+ * after calling compute_minimum_distance_device to retrieve results.
+ *
+ * @param n           Number of polytope pairs
+ * @param d_simplices Device pointer to simplex array (source)
+ * @param d_distances Device pointer to distance array (source)
+ * @param simplices   Host array to store simplices (destination)
+ * @param distances   Host array to store distances (destination)
+ */
+void copy_results_from_device(
+    const int n,
+    const gkSimplex* d_simplices,
+    const gkFloat* d_distances,
+    gkSimplex* simplices,
+    gkFloat* distances
+);
+
+/**
  * @brief Free device memory allocated by allocate_and_copy_device_arrays.
  *
  * @param n           Number of polytope pairs (same as allocate call)

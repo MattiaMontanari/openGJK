@@ -128,7 +128,12 @@ The GPU implementation uses CUDA for massively parallel collision detection. It 
 cd gpu
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
+./build/examples/gpu/example_lib_opengjk_gpu
 ```
+
+The successful output should be:
+
+> `Distance between bodies 3.653650`
 
 GPU-specific options:
 
@@ -142,10 +147,10 @@ Three API levels for different use cases:
    - Handles all GPU memory allocation, transfers, computation, and cleanup automatically
    - Best for one-off computations or simple integration
 
-2. **Mid-level API** (`allocate_and_copy_device_arrays` + `compute_minimum_distance_device` + `free_device_arrays`):
-   - Separate allocation, computation, and deallocation phases
+2. **Mid-level API** (`allocate_and_copy_device_arrays` + `compute_minimum_distance_device` + `copy_results_from_device` + `free_device_arrays`):
+   - Separate allocation, computation, result retrieval, and deallocation phases
    - Ideal for static objects that persist across multiple frames
-   - Example: Allocate once, compute many times, free when done
+   - Example: Allocate once, compute many times with result copies, free when done
 
 3. **Low-level API** (`compute_minimum_distance_device` only):
    - Takes device pointers, assumes data already on GPU

@@ -81,8 +81,7 @@ void compute_minimum_distance(
     compute_minimum_distance_device(n, d_bd1, d_bd2, d_simplices, d_distances);
 
     // Copy results back to host
-    cudaMemcpy(simplices, d_simplices, n * sizeof(gkSimplex), cudaMemcpyDeviceToHost);
-    cudaMemcpy(distances, d_distances, n * sizeof(gkFloat), cudaMemcpyDeviceToHost);
+    copy_results_from_device(n, d_simplices, d_distances, simplices, distances);
 
     // Free device memory
     free_device_arrays(n, d_bd1, d_bd2, d_coord1, d_coord2, d_simplices, d_distances);
@@ -187,6 +186,29 @@ void allocate_and_copy_device_arrays(
     // Free temporary host arrays
     free(h_bd1_temp);
     free(h_bd2_temp);
+}
+
+/**
+ * @brief Copy computation results from device to host memory
+ *
+ * Copies simplices and distances from GPU to host memory. Use this with the mid-level API
+ * after calling compute_minimum_distance_device to retrieve results.
+ *
+ * @param n           Number of polytope pairs
+ * @param d_simplices Device pointer to simplex array (source)
+ * @param d_distances Device pointer to distance array (source)
+ * @param simplices   Host array to store simplices (destination)
+ * @param distances   Host array to store distances (destination)
+ */
+void copy_results_from_device(
+    const int n,
+    const gkSimplex* d_simplices,
+    const gkFloat* d_distances,
+    gkSimplex* simplices,
+    gkFloat* distances
+) {
+    cudaMemcpy(simplices, d_simplices, n * sizeof(gkSimplex), cudaMemcpyDeviceToHost);
+    cudaMemcpy(distances, d_distances, n * sizeof(gkFloat), cudaMemcpyDeviceToHost);
 }
 
 /**
