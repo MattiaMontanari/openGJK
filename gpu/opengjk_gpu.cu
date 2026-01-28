@@ -41,9 +41,10 @@
 #define eps_rel22 (gkFloat) gkEpsilon * 1e4f
 #define eps_tot22 (gkFloat) gkEpsilon * 1e2f
 
-// Threads per computation for parallel kernels
-#define THREADS_PER_COMPUTATION 16  // GJK uses 16 threads (half-warp)
+// Threads per computation for parallel kernels (must be 16 or 32)
+#define THREADS_PER_GJK 16  // GJK: 16 (half-warp) or 32 (full-warp)
 #define THREADS_PER_EPA 32           // EPA uses 32 threads (full warp)
+
 
 // Maximum number of faces in the EPA polytope
 #define MAX_EPA_FACES 128
@@ -1199,7 +1200,7 @@ __device__ inline static void support_parallel(gkPolytope* body,
   const gkFloat* v, int half_lane_idx, unsigned int half_warp_mask, int half_warp_base_thread_idx) {
 
   // Each thread searches a subset of the total points in the body so they can compute in parallel
-  const int points_per_thread = (body->numpoints + THREADS_PER_COMPUTATION - 1) / THREADS_PER_COMPUTATION;
+  const int points_per_thread = (body->numpoints + THREADS_PER_GJK - 1) / THREADS_PER_GJK;
   const int start_idx = half_lane_idx * points_per_thread;
   const int end_idx = (start_idx + points_per_thread < body->numpoints) ?
     (start_idx + points_per_thread) : body->numpoints;
@@ -1228,7 +1229,7 @@ __device__ inline static void support_parallel(gkPolytope* body,
 
   // Reduction tree compare with threads at increasing offsets (power of 2)
   #pragma unroll
-  for (int offset = THREADS_PER_COMPUTATION / 2; offset > 0; offset /= 2) {
+  for (int offset = THREADS_PER_GJK / 2; offset > 0; offset /= 2) {
     // Get maxs and better index from thread at offset distance
     gkFloat other_maxs = __shfl_down_sync(half_warp_mask, global_maxs, offset);
     int other_better = __shfl_down_sync(half_warp_mask, global_better, offset);
@@ -1263,16 +1264,16 @@ __global__ void compute_minimum_distance_kernel(
 
   // Calculate which collision this half-warp handles
   int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-  int half_warp_idx = index / THREADS_PER_COMPUTATION;
+  int half_warp_idx = index / THREADS_PER_GJK;
 
   // Get thread indexwithin the warp (0-31) and within the half-warp (0-15)
   int warp_lane_idx = threadIdx.x % 32;  // Lane ID within warp
-  int half_warp_in_warp = warp_lane_idx / THREADS_PER_COMPUTATION;  // Which half-warp iwe are in (0 or 1)
-  int half_lane_idx = warp_lane_idx % THREADS_PER_COMPUTATION;  // thread idx within half-warp (0-15)
+  int half_warp_in_warp = warp_lane_idx / THREADS_PER_GJK;  // Which half-warp iwe are in (0 or 1)
+  int half_lane_idx = warp_lane_idx % THREADS_PER_GJK;  // thread idx within half-warp (0-15)
 
   // Calculate the lead thread index for our half-warp within the warp (0 or 16)
   // This is the thread that will coordinate the half warp and complete and broadcast computations we only need one thread to do
-  int half_warp_base_thread_idx = half_warp_in_warp * THREADS_PER_COMPUTATION;
+  int half_warp_base_thread_idx = half_warp_in_warp * THREADS_PER_GJK;
 
   // Create mask for our half-warp (0xFFFF for first half, 0xFFFF0000 for second half) to determine which threads to sync with
   unsigned int half_warp_mask = (half_warp_in_warp == 0) ? 0xFFFF : 0xFFFF0000;
@@ -1442,20 +1443,25 @@ __global__ void compute_minimum_distance_indexed_kernel(
     const int n
 ) {// Calculate which collision this half-warp handles
   int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-  int half_warp_idx = index / THREADS_PER_COMPUTATION;
+  int half_warp_idx = index / THREADS_PER_GJK;
 
   // Get thread indexwithin the warp (0-31) and within the half-warp (0-15)
   int warp_lane_idx = threadIdx.x % 32;  // Lane ID within warp
-  int half_warp_in_warp = warp_lane_idx / THREADS_PER_COMPUTATION;  // Which half-warp iwe are in (0 or 1)
-  int half_lane_idx = warp_lane_idx % THREADS_PER_COMPUTATION;  // thread idx within half-warp (0-15)
+  int half_warp_in_warp = warp_lane_idx / THREADS_PER_GJK;  // Which half-warp iwe are in (0 or 1)
+  int half_lane_idx = warp_lane_idx % THREADS_PER_GJK;  // thread idx within half-warp (0-15)
 
   // Calculate the lead thread index for our half-warp within the warp (0 or 16)
   // This is the thread that will coordinate the half warp and complete and broadcast computations we only need one thread to do
-  int half_warp_base_thread_idx = half_warp_in_warp * THREADS_PER_COMPUTATION;
+  int half_warp_base_thread_idx = half_warp_in_warp * THREADS_PER_GJK;
 
-  // Create mask for our half-warp (0xFFFF for first half, 0xFFFF0000 for second half) to determine which threads to sync with
+  // Create mask for our half-warp (adapts to THREADS_PER_GJK: 16->0xFFFF/0xFFFF0000, 32->0xFFFFFFFF)
+#if THREADS_PER_GJK == 32
+  unsigned int half_warp_mask = 0xFFFFFFFF;
+#elif THREADS_PER_GJK == 16
   unsigned int half_warp_mask = (half_warp_in_warp == 0) ? 0xFFFF : 0xFFFF0000;
-
+#else
+#error "THREADS_PER_GJK must be either 16 or 32"
+#endif
   if (half_warp_idx >= n) {
     return;
   }
@@ -3176,7 +3182,7 @@ void compute_minimum_distance_device(
 
     // Each collision uses 16 threads (half-warp)
     int blockSize = 256;  // 256 threads = 16 collisions per block
-    int collisionsPerBlock = blockSize / THREADS_PER_COMPUTATION;
+    int collisionsPerBlock = blockSize / THREADS_PER_GJK;
     int numBlocks = (n + collisionsPerBlock - 1) / collisionsPerBlock;
 
     compute_minimum_distance_kernel<<<numBlocks, blockSize>>>(
@@ -3313,7 +3319,7 @@ void compute_minimum_distance_indexed(
 
     // Launch kernel - same configuration as regular GJK
     int blockSize = 256;
-    int collisionsPerBlock = blockSize / THREADS_PER_COMPUTATION;
+    int collisionsPerBlock = blockSize / THREADS_PER_GJK;
     int numBlocks = (num_pairs + collisionsPerBlock - 1) / collisionsPerBlock;
 
     compute_minimum_distance_indexed_kernel<<<numBlocks, blockSize>>>(
