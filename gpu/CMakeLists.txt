@@ -105,7 +105,7 @@ target_compile_options(opengjk_gpu PRIVATE "$<$<AND:$<CONFIG:Debug,RelWithDebInf
 add_library(openGJK::gpu ALIAS opengjk_gpu)
 
 # Build example
-add_subdirectory(examples/gpu)
+add_subdirectory(examples/simple_collision)
 
 message(STATUS "[opengjk_gpu] CUDA enabled")
 message(STATUS "[opengjk_gpu] Using 32-bit floats: ${USE_32BITS}")

@@ -28,7 +28,7 @@ project(example_lib_opengjk_gpu
 
 add_executable(example_lib_opengjk_gpu ${CMAKE_CURRENT_SOURCE_DIR}/main.cu)
 
-target_link_libraries(example_lib_opengjk_gpu opengjk_gpu)
+target_link_libraries(example_lib_opengjk_gpu openGJK_GPU)
 
 # CUDA architecture handling (same as parent)
 if(CMAKE_VERSION VERSION_LESS "3.23.0")
