@@ -78,35 +78,35 @@ source_group(Headers FILES ${headers})
 source_group(Sources FILES ${sources})
 
 # Build GPU library
-add_library(opengjk_gpu ${sources} ${headers})
+add_library(openGJK_GPU ${sources} ${headers})
 
-target_include_directories(opengjk_gpu PUBLIC
+target_include_directories(openGJK_GPU PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
 if(UNIX)
-    target_link_libraries(opengjk_gpu PRIVATE m)
+    target_link_libraries(openGJK_GPU PRIVATE m)
 endif()
 
 # CUDA architecture handling (same as OpenGJK-GPU)
 if(CMAKE_VERSION VERSION_LESS "3.23.0")
-    set_target_properties(opengjk_gpu PROPERTIES CUDA_ARCHITECTURES OFF)
+    set_target_properties(openGJK_GPU PROPERTIES CUDA_ARCHITECTURES OFF)
 elseif(CMAKE_VERSION VERSION_LESS "3.24.0")
-    set_target_properties(opengjk_gpu PROPERTIES CUDA_ARCHITECTURES all-major)
+    set_target_properties(openGJK_GPU PROPERTIES CUDA_ARCHITECTURES all-major)
 else()
-    set_target_properties(opengjk_gpu PROPERTIES CUDA_ARCHITECTURES native)
+    set_target_properties(openGJK_GPU PROPERTIES CUDA_ARCHITECTURES native)
 endif()
 
 # Debug flags for CUDA
-target_compile_options(opengjk_gpu PRIVATE "$<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>")
+target_compile_options(openGJK_GPU PRIVATE "$<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>")
 
 # Alias for consistency with scalar/simd
-add_library(openGJK::gpu ALIAS opengjk_gpu)
+add_library(openGJK::gpu ALIAS openGJK_GPU)
 
 # Build example
 add_subdirectory(examples/simple_collision)
 
-message(STATUS "[opengjk_gpu] CUDA enabled")
-message(STATUS "[opengjk_gpu] Using 32-bit floats: ${USE_32BITS}")
-message(STATUS "[opengjk_gpu] Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "[openGJK_GPU] CUDA enabled")
+message(STATUS "[openGJK_GPU] Using 32-bit floats: ${USE_32BITS}")
+message(STATUS "[openGJK_GPU] Build type: ${CMAKE_BUILD_TYPE}")
