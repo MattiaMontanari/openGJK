@@ -175,7 +175,6 @@ sysinfo.txt
 
 # Office
 ~*.pptx
-<<<<<<< HEAD
 
 #Cython https://github.com/cython/cython/blob/master/.gitignore
 *.pyc
@@ -233,3 +232,6 @@ zig-out/
 
 # VS Code
 .vscode/
+# Build directories
+simd/build*/
+
