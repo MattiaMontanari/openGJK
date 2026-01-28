@@ -28,7 +28,7 @@
  * and computes their minimum distance using the GPU implementation.
  */
 
-#include "opengjk_gpu.h"
+#include "openGJK_GPU.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

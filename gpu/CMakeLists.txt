@@ -25,13 +25,12 @@
 # Based on OpenGJK-GPU: https://github.com/vismaychuriwala/OpenGJK-GPU
 #
 # Files:
-#   gjk_kernel.cu - CUDA kernel implementation with warp-level parallelism
-#   opengjk_gpu.cu - Public API implementation (memory management & kernel launches)
-#   include/opengjk_gpu.h - Public API header
+#   openGJK_GPU.cu - Complete CUDA implementation (kernels + host API)
+#   include/openGJK_GPU.h - Public API header
 
 cmake_minimum_required(VERSION 3.18)
 
-project(opengjk_gpu
+project(openGJK_GPU
     LANGUAGES C CXX CUDA
     DESCRIPTION "openGJK GPU implementation (CUDA)"
     VERSION 3.0.0
@@ -65,12 +64,11 @@ elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 set(headers
-    "include/opengjk_gpu.h"
+    "include/openGJK_GPU.h"
 )
 
 set(sources
-    "gjk_kernel.cu"
-    "opengjk_gpu.cu"
+    "openGJK_GPU.cu"
 )
 
 list(SORT headers)
