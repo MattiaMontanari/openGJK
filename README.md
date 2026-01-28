@@ -117,17 +117,17 @@ cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_MONO=ON -DFORCE_CX
 
 ### GPU Build (gpu/)
 
-The GPU implementation uses CUDA for massively parallel collision detection. It processes multiple polytope pairs in parallel using warp-level parallelism (16 threads per collision pair).
+The GPU implementation uses CUDA for massively parallel collision detection with warp-level parallelism. Includes both GJK (distance computation) and EPA (penetration depth/witness points).
 
 **Prerequisites:**
 - NVIDIA GPU with CUDA support (compute capability 6.0+)
 - CUDA Toolkit (11.0 or higher)
-- CMake 3.18 or higher (for CUDA language support)
+- CMake 3.18 or higher
 
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_GPU=ON -DBUILD_SCALAR=OFF -DBUILD_SIMD=OFF
 cmake --build build --config Release
-cd build/gpu/examples/gpu/Release
+cd build/gpu/examples/simple_collision/Release
 ./example_lib_opengjk_gpu.exe
 ```
 
@@ -136,34 +136,10 @@ The successful output should be:
 > `Distance between bodies 3.653650`
 
 GPU-specific options:
-
 - `BUILD_GPU` - Enable GPU build (default: OFF)
-- `BUILD_SCALAR` - Build scalar implementation (set to OFF for GPU-only)
-- `BUILD_SIMD` - Build SIMD implementation (set to OFF for GPU-only)
 - `USE_32BITS` - Use 32-bit float precision (default: ON)
 
-**API Variants:**
-
-Three API levels for different use cases:
-
-1. **High-level API** (`compute_minimum_distance`):
-   - Handles all GPU memory allocation, transfers, computation, and cleanup automatically
-   - Best for one-off computations or simple integration
-
-2. **Mid-level API** (`allocate_and_copy_device_arrays` + `compute_minimum_distance_device` + `copy_results_from_device` + `free_device_arrays`):
-   - Separate allocation, computation, result retrieval, and deallocation phases
-   - Ideal for static objects that persist across multiple frames
-   - Example: Allocate once, compute many times with result copies, free when done
-
-3. **Low-level API** (`compute_minimum_distance_device` only):
-   - Takes device pointers, assumes data already on GPU
-   - For users managing their own GPU memory with cudaMalloc/cudaFree
-   - Maximum control and flexibility
-
-**Files:**
-- `gjk_kernel.cu` - CUDA kernel implementation with warp-level parallelism
-- `opengjk_gpu.cu` - Public API implementation (memory management and kernel launches)
-- `include/opengjk_gpu.h` - Public API header
+See [gpu/README.md](gpu/README.md) for API details, performance benchmarks, and advanced usage.
 
 Based on [OpenGJK-GPU](https://github.com/vismaychuriwala/OpenGJK-GPU) by Vismay Churiwala and Marcus Hedlund.
 
