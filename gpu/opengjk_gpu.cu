@@ -41,10 +41,9 @@
 #define eps_rel22 (gkFloat) gkEpsilon * 1e4f
 #define eps_tot22 (gkFloat) gkEpsilon * 1e2f
 
-// Threads per computation for parallel kernels (must be 16 or 32)
-#define THREADS_PER_GJK 16  // GJK: 16 (half-warp) or 32 (full-warp)
+// Threads per computation for parallel kernels (must be 8, 16 or 32)
+#define THREADS_PER_GJK 8  // GJK: 8, 16 (half-warp) or 32 (full-warp)
 #define THREADS_PER_EPA 32           // EPA uses 32 threads (full warp)
-
 
 // Maximum number of faces in the EPA polytope
 #define MAX_EPA_FACES 128
@@ -357,9 +356,9 @@ __device__ inline static void S2D(gkSimplex* s, gkFloat* v) {
 __device__ inline static void S1D_warp_parallel(
   gkSimplex* s,
   gkFloat* v,
-  int half_lane_idx) {
+  int lane_in_group) {
   // There is only a single hff1 test in S1D, so we can just execute previous alg on lead lane
-  if (half_lane_idx == 0) {
+  if (lane_in_group == 0) {
     S1D(s, v);
   }
 }
@@ -367,9 +366,9 @@ __device__ inline static void S1D_warp_parallel(
 __device__ inline static void S2D_warp_parallel(
   gkSimplex* s,
   gkFloat* v,
-  int half_lane_idx,
-  unsigned int half_warp_mask,
-  int half_warp_base_thread_idx) {
+  int lane_in_group,
+  unsigned int group_mask,
+  int group_leader_lane) {
 
   const gkFloat* s1p = s->vrtx[2];
   const gkFloat* s2p = s->vrtx[1];
@@ -379,28 +378,28 @@ __device__ inline static void S2D_warp_parallel(
   int hff1f[2] = { 0, 0 };
   const gkFloat* hff1_pts[2] = { s2p, s3p };
 
-  if (half_lane_idx < 2) {
-    hff1f[half_lane_idx] = hff1(s1p, hff1_pts[half_lane_idx]);
+  if (lane_in_group < 2) {
+    hff1f[lane_in_group] = hff1(s1p, hff1_pts[lane_in_group]);
   }
 
   int hff2f[2] = { 0, 0 };
   const gkFloat* hff2_q[2] = { s2p, s3p };
   const gkFloat* hff2_r[2] = { s3p, s2p };
 
-  if (half_lane_idx < 2) {
-    hff2f[half_lane_idx] = !hff2(s1p, hff2_q[half_lane_idx], hff2_r[half_lane_idx]);
+  if (lane_in_group < 2) {
+    hff2f[lane_in_group] = !hff2(s1p, hff2_q[lane_in_group], hff2_r[lane_in_group]);
   }
 
   // Broadcast results from the lanes that computed them.
-  const int lane0 = half_warp_base_thread_idx + 0;
-  const int lane1 = half_warp_base_thread_idx + 1;
-  int hff1f_s12 = __shfl_sync(half_warp_mask, hff1f[0], lane0);
-  int hff1f_s13 = __shfl_sync(half_warp_mask, hff1f[1], lane1);
-  int hff2f_23 = __shfl_sync(half_warp_mask, hff2f[0], lane0);
-  int hff2f_32 = __shfl_sync(half_warp_mask, hff2f[1], lane1);
+  const int lane0 = group_leader_lane + 0;
+  const int lane1 = group_leader_lane + 1;
+  int hff1f_s12 = __shfl_sync(group_mask, hff1f[0], lane0);
+  int hff1f_s13 = __shfl_sync(group_mask, hff1f[1], lane1);
+  int hff2f_23 = __shfl_sync(group_mask, hff2f[0], lane0);
+  int hff2f_32 = __shfl_sync(group_mask, hff2f[1], lane1);
 
   // Only the lead lane runs if-else logic to determine region
-  if (half_lane_idx != 0) {
+  if (lane_in_group != 0) {
     return;
   }
 
@@ -449,9 +448,9 @@ __device__ inline static void S2D_warp_parallel(
 __device__ inline static void S3D_warp_parallel(
   gkSimplex* s,
   gkFloat* v,
-  int half_lane_idx,
-  unsigned int half_warp_mask,
-  int half_warp_base_thread_idx) {
+  int lane_in_group,
+  unsigned int group_mask,
+  int group_leader_lane) {
 
   gkFloat s1[3], s2[3], s3[3], s4[3], s1s2[3], s1s3[3], s1s4[3];
   gkFloat si[3], sj[3], sk[3];
@@ -477,28 +476,28 @@ __device__ inline static void S3D_warp_parallel(
   const gkFloat* hff3_q[3] = { s3, s4, s2 };  // second argument
   const gkFloat* hff3_r[3] = { s4, s2, s3 };  // third argument
 
-  if (half_lane_idx < 3) {
-    hff1_s[half_lane_idx] = hff1(s1, hff1_pts[half_lane_idx]);
-    hff3_s[half_lane_idx] = hff3(s1, hff3_q[half_lane_idx], hff3_r[half_lane_idx]);
+  if (lane_in_group < 3) {
+    hff1_s[lane_in_group] = hff1(s1, hff1_pts[lane_in_group]);
+    hff3_s[lane_in_group] = hff3(s1, hff3_q[lane_in_group], hff3_r[lane_in_group]);
   }
 
   int hff1_s12 = 0, hff1_s13 = 0, hff1_s14 = 0;
   int hff3_134 = 0, hff3_142 = 0, hff3_123 = 0;
 
-  const int lane0 = half_warp_base_thread_idx + 0;
-  const int lane1 = half_warp_base_thread_idx + 1;
-  const int lane2 = half_warp_base_thread_idx + 2;
+  const int lane0 = group_leader_lane + 0;
+  const int lane1 = group_leader_lane + 1;
+  const int lane2 = group_leader_lane + 2;
 
   // Gather each lane's result on all threads.
-  hff1_s12 = __shfl_sync(half_warp_mask, hff1_s[0], lane0);
-  hff1_s13 = __shfl_sync(half_warp_mask, hff1_s[1], lane1);
-  hff1_s14 = __shfl_sync(half_warp_mask, hff1_s[2], lane2);
-  hff3_134 = __shfl_sync(half_warp_mask, hff3_s[0], lane0);
-  hff3_142 = __shfl_sync(half_warp_mask, hff3_s[1], lane1);
-  hff3_123 = __shfl_sync(half_warp_mask, hff3_s[2], lane2);
+  hff1_s12 = __shfl_sync(group_mask, hff1_s[0], lane0);
+  hff1_s13 = __shfl_sync(group_mask, hff1_s[1], lane1);
+  hff1_s14 = __shfl_sync(group_mask, hff1_s[2], lane2);
+  hff3_134 = __shfl_sync(group_mask, hff3_s[0], lane0);
+  hff3_142 = __shfl_sync(group_mask, hff3_s[1], lane1);
+  hff3_123 = __shfl_sync(group_mask, hff3_s[2], lane2);
 
   // Only the lead lane executes the rest of if-else logic to determine region
-  if (half_lane_idx != 0) {
+  if (lane_in_group != 0) {
     return;
   }
 
@@ -832,23 +831,23 @@ __device__ inline static void S3D_warp_parallel(
 __device__ inline static void subalgorithm_warp_parallel(
   gkSimplex* s,
   gkFloat* v,
-  int half_lane_idx,
-  unsigned int half_warp_mask,
-  int half_warp_base_thread_idx) {
+  int lane_in_group,
+  unsigned int group_mask,
+  int group_leader_lane) {
 
-  __syncwarp(half_warp_mask);
+  __syncwarp(group_mask);
 
   switch (s->nvrtx) {
   case 4:
-    S3D_warp_parallel(s, v, half_lane_idx, half_warp_mask,
-      half_warp_base_thread_idx);
+    S3D_warp_parallel(s, v, lane_in_group, group_mask,
+      group_leader_lane);
     break;
   case 3:
-    S2D_warp_parallel(s, v, half_lane_idx, half_warp_mask,
-      half_warp_base_thread_idx);
+    S2D_warp_parallel(s, v, lane_in_group, group_mask,
+      group_leader_lane);
     break;
   case 2:
-    S1D_warp_parallel(s, v, half_lane_idx);
+    S1D_warp_parallel(s, v, lane_in_group);
     break;
   default: {
     //   mexPrintf("\nERROR:\t invalid simplex\n");
@@ -856,28 +855,28 @@ __device__ inline static void subalgorithm_warp_parallel(
   }
 
   // Ensure subalgorithm has finished before broadcasting results.
-  __syncwarp(half_warp_mask);
+  __syncwarp(group_mask);
 
   // Broadcast updated search direction.
-  v[0] = __shfl_sync(half_warp_mask, v[0], half_warp_base_thread_idx);
-  v[1] = __shfl_sync(half_warp_mask, v[1], half_warp_base_thread_idx);
-  v[2] = __shfl_sync(half_warp_mask, v[2], half_warp_base_thread_idx);
+  v[0] = __shfl_sync(group_mask, v[0], group_leader_lane);
+  v[1] = __shfl_sync(group_mask, v[1], group_leader_lane);
+  v[2] = __shfl_sync(group_mask, v[2], group_leader_lane);
 
   // Broadcast simplex data
   s->nvrtx =
-    __shfl_sync(half_warp_mask, s->nvrtx, half_warp_base_thread_idx);
+    __shfl_sync(group_mask, s->nvrtx, group_leader_lane);
 
   #pragma unroll 4
   for (int vtx = 0; vtx < 4; ++vtx) {
     #pragma unroll
     for (int t = 0; t < 3; ++t) {
       s->vrtx[vtx][t] =
-        __shfl_sync(half_warp_mask, s->vrtx[vtx][t], half_warp_base_thread_idx);
+        __shfl_sync(group_mask, s->vrtx[vtx][t], group_leader_lane);
     }
     s->vrtx_idx[vtx][0] =
-      __shfl_sync(half_warp_mask, s->vrtx_idx[vtx][0], half_warp_base_thread_idx);
+      __shfl_sync(group_mask, s->vrtx_idx[vtx][0], group_leader_lane);
     s->vrtx_idx[vtx][1] =
-      __shfl_sync(half_warp_mask, s->vrtx_idx[vtx][1], half_warp_base_thread_idx);
+      __shfl_sync(group_mask, s->vrtx_idx[vtx][1], group_leader_lane);
   }
 }
 
@@ -1197,11 +1196,11 @@ __device__ inline static void compute_witnesses(const gkPolytope* bd1,
 
 // Parallel version of support function using all threads in a half-warp
 __device__ inline static void support_parallel(gkPolytope* body,
-  const gkFloat* v, int half_lane_idx, unsigned int half_warp_mask, int half_warp_base_thread_idx) {
+  const gkFloat* v, int lane_in_group, unsigned int group_mask, int group_leader_lane) {
 
   // Each thread searches a subset of the total points in the body so they can compute in parallel
   const int points_per_thread = (body->numpoints + THREADS_PER_GJK - 1) / THREADS_PER_GJK;
-  const int start_idx = half_lane_idx * points_per_thread;
+  const int start_idx = lane_in_group * points_per_thread;
   const int end_idx = (start_idx + points_per_thread < body->numpoints) ?
     (start_idx + points_per_thread) : body->numpoints;
 
@@ -1231,8 +1230,8 @@ __device__ inline static void support_parallel(gkPolytope* body,
   #pragma unroll
   for (int offset = THREADS_PER_GJK / 2; offset > 0; offset /= 2) {
     // Get maxs and better index from thread at offset distance
-    gkFloat other_maxs = __shfl_down_sync(half_warp_mask, global_maxs, offset);
-    int other_better = __shfl_down_sync(half_warp_mask, global_better, offset);
+    gkFloat other_maxs = __shfl_down_sync(group_mask, global_maxs, offset);
+    int other_better = __shfl_down_sync(group_mask, global_better, offset);
 
     // Update values if other thread found a better point
     if (other_maxs > global_maxs ||
@@ -1243,8 +1242,8 @@ __device__ inline static void support_parallel(gkPolytope* body,
   }
 
   // Broadcast the best result to all threads (from thread 0 of our half-warp) to make sure all threads agree
-  global_maxs = __shfl_sync(half_warp_mask, global_maxs, half_warp_base_thread_idx);
-  global_better = __shfl_sync(half_warp_mask, global_better, half_warp_base_thread_idx);
+  global_maxs = __shfl_sync(group_mask, global_maxs, group_leader_lane);
+  global_better = __shfl_sync(group_mask, global_better, group_leader_lane);
 
   // All threads update their local copy (all have identical global_better)
   if (global_better != -1) {
@@ -1262,33 +1261,41 @@ __global__ void compute_minimum_distance_kernel(
   gkFloat* distances,
   const int n) {
 
-  // Calculate which collision this half-warp handles
+  // Calculate which collision this thread group handles
   int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-  int half_warp_idx = index / THREADS_PER_GJK;
+  int collision_idx = index / THREADS_PER_GJK;
 
-  // Get thread indexwithin the warp (0-31) and within the half-warp (0-15)
+  // Get thread index within the warp (0-31) and within the thread group (0 to THREADS_PER_GJK-1)
   int warp_lane_idx = threadIdx.x % 32;  // Lane ID within warp
-  int half_warp_in_warp = warp_lane_idx / THREADS_PER_GJK;  // Which half-warp iwe are in (0 or 1)
-  int half_lane_idx = warp_lane_idx % THREADS_PER_GJK;  // thread idx within half-warp (0-15)
+  int group_in_warp = warp_lane_idx / THREADS_PER_GJK;  // Which thread group we are in within the warp (0 to 32/THREADS_PER_GJK-1)
+  int lane_in_group = warp_lane_idx % THREADS_PER_GJK;  // Lane index within thread group (0 to THREADS_PER_GJK-1)
 
-  // Calculate the lead thread index for our half-warp within the warp (0 or 16)
-  // This is the thread that will coordinate the half warp and complete and broadcast computations we only need one thread to do
-  int half_warp_base_thread_idx = half_warp_in_warp * THREADS_PER_GJK;
+  // Calculate the lead thread index for our group within the warp (multiples of THREADS_PER_GJK: 0, 8, 16, or 24 for 8-thread; 0 or 16 for 16-thread; 0 for 32-thread)
+  // This is the thread that will coordinate the group and complete and broadcast computations we only need one thread to do
+  int group_leader_lane = group_in_warp * THREADS_PER_GJK;
 
-  // Create mask for our half-warp (0xFFFF for first half, 0xFFFF0000 for second half) to determine which threads to sync with
-  unsigned int half_warp_mask = (half_warp_in_warp == 0) ? 0xFFFF : 0xFFFF0000;
+  // Create sync mask for our thread group (adapts to THREADS_PER_GJK: 8->0xFF/0xFF00/0xFF0000/0xFF000000, 16->0xFFFF/0xFFFF0000, 32->0xFFFFFFFF)
+#if THREADS_PER_GJK == 32
+  unsigned int group_mask = 0xFFFFFFFF;
+#elif THREADS_PER_GJK == 16
+  unsigned int group_mask = (group_in_warp == 0) ? 0xFFFF : 0xFFFF0000;
+#elif THREADS_PER_GJK == 8
+  unsigned int group_mask = 0xFF << (group_in_warp * 8);
+#else
+#error "THREADS_PER_GJK must be 8, 16, or 32"
+#endif
 
-  if (half_warp_idx >= n) {
+  if (collision_idx >= n) {
     return;
   }
 
-  // Each half-warp (16 threads) handles a single GJK computation
-  // all threads in the half-warp work on the same collision
+  // Each thread group (THREADS_PER_GJK threads) handles a single GJK computation
+  // All threads in the group work cooperatively on the same collision
 
   // Copy to local memory for fast access during iteration
-  gkPolytope bd1 = polytopes1[half_warp_idx];
-  gkPolytope bd2 = polytopes2[half_warp_idx];
-  gkSimplex s = simplices[half_warp_idx];
+  gkPolytope bd1 = polytopes1[collision_idx];
+  gkPolytope bd2 = polytopes2[collision_idx];
+  gkSimplex s = simplices[collision_idx];
 
   unsigned int k = 0;                /**< Iteration counter                 */
   const int mk = 25;                 /**< Maximum number of GJK iterations  */
@@ -1304,7 +1311,7 @@ __global__ void compute_minimum_distance_kernel(
   gkFloat norm2Wmax = 0;
 
   // Synchronize all threads in the half-warp before starting
-  __syncwarp(half_warp_mask);
+  __syncwarp(group_mask);
 
   // Initialize search direction
   v[0] = bd1.coord[0] - bd2.coord[0];
@@ -1338,8 +1345,8 @@ __global__ void compute_minimum_distance_kernel(
 
   while (continue_iteration) {
     // Broadcast k and s.nvrtx to all threads for loop condition check
-    k = __shfl_sync(half_warp_mask, k, half_warp_base_thread_idx);
-    s.nvrtx = __shfl_sync(half_warp_mask, s.nvrtx, half_warp_base_thread_idx);
+    k = __shfl_sync(group_mask, k, group_leader_lane);
+    s.nvrtx = __shfl_sync(group_mask, s.nvrtx, group_leader_lane);
 
     // Check loop conditions
     if (s.nvrtx == 4 || k == mk) {
@@ -1358,8 +1365,8 @@ __global__ void compute_minimum_distance_kernel(
 
     /* Support function - parallelized using all threads */
     // All threads participate in finding support points for speedup but only thread 0 updates the body
-    support_parallel(&bd1, vminus, half_lane_idx, half_warp_mask, half_warp_base_thread_idx);
-    support_parallel(&bd2, v, half_lane_idx, half_warp_mask, half_warp_base_thread_idx);
+    support_parallel(&bd1, vminus, lane_in_group, group_mask, group_leader_lane);
+    support_parallel(&bd2, v, lane_in_group, group_mask, group_leader_lane);
 
     // all threads compute w for witness point computation
     #pragma unroll
@@ -1399,8 +1406,8 @@ __global__ void compute_minimum_distance_kernel(
     s.nvrtx++;
 
     /* Invoke distance sub-algorithm (warp-parallel wrapper).*/
-    subalgorithm_warp_parallel(&s, v, half_lane_idx, half_warp_mask,
-      half_warp_base_thread_idx);
+    subalgorithm_warp_parallel(&s, v, lane_in_group, group_mask,
+      group_leader_lane);
 
     /* Test */
     // All threads compute the same value since s.vrtx is the same on all threads (broadcast earlier)
@@ -1417,21 +1424,21 @@ __global__ void compute_minimum_distance_kernel(
       continue_iteration = false;
     }
 
-    __syncwarp(half_warp_mask);
+    __syncwarp(group_mask);
   }
 
-  if (half_lane_idx == 0 && k == mk) {
+  if (lane_in_group == 0 && k == mk) {
     // mexPrintf(
     //     "\n * * * * * * * * * * * * MAXIMUM ITERATION NUMBER REACHED!!!  "
     //     " * * * * * * * * * * * * * * \n");
   }
 
   // Compute witnesses and final distance on first thread only
-  if (half_lane_idx == 0) {
+  if (lane_in_group == 0) {
     compute_witnesses(&bd1, &bd2, &s);
-    distances[half_warp_idx] = gkSqrt(norm2(v));
+    distances[collision_idx] = gkSqrt(norm2(v));
     // Write back updated simplex
-    simplices[half_warp_idx] = s;
+    simplices[collision_idx] = s;
   }
 }
 
@@ -1443,37 +1450,40 @@ __global__ void compute_minimum_distance_indexed_kernel(
     const int n
 ) {// Calculate which collision this half-warp handles
   int index = (blockIdx.x * blockDim.x) + threadIdx.x;
-  int half_warp_idx = index / THREADS_PER_GJK;
+  int collision_idx = index / THREADS_PER_GJK;
 
-  // Get thread indexwithin the warp (0-31) and within the half-warp (0-15)
+  // Get thread index within the warp (0-31) and within the half-warp (0 to THREADS_PER_GJK-1)
   int warp_lane_idx = threadIdx.x % 32;  // Lane ID within warp
-  int half_warp_in_warp = warp_lane_idx / THREADS_PER_GJK;  // Which half-warp iwe are in (0 or 1)
-  int half_lane_idx = warp_lane_idx % THREADS_PER_GJK;  // thread idx within half-warp (0-15)
+  int group_in_warp = warp_lane_idx / THREADS_PER_GJK;  // Which half-warp we are in (0 to 32/THREADS_PER_GJK-1)
+  int lane_in_group = warp_lane_idx % THREADS_PER_GJK;  // thread idx within half-warp (0 to THREADS_PER_GJK-1)
 
-  // Calculate the lead thread index for our half-warp within the warp (0 or 16)
+  // Calculate the lead thread index for our half-warp within the warp (multiples of THREADS_PER_GJK: 0, 8, 16, or 24 for 8-thread; 0 or 16 for 16-thread; 0 for 32-thread)
   // This is the thread that will coordinate the half warp and complete and broadcast computations we only need one thread to do
-  int half_warp_base_thread_idx = half_warp_in_warp * THREADS_PER_GJK;
+  int group_leader_lane = group_in_warp * THREADS_PER_GJK;
 
-  // Create mask for our half-warp (adapts to THREADS_PER_GJK: 16->0xFFFF/0xFFFF0000, 32->0xFFFFFFFF)
+  // Create mask for our half-warp (adapts to THREADS_PER_GJK: 8->0xFF/0xFF00/0xFF0000/0xFF000000, 16->0xFFFF/0xFFFF0000, 32->0xFFFFFFFF)
 #if THREADS_PER_GJK == 32
-  unsigned int half_warp_mask = 0xFFFFFFFF;
+  unsigned int group_mask = 0xFFFFFFFF;
 #elif THREADS_PER_GJK == 16
-  unsigned int half_warp_mask = (half_warp_in_warp == 0) ? 0xFFFF : 0xFFFF0000;
+  unsigned int group_mask = (group_in_warp == 0) ? 0xFFFF : 0xFFFF0000;
+#elif THREADS_PER_GJK == 8
+  unsigned int group_mask = 0xFF << (group_in_warp * 8);
 #else
-#error "THREADS_PER_GJK must be either 16 or 32"
+#error "THREADS_PER_GJK must be 8, 16, or 32"
 #endif
-  if (half_warp_idx >= n) {
+
+  if (collision_idx >= n) {
     return;
   }
 
-  // Each half-warp (16 threads) handles a single GJK computation
-  // all threads in the half-warp work on the same collision
+  // Each thread group (THREADS_PER_GJK threads) handles a single GJK computation
+  // All threads in the group work cooperatively on the same collision
 
   // Copy to local memory for fast access during iteration
-  gkCollisionPair pair = pairs[half_warp_idx];
+  gkCollisionPair pair = pairs[collision_idx];
   gkPolytope bd1 = polytopes[pair.idx1];
   gkPolytope bd2 = polytopes[pair.idx2];
-  gkSimplex s = simplices[half_warp_idx];
+  gkSimplex s = simplices[collision_idx];
 
   unsigned int k = 0;                /**< Iteration counter                 */
   const int mk = 25;                 /**< Maximum number of GJK iterations  */
@@ -1489,7 +1499,7 @@ __global__ void compute_minimum_distance_indexed_kernel(
   gkFloat norm2Wmax = 0;
 
   // Synchronize all threads in the half-warp before starting
-  __syncwarp(half_warp_mask);
+  __syncwarp(group_mask);
 
   // Initialize search direction
   v[0] = bd1.coord[0] - bd2.coord[0];
@@ -1523,8 +1533,8 @@ __global__ void compute_minimum_distance_indexed_kernel(
 
   while (continue_iteration) {
     // Broadcast k and s.nvrtx to all threads for loop condition check
-    k = __shfl_sync(half_warp_mask, k, half_warp_base_thread_idx);
-    s.nvrtx = __shfl_sync(half_warp_mask, s.nvrtx, half_warp_base_thread_idx);
+    k = __shfl_sync(group_mask, k, group_leader_lane);
+    s.nvrtx = __shfl_sync(group_mask, s.nvrtx, group_leader_lane);
 
     // Check loop conditions
     if (s.nvrtx == 4 || k == mk) {
@@ -1543,8 +1553,8 @@ __global__ void compute_minimum_distance_indexed_kernel(
 
     /* Support function - parallelized using all threads */
     // All threads participate in finding support points for speedup but only thread 0 updates the body
-    support_parallel(&bd1, vminus, half_lane_idx, half_warp_mask, half_warp_base_thread_idx);
-    support_parallel(&bd2, v, half_lane_idx, half_warp_mask, half_warp_base_thread_idx);
+    support_parallel(&bd1, vminus, lane_in_group, group_mask, group_leader_lane);
+    support_parallel(&bd2, v, lane_in_group, group_mask, group_leader_lane);
 
     // all threads compute w for witness point computation
     #pragma unroll
@@ -1584,8 +1594,8 @@ __global__ void compute_minimum_distance_indexed_kernel(
     s.nvrtx++;
 
     /* Invoke distance sub-algorithm (warp-parallel wrapper).*/
-    subalgorithm_warp_parallel(&s, v, half_lane_idx, half_warp_mask,
-      half_warp_base_thread_idx);
+    subalgorithm_warp_parallel(&s, v, lane_in_group, group_mask,
+      group_leader_lane);
 
     /* Test */
     // All threads compute the same value since s.vrtx is the same on all threads (broadcast earlier)
@@ -1602,21 +1612,21 @@ __global__ void compute_minimum_distance_indexed_kernel(
       continue_iteration = false;
     }
 
-    __syncwarp(half_warp_mask);
+    __syncwarp(group_mask);
   }
 
-  if (half_lane_idx == 0 && k == mk) {
+  if (lane_in_group == 0 && k == mk) {
     // mexPrintf(
     //     "\n * * * * * * * * * * * * MAXIMUM ITERATION NUMBER REACHED!!!  "
     //     " * * * * * * * * * * * * * * \n");
   }
 
   // Compute witnesses and final distance on first thread only
-  if (half_lane_idx == 0) {
+  if (lane_in_group == 0) {
     compute_witnesses(&bd1, &bd2, &s);
-    distances[half_warp_idx] = gkSqrt(norm2(v));
+    distances[collision_idx] = gkSqrt(norm2(v));
     // Write back updated simplex
-    simplices[half_warp_idx] = s;
+    simplices[collision_idx] = s;
   }
 }
 
@@ -3180,8 +3190,8 @@ void compute_minimum_distance_device(
     gkSimplex* d_simplices,
     gkFloat* d_distances) {
 
-    // Each collision uses 16 threads (half-warp)
-    int blockSize = 256;  // 256 threads = 16 collisions per block
+    // Each collision uses THREADS_PER_GJK threads
+    int blockSize = 256;  // 256 threads = 32 collisions (8-thread), 16 collisions (16-thread), or 8 collisions (32-thread) per block
     int collisionsPerBlock = blockSize / THREADS_PER_GJK;
     int numBlocks = (n + collisionsPerBlock - 1) / collisionsPerBlock;
 
