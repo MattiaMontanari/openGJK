@@ -5,12 +5,11 @@ GPU-accelerated GJK (Gilbert-Johnson-Keerthi) and EPA (Expanding Polytope Algori
 ## Features
 
 - **Batch Processing**: Process thousands of collision pairs in a single GPU call
-- **High Performance**: Warp-level parallelism (16 threads per GJK, 32 per EPA)
-- **NumPy-First API**: Optimized for NumPy arrays with vectorized operations
-- **Zero-Copy Results**: Returns NumPy arrays directly from GPU memory
+- **Warp-Level Parallelism**: 8 threads per GJK by default for efficient GPU utilization
+- **NumPy Integration**: Native support for NumPy arrays with vectorized operations
 - **Multiple Modes**:
   - GJK for distance computation
-  - EPA for penetration depth and witness points
+  - EPA for penetration depth and contact normals
   - Combined GJK+EPA pipeline
   - Indexed API for polytope reuse
 
@@ -47,270 +46,94 @@ cmake --build build --config Release
 ```bash
 cd gpu/examples/python
 
-# Install NumPy (optional but recommended)
+# Install NumPy if not already installed
 pip install numpy
 
 # Run example
 python example.py
+
+# Run comprehensive test suite
+python test_examples.py
 ```
 
 The Python wrapper will automatically search for the shared library in common locations.
 
-## Quick Start
+## Usage
 
-### Single Collision Pair
-
-```python
-import numpy as np
-from opengjk_gpu import compute_minimum_distance
-
-# Define two polytopes as NumPy arrays
-vertices1 = np.array([
-    [0.0, 5.5, 0.0],
-    [2.3, 1.0, -2.0],
-    [8.1, 4.0, 2.4],
-    # ... more vertices
-], dtype=np.float32)
-
-vertices2 = np.array([
-    [0.0, -5.5, 0.0],
-    [-2.3, -1.0, 2.0],
-    [-8.1, -4.0, -2.4],
-    # ... more vertices
-], dtype=np.float32)
-
-# Compute distance - returns NumPy arrays
-result = compute_minimum_distance(vertices1, vertices2)
-
-print(f"Distance: {result['distances'][0]}")
-print(f"Collision: {result['is_collision'][0]}")
-print(f"Witness 1: {result['witnesses1'][0]}")
-print(f"Witness 2: {result['witnesses2'][0]}")
-```
-
-### Batch Processing (1000 pairs)
-
-```python
-import numpy as np
-from opengjk_gpu import compute_minimum_distance
-
-# Generate 1000 random polytope pairs as lists of NumPy arrays
-vertices1_list = [np.random.randn(10, 3).astype(np.float32) + [10, 0, 0]
-                  for _ in range(1000)]
-vertices2_list = [np.random.randn(10, 3).astype(np.float32) - [10, 0, 0]
-                  for _ in range(1000)]
-
-# Process all pairs in ONE GPU call - returns NumPy arrays
-result = compute_minimum_distance(vertices1_list, vertices2_list)
-
-# Vectorized analysis
-distances = result['distances']  # NumPy array (1000,)
-is_collision = result['is_collision']  # NumPy boolean array (1000,)
-
-print(f"Processed 1000 pairs")
-print(f"Collisions: {is_collision.sum()}")  # Vectorized count
-print(f"Average distance: {distances.mean():.3f}")  # Vectorized mean
-print(f"Distance range: [{distances.min():.3f}, {distances.max():.3f}]")
-```
-
-### Collision Detection with EPA
-
-```python
-import numpy as np
-from opengjk_gpu import compute_gjk_epa
-
-# Two overlapping cubes as NumPy arrays
-cube1 = np.array([
-    [-1,-1,-1], [1,-1,-1], [-1,1,-1], [1,1,-1],
-    [-1,-1,1], [1,-1,1], [-1,1,1], [1,1,1]
-], dtype=np.float32)
-
-cube2 = np.array([
-    [0.5,-1,-1], [2.5,-1,-1], [0.5,1,-1], [2.5,1,-1],
-    [0.5,-1,1], [2.5,-1,1], [0.5,1,1], [2.5,1,1]
-], dtype=np.float32)
-
-# Combined GJK+EPA - returns NumPy arrays
-result = compute_gjk_epa(cube1, cube2)
-
-if result['is_collision'][0]:
-    print(f"Penetration depth: {result['distances'][0]}")
-    print(f"Contact point 1: {result['witnesses1'][0]}")
-    print(f"Contact point 2: {result['witnesses2'][0]}")
-```
-
-### Indexed API (Polytope Reuse)
-
-```python
-import numpy as np
-from opengjk_gpu import compute_minimum_distance_indexed
-
-# Define unique polytopes as NumPy arrays
-polytopes = [
-    cube_vertices,      # np.array (8, 3)
-    sphere_vertices,    # np.array (20, 3)
-    capsule_vertices,   # np.array (12, 3)
-    tetrahedron_vertices  # np.array (4, 3)
-]
-
-# Specify which pairs to check as NumPy array
-pairs = np.array([
-    [0, 1],  # cube vs sphere
-    [0, 2],  # cube vs capsule
-    [1, 3],  # sphere vs tetrahedron
-    # ... more pairs
-], dtype=np.int32)
-
-# Efficient: polytopes transferred once, reused for all pairs
-result = compute_minimum_distance_indexed(polytopes, pairs)
-
-# Vectorized access to results
-print(f"Collision mask: {result['is_collision']}")
-print(f"Distances: {result['distances']}")
-```
+See [example.py](example.py) for a simple collision detection example and [test_examples.py](test_examples.py) for comprehensive test cases demonstrating all API features.
 
 ## API Reference
 
-### `compute_minimum_distance(vertices1, vertices2)`
+### `compute_minimum_distance(polytopes1, polytopes2)`
 
 Compute minimum distance using GJK algorithm.
 
-**Args:**
-- `vertices1`: NumPy array (n,3) for single pair, or list of arrays for batch
-- `vertices2`: NumPy array (n,3) for single pair, or list of arrays for batch
+**Parameters:**
+- `polytopes1`: NumPy array of shape `(n_pairs, n_vertices, 3)`
+- `polytopes2`: NumPy array of shape `(n_pairs, n_vertices, 3)`
 
-**Returns:** Dictionary with NumPy arrays:
-- `'distances'`: (n,) array of minimum distances (0.0 = collision)
-- `'witnesses1'`: (n,3) array of closest points on first polytopes
-- `'witnesses2'`: (n,3) array of closest points on second polytopes
-- `'is_collision'`: (n,) boolean array indicating collisions
-- `'simplex_nvrtx'`: (n,) array of simplex vertex counts
+**Returns:**
+Dictionary with NumPy arrays:
+- `'distances'`: shape `(n_pairs,)` - minimum distances between polytope pairs
+- `'witnesses1'`: shape `(n_pairs, 3)` - closest points on first polytopes
+- `'witnesses2'`: shape `(n_pairs, 3)` - closest points on second polytopes
+- `'simplex_nvrtx'`: shape `(n_pairs,)` - number of vertices in final simplex
 
-**Batch mode:** Pass lists of NumPy arrays to process multiple pairs efficiently.
+---
 
-### `compute_epa(vertices1, vertices2, return_normals=False)`
+### `compute_epa(polytopes1, polytopes2, return_normals=False)`
 
-Compute penetration depth and witness points using EPA.
+Compute penetration depth and contact information using EPA.
 
-**Args:**
-- `vertices1`, `vertices2`: NumPy array (n,3) or list of arrays
-- `return_normals`: If True, compute contact normals
+**Parameters:**
+- `polytopes1`: NumPy array of shape `(n_pairs, n_vertices, 3)`
+- `polytopes2`: NumPy array of shape `(n_pairs, n_vertices, 3)`
+- `return_normals`: bool - whether to compute contact normals (default: False)
 
-**Returns:** Dictionary with NumPy arrays:
-- `'penetration_depths'`: (n,) array of penetration distances
-- `'witnesses1'`: (n,3) array of contact points on first polytopes
-- `'witnesses2'`: (n,3) array of contact points on second polytopes
-- `'contact_normals'`: (n,3) array of contact normals (if `return_normals=True`)
+**Returns:**
+Dictionary with NumPy arrays:
+- `'penetration_depths'`: shape `(n_pairs,)` - penetration distances
+- `'witnesses1'`: shape `(n_pairs, 3)` - contact points on first polytopes
+- `'witnesses2'`: shape `(n_pairs, 3)` - contact points on second polytopes
+- `'contact_normals'`: shape `(n_pairs, 3)` - contact normals (only if `return_normals=True`)
 
-### `compute_gjk_epa(vertices1, vertices2)`
+---
 
-Combined GJK+EPA pipeline (more efficient than separate calls).
+### `compute_gjk_epa(polytopes1, polytopes2)`
 
-**Returns:** Dictionary with NumPy arrays (combines GJK and EPA results):
-- `'distances'`: (n,) array of distances/penetration depths
-- `'is_collision'`: (n,) boolean array
-- `'witnesses1'`, `'witnesses2'`: (n,3) arrays of witness/contact points
-- `'simplex_nvrtx'`: (n,) array of simplex vertex counts
+Combined GJK+EPA pipeline. More efficient than separate calls.
+
+**Parameters:**
+- `polytopes1`: NumPy array of shape `(n_pairs, n_vertices, 3)`
+- `polytopes2`: NumPy array of shape `(n_pairs, n_vertices, 3)`
+
+**Returns:**
+Dictionary with NumPy arrays:
+- `'distances'`: shape `(n_pairs,)` - distances or penetration depths
+- `'witnesses1'`: shape `(n_pairs, 3)` - witness or contact points on first polytopes
+- `'witnesses2'`: shape `(n_pairs, 3)` - witness or contact points on second polytopes
+- `'simplex_nvrtx'`: shape `(n_pairs,)` - number of vertices in final simplex
+
+---
 
 ### `compute_minimum_distance_indexed(polytopes, pairs)`
 
-Indexed collision detection for polytope reuse.
+Indexed collision detection for efficient polytope reuse.
 
-**Args:**
-- `polytopes`: List of NumPy arrays (each shape (n,3))
-- `pairs`: NumPy array of shape (m,2) with integer indices
+**Parameters:**
+- `polytopes`: NumPy array of shape `(n_polytopes, n_vertices, 3)`
+- `pairs`: NumPy array of shape `(n_pairs, 2)` with dtype `int32` - indices into `polytopes` array
 
-**Returns:** Dictionary with NumPy arrays (same structure as `compute_minimum_distance`)
+**Returns:**
+Dictionary with NumPy arrays (same structure as `compute_minimum_distance`):
+- `'distances'`: shape `(n_pairs,)`
+- `'witnesses1'`: shape `(n_pairs, 3)`
+- `'witnesses2'`: shape `(n_pairs, 3)`
+- `'simplex_nvrtx'`: shape `(n_pairs,)`
 
-## Performance
+---
 
-Typical performance on NVIDIA RTX 3080:
-
-| Pairs | Time | Throughput |
-|-------|------|------------|
-| 1 | ~0.5 ms | 2K pairs/sec |
-| 100 | ~1 ms | 100K pairs/sec |
-| 1000 | ~5 ms | 200K pairs/sec |
-| 10000 | ~40 ms | 250K pairs/sec |
-
-Performance scales with:
-- GPU compute capability
-- Polytope complexity (vertex count)
-- Memory transfer overhead (batch larger for better throughput)
-
-## Troubleshooting
-
-### Library Not Found
-
-If you get `RuntimeError: Could not find openGJK_GPU shared library`:
-
-1. Verify the library was built:
-   ```bash
-   ls build/gpu/Release/openGJK_GPU.dll  # Windows
-   ls build/gpu/libopenGJK_GPU.so        # Linux
-   ```
-
-2. Copy the library to the Python directory:
-   ```bash
-   cp build/gpu/Release/openGJK_GPU.dll gpu/examples/python/
-   ```
-
-3. Or set the library path explicitly:
-   ```python
-   import os
-   os.add_dll_directory(r"d:\gpu_programming\openGJK\build\gpu\Release")
-   from opengjk_gpu import compute_minimum_distance
-   ```
-
-### Precision Mismatch
-
-The wrapper auto-detects precision. If you built with 64-bit:
-
-```bash
-cmake -B build -DUSE_32BITS=OFF ...
-```
-
-Update `opengjk_gpu.py` line 20:
-```python
-USE_32BITS = False  # Match your build configuration
-```
-
-### CUDA Errors
-
-If you get CUDA runtime errors:
-
-1. Check GPU compatibility: `nvidia-smi`
-2. Verify CUDA installation: `nvcc --version`
-3. Ensure compute capability ≥ 6.0
-
-## Examples
-
-Run the included examples:
-
-```bash
-python example.py
-```
-
-This demonstrates:
-1. Single collision pair (same as C example)
-2. Batch processing (1000 pairs)
-3. Collision detection with EPA
-4. Indexed API usage
-5. NumPy array input
-
-## Integration with Existing Code
-
-The Python wrapper is self-contained - just copy `opengjk_gpu.py` to your project:
-
-```python
-# In your project
-from opengjk_gpu import compute_minimum_distance
-
-# Your collision detection code
-result = compute_minimum_distance(obj1_vertices, obj2_vertices)
-if result.is_collision:
-    handle_collision(result)
-```
+**Supported dtypes:** `np.float32` (32-bit), `np.float64` (64-bit)
 
 ## License
 
@@ -321,6 +144,6 @@ Copyright 2025-2026 Vismay Churiwala, Marcus Hedlund
 
 ## See Also
 
+- [OpenGJK-GPU](https://github.com/vismaychuriwala/OpenGJK-GPU) - GPU implementation
 - [OpenGJK](https://www.mattiamontanari.com/opengjk/) - Main project
-- [OpenGJK-GPU](https://github.com/vismaychuriwala/OpenGJK-GPU) - Original GPU implementation
 - [GPU API Documentation](../../README.md) - C/CUDA API reference
