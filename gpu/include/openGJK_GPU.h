@@ -38,6 +38,12 @@
 #include <cuda_runtime.h>
 #include <float.h>
 
+#ifdef opengjk_gpu_export_h
+#include "opengjk_gpu_export.h" /* CMake-generated export header for shared library symbols */
+#else
+#define OPENGJK_GPU_EXPORT /* Builds that don't use CMake don't need export macros */
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

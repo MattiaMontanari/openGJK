@@ -77,11 +77,17 @@ list(SORT sources)
 source_group(Headers FILES ${headers})
 source_group(Sources FILES ${sources})
 
-# Build GPU library
-add_library(openGJK_GPU ${sources} ${headers})
+# Build GPU library as shared library for Python ctypes compatibility
+add_library(openGJK_GPU SHARED ${sources} ${headers})
+
+# Use .def file to export symbols on Windows (no source code changes needed)
+if(WIN32)
+    target_sources(openGJK_GPU PRIVATE examples/python/openGJK_GPU.def)
+endif()
 
 target_include_directories(openGJK_GPU PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 

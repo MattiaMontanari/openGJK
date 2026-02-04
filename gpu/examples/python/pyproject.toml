@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyopengjk-gpu"
+version = "3.0.0"
+authors = [
+    { name="Mattia Montanari", email="mattia.montanari@it.ox.ac.uk" },
+    { name="Vismay Churiwala" },
+    { name="Marcus Hedlund" },
+]
+description = "GPU-accelerated GJK/EPA collision detection using CUDA"
+dependencies = [
+    "numpy",
+]
+readme = "README.md"
+requires-python = ">=3.7"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "scipy"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyopengjk_gpu = ["*.dll", "*.so", "*.dylib"]
