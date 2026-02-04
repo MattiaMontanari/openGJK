@@ -6,7 +6,7 @@ CUDA-accelerated implementation of the Gilbert-Johnson-Keerthi (GJK) algorithm a
 
 - **GJK Algorithm**: Compute minimum distances between convex polytopes
 - **EPA Algorithm**: Compute penetration depth and witness points for colliding objects
-- **Warp-level parallelism**: 16 threads per collision for GJK, 32 threads per collision for EPA
+- **Warp-level parallelism**: 8 threads per collision for GJK, 32 threads per collision for EPA
 - **Batch processing**: Process thousands of polytope pairs simultaneously
 - **Flexible APIs**: Three API levels for different use cases
 - **Indexed API**: Efficient handling of shared polytopes across multiple collision queries
