@@ -18,6 +18,9 @@ from pyopengjk_gpu import (
     compute_minimum_distance_indexed
 )
 
+# Global random seed for reproducibility
+RANDOM_SEED = 42
+
 # Auto-detect dtype from library (matches #USE_32BITS in C++ compilation)
 def _detect_dtype():
     """Detect the dtype used by the library by running a minimal test."""
@@ -198,7 +201,7 @@ def test_2_batch_array():
 
     num_pairs = 1000
     num_verts = 1000
-    np.random.seed(123)
+    np.random.seed(RANDOM_SEED)
 
     print(f"Generating {num_pairs} random polytope pairs with {num_verts} vertices each...")
 
@@ -261,9 +264,46 @@ def test_2_batch_array():
     print()
 
 
-def test_3_indexed_api():
-    """Test 3: Reserved for future use."""
-    pass
+def test_3_touching_cubes():
+    """Test 3: EPA with two touching cubes (just touching, no penetration)."""
+    print("=" * 70)
+    print("Test 3: EPA - Two Touching Cubes")
+    print("=" * 70)
+
+    # Cube 1: centered at (0, 0, 0), size 2x2x2
+    # Cube 2: centered at (2, 0, 0), size 2x2x2 (touching at x=1)
+    cube1 = np.array([
+        [-1, -1, -1], [1, -1, -1], [-1, 1, -1], [1, 1, -1],
+        [-1, -1, 1], [1, -1, 1], [-1, 1, 1], [1, 1, 1]
+    ], dtype=DTYPE)
+
+    cube2 = np.array([
+        [1, -1, -1], [3, -1, -1], [1, 1, -1], [3, 1, -1],
+        [1, -1, 1], [3, -1, 1], [1, 1, 1], [3, 1, 1]
+    ], dtype=DTYPE)
+
+    # Run GJK+EPA (wrap in 3D arrays)
+    result = compute_gjk_epa(cube1[np.newaxis, :, :], cube2[np.newaxis, :, :])
+
+    print(f"Cube 1: centered at (0, 0, 0), size 2x2x2")
+    print(f"Cube 2: centered at (2, 0, 0), size 2x2x2")
+    print(f"Expected: Very small distance (near zero)")
+
+    distance = result['distances'][0]
+    simplex_nvrtx = result['simplex_nvrtx'][0]
+
+    print(f"\nResults:")
+    print(f"  Simplex vertices: {simplex_nvrtx}")
+    print(f"  Distance: {distance:.6f}")
+    print(f"  Witness 1: {result['witnesses1'][0]}")
+    print(f"  Witness 2: {result['witnesses2'][0]}")
+
+    # Validation (matching main.cpp logic)
+    if distance >= 0 and distance < 0.01:
+        print_pass(f"Distance near zero as expected")
+    else:
+        print_warning(f"Distance may indicate collision or separation")
+    print()
 
 
 def test_4_epa_overlapping_cubes():
@@ -359,7 +399,7 @@ def test_6_epa_overlapping_spheres():
     print("Test 4c: EPA - Two Overlapping Spheres")
     print("=" * 70)
 
-    np.random.seed(789)
+    np.random.seed(RANDOM_SEED)
     num_points = 1000
     radius = 2.0
 
@@ -423,10 +463,61 @@ def test_6_epa_overlapping_spheres():
     print()
 
 
-def test_7_epa_rotated_cubes():
-    """Test 4d: EPA with cube and rotated cube (high resolution)."""
+def test_7_overlapping_polytopes_50_verts():
+    """Test 4e: EPA with overlapping polytopes (~50 vertices each)."""
     print("=" * 70)
-    print("Test 4d: EPA - Cube and Rotated Cube (High Resolution)")
+    print("Test 4e: EPA - Overlapping Polytopes (~50 vertices each)")
+    print("=" * 70)
+
+    np.random.seed(RANDOM_SEED)
+    num_verts = 50
+
+    # Generate polytopes that overlap
+    # Polytope 1: centered at (0, 0, 0)
+    # Polytope 2: centered at (0.5, 0, 0) - overlaps with polytope 1
+    offsets1 = np.array([[0.0, 0.0, 0.0]], dtype=DTYPE)
+    offsets2 = np.array([[0.5, 0.0, 0.0]], dtype=DTYPE)
+
+    polytope1 = generate_polytope(1, num_verts, offsets1)[0]
+    polytope2 = generate_polytope(1, num_verts, offsets2)[0]
+
+    # Run GJK+EPA
+    result = compute_gjk_epa(polytope1[np.newaxis, :, :], polytope2[np.newaxis, :, :])
+
+    distance = result['distances'][0]
+    simplex_nvrtx = result['simplex_nvrtx'][0]
+    witness1 = result['witnesses1'][0]
+    witness2 = result['witnesses2'][0]
+
+    print(f"Polytope 1: {num_verts} vertices, centered at (0, 0, 0)")
+    print(f"Polytope 2: {num_verts} vertices, centered at (0.5, 0, 0)")
+    print(f"Expected: Collision (polytopes overlap)")
+
+    print(f"\nResults:")
+    print(f"  Simplex vertices: {simplex_nvrtx}")
+    print(f"  Distance/Penetration: {distance:.6f}")
+    print(f"  Witness 1: {witness1}")
+    print(f"  Witness 2: {witness2}")
+
+    # Validation (matching example.cu logic)
+    if simplex_nvrtx == 4:
+        if distance < 0.0:
+            print_pass(f"Collision detected with penetration depth of {-distance:.6f}")
+        elif distance < 0.1:
+            print_pass(f"Collision detected (very small distance/penetration)")
+        else:
+            print_warning(f"Collision detected but distance seems large: {distance:.6f}")
+    else:
+        print_warning(f"Simplex has {simplex_nvrtx} vertices (expected 4 for collision)")
+        if distance > 0.0:
+            print(f"  Polytopes are separated by distance: {distance:.6f}")
+    print()
+
+
+def test_8_epa_rotated_cubes():
+    """Test 4f: EPA with cube and rotated cube (high resolution)."""
+    print("=" * 70)
+    print("Test 4f: EPA - Cube and Rotated Cube (High Resolution)")
     print("=" * 70)
 
     grid_size = 40
@@ -498,6 +589,79 @@ def test_7_epa_rotated_cubes():
     print()
 
 
+def test_9_epa_separate_gjk_epa():
+    """Test 4g: EPA with two overlapping spheres (using separate GJK and EPA calls)."""
+    print("=" * 70)
+    print("Test 4g: EPA - Two Overlapping Spheres (Separate GJK/EPA)")
+    print("=" * 70)
+
+    np.random.seed(RANDOM_SEED)
+    num_points = 1000
+    radius = 2.0
+
+    print(f"Generating spheres with {num_points} points each, radius {radius}...")
+
+    # Sphere 1: centered at (0, 0, 0)
+    # Sphere 2: centered at (1, 0, 0) - shifted 1 unit in x direction
+    sphere1 = generate_sphere_surface(num_points, radius, 0.0, 0.0, 0.0)
+    sphere2 = generate_sphere_surface(num_points, radius, 1.0, 0.0, 0.0)
+
+    print(f"\nRunning GPU GJK...")
+    # Run GJK first
+    result_gjk = compute_minimum_distance(sphere1[np.newaxis, :, :], sphere2[np.newaxis, :, :])
+
+    print(f"GJK Results:")
+    print(f"  Simplex vertices: {result_gjk['simplex_nvrtx'][0]}")
+    print(f"  Distance: {result_gjk['distances'][0]:.6f}")
+
+    print(f"\nRunning GPU EPA...")
+    # Run EPA separately (with contact normals)
+    result_epa = compute_epa(sphere1[np.newaxis, :, :], sphere2[np.newaxis, :, :], return_normals=True)
+
+    distance = result_epa['penetration_depths'][0]
+    witness1 = result_epa['witnesses1'][0]
+    witness2 = result_epa['witnesses2'][0]
+    contact_normal = result_epa['contact_normals'][0]
+
+    print(f"\nFinal Results:")
+    print(f"  Distance/Penetration: {distance:.6f}")
+    print(f"  Expected: Collision (spheres overlap, centers 1 unit apart, each radius 2)")
+    print(f"  Expected overlap: ~3 units (2+2-1=3)")
+    print(f"  Witness 1: ({witness1[0]:.6f}, {witness1[1]:.6f}, {witness1[2]:.6f})")
+    print(f"  Witness 2: ({witness2[0]:.6f}, {witness2[1]:.6f}, {witness2[2]:.6f})")
+    print(f"  Contact Normal: ({contact_normal[0]:.6f}, {contact_normal[1]:.6f}, {contact_normal[2]:.6f})")
+
+    # Verify witness points are within sphere bounds
+    # Sphere 1: centered at (0,0,0), radius 2
+    # Sphere 2: centered at (1,0,0), radius 2
+    dist1 = np.linalg.norm(witness1)
+    dist2 = np.linalg.norm(witness2 - np.array([1.0, 0.0, 0.0]))
+
+    valid1 = dist1 <= radius + 0.1  # Allow small tolerance
+    valid2 = dist2 <= radius + 0.1
+
+    # Validation (matching example.cu logic)
+    simplex_nvrtx = result_gjk['simplex_nvrtx'][0]
+    if simplex_nvrtx == 4 and valid1 and valid2:
+        if distance < 0.0:
+            print_pass(f"Collision detected with penetration depth of {-distance:.6f}")
+            print(f"  Expected penetration: ~3.0 units")
+        elif distance < 0.1:
+            print_pass(f"Collision detected (very small distance/penetration)")
+        else:
+            print_warning(f"Collision detected but distance seems large: {distance:.6f}")
+    elif simplex_nvrtx < 4 and distance >= 0.0:
+        print_warning(f"No collision detected, but spheres should overlap")
+        print(f"  Separation distance: {distance:.6f}")
+    else:
+        print_warning(f"Unexpected results")
+        if not valid1:
+            print(f"    Witness 1 distance from sphere 1 center: {dist1:.6f} (expected <= {radius})")
+        if not valid2:
+            print(f"    Witness 2 distance from sphere 2 center: {dist2:.6f} (expected <= {radius})")
+    print()
+
+
 if __name__ == "__main__":
     print("\n" + "=" * 70)
     print(" OpenGJK GPU - Test Examples (Python)")
@@ -506,11 +670,13 @@ if __name__ == "__main__":
     try:
         test_1_simple_gjk()
         test_2_batch_array()
-        test_3_indexed_api()
+        test_3_touching_cubes()
         test_4_epa_overlapping_cubes()
         test_5_epa_separated_cubes()
         test_6_epa_overlapping_spheres()
-        test_7_epa_rotated_cubes()
+        test_7_overlapping_polytopes_50_verts()
+        test_8_epa_rotated_cubes()
+        test_9_epa_separate_gjk_epa()
 
         print("=" * 70)
         print(" All tests completed successfully!")
