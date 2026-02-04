@@ -45,7 +45,7 @@ def main():
     print()
 
     # Compute minimum distance using GPU
-    result = compute_minimum_distance(polytope1, polytope2)
+    result = compute_minimum_distance(polytope1[np.newaxis, :, :], polytope2[np.newaxis, :, :])
 
     distance = result['distances'][0]
     witness1 = result['witnesses1'][0]
