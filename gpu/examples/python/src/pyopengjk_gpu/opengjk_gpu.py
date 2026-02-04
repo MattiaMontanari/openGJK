@@ -13,7 +13,7 @@ import ctypes
 import os
 import sys
 import numpy as np
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 
 
 # ============================================================================
@@ -192,22 +192,28 @@ def _prepare_polytope_array(vertices: np.ndarray) -> Tuple[gkPolytope, np.ndarra
     return polytope, coords_flat
 
 
-def _prepare_polytope_batch(vertices_list: List[np.ndarray]) -> Tuple[ctypes.Array, List[np.ndarray]]:
+def _prepare_polytope_batch(vertices_batch: Union[List[np.ndarray], np.ndarray]) -> Tuple[ctypes.Array, List[np.ndarray]]:
     """
     Prepare a batch of polytopes for GPU processing.
 
     Args:
-        vertices_list: List of NumPy arrays, each shape (n, 3)
+        vertices_batch: 3D ndarray of shape (num_poly, num_verts, 3), or
+                        list of 2D arrays each shape (num_verts, 3)
 
     Returns:
         (ctypes array of polytopes, list of coord arrays to keep alive)
     """
-    n = len(vertices_list)
+    # Convert list to ndarray if needed (for performance)
+    if isinstance(vertices_batch, list):
+        vertices_batch = np.array(vertices_batch, dtype=DTYPE)
+
+    # Now vertices_batch is a 3D ndarray
+    n = vertices_batch.shape[0]
     bd_array = (gkPolytope * n)()
     coords_keep_alive = []
 
-    for i, vertices in enumerate(vertices_list):
-        polytope, coords = _prepare_polytope_array(vertices)
+    for i in range(n):
+        polytope, coords = _prepare_polytope_array(vertices_batch[i])
         bd_array[i] = polytope
         coords_keep_alive.append(coords)
 
@@ -219,23 +225,25 @@ def _prepare_polytope_batch(vertices_list: List[np.ndarray]) -> Tuple[ctypes.Arr
 # ============================================================================
 
 def compute_minimum_distance(
-    vertices1: np.ndarray,
-    vertices2: np.ndarray
+    vertices1: Union[np.ndarray, List[np.ndarray]],
+    vertices2: Union[np.ndarray, List[np.ndarray]]
 ) -> Dict[str, np.ndarray]:
     """
     Compute minimum distance between polytope pairs using GPU-accelerated GJK.
 
     Args:
-        vertices1: NumPy array of shape (n, 3) for single pair, or list of arrays for batch
-        vertices2: NumPy array of shape (n, 3) for single pair, or list of arrays for batch
+        vertices1: NumPy array of shape (num_verts, 3) for single pair,
+                   (num_poly, num_verts, 3) for batch, or list of arrays for batch
+        vertices2: NumPy array of shape (num_verts, 3) for single pair,
+                   (num_poly, num_verts, 3) for batch, or list of arrays for batch
 
     Returns:
         Dictionary with NumPy arrays:
-            'distances': (n,) distances between polytopes (0.0 = collision)
-            'witnesses1': (n, 3) closest points on first polytopes
-            'witnesses2': (n, 3) closest points on second polytopes
-            'is_collision': (n,) boolean array indicating collisions
-            'simplex_nvrtx': (n,) number of vertices in each simplex
+            'distances': (num_pairs,) distances between polytopes (0.0 = collision)
+            'witnesses1': (num_pairs, 3) closest points on first polytopes
+            'witnesses2': (num_pairs, 3) closest points on second polytopes
+            'is_collision': (num_pairs,) boolean array indicating collisions
+            'simplex_nvrtx': (num_pairs,) number of vertices in each simplex
 
     Example:
         Single pair:
@@ -244,23 +252,33 @@ def compute_minimum_distance(
         >>> result = compute_minimum_distance(v1, v2)
         >>> print(f"Distance: {result['distances'][0]}")
 
-        Batch:
+        Batch (list):
         >>> v1_list = [np.random.randn(10, 3) for _ in range(100)]
         >>> v2_list = [np.random.randn(10, 3) for _ in range(100)]
         >>> result = compute_minimum_distance(v1_list, v2_list)
         >>> print(f"Collisions: {result['is_collision'].sum()}")
+
+        Batch (ndarray):
+        >>> v1_batch = np.random.randn(100, 10, 3).astype(np.float32)
+        >>> v2_batch = np.random.randn(100, 10, 3).astype(np.float32)
+        >>> result = compute_minimum_distance(v1_batch, v2_batch)
+        >>> print(f"Collisions: {result['is_collision'].sum()}")
     """
-    # Check if batch or single
-    is_batch = isinstance(vertices1, list)
+    # Normalize inputs to 3D ndarrays (convert list to ndarray if needed)
+    if isinstance(vertices1, list):
+        vertices1 = np.array(vertices1, dtype=DTYPE)
+    if isinstance(vertices2, list):
+        vertices2 = np.array(vertices2, dtype=DTYPE)
 
-    if not is_batch:
-        # Single pair - wrap in list for uniform processing
-        vertices1 = [vertices1]
-        vertices2 = [vertices2]
+    # Both should now be 3D ndarrays of shape (num_poly, num_verts, 3)
+    if vertices1.ndim != 3 or vertices1.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {vertices1.shape}")
+    if vertices2.ndim != 3 or vertices2.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {vertices2.shape}")
 
-    n = len(vertices1)
-    if len(vertices2) != n:
-        raise ValueError(f"Mismatch: {len(vertices1)} polytopes in bd1, {len(vertices2)} in bd2")
+    n = vertices1.shape[0]
+    if vertices2.shape[0] != n:
+        raise ValueError(f"Mismatch: {vertices1.shape[0]} polytopes in bd1, {vertices2.shape[0]} in bd2")
 
     # Prepare polytopes (coords_alive arrays must stay in scope to prevent garbage collection)
     bd1_array, coords1_alive = _prepare_polytope_batch(vertices1)
@@ -299,8 +317,8 @@ def compute_minimum_distance(
 
 
 def compute_epa(
-    vertices1: np.ndarray,
-    vertices2: np.ndarray,
+    vertices1: Union[np.ndarray, List[np.ndarray]],
+    vertices2: Union[np.ndarray, List[np.ndarray]],
     return_normals: bool = False
 ) -> Dict[str, np.ndarray]:
     """
@@ -310,25 +328,31 @@ def compute_epa(
     to find penetration depth and contact points.
 
     Args:
-        vertices1: NumPy array (n, 3) or list of arrays for batch
-        vertices2: NumPy array (n, 3) or list of arrays for batch
+        vertices1: 3D ndarray (num_poly, num_verts, 3) or list of 2D arrays
+        vertices2: 3D ndarray (num_poly, num_verts, 3) or list of 2D arrays
         return_normals: If True, compute and return contact normals
 
     Returns:
         Dictionary with NumPy arrays:
-            'penetration_depths': (n,) penetration distances
-            'witnesses1': (n, 3) contact points on first polytopes
-            'witnesses2': (n, 3) contact points on second polytopes
-            'contact_normals': (n, 3) contact normals (if return_normals=True)
+            'penetration_depths': (num_pairs,) penetration distances
+            'witnesses1': (num_pairs, 3) contact points on first polytopes
+            'witnesses2': (num_pairs, 3) contact points on second polytopes
+            'contact_normals': (num_pairs, 3) contact normals (if return_normals=True)
     """
-    # Check if batch or single
-    is_batch = isinstance(vertices1, list)
+    # Normalize inputs to 3D ndarrays
+    if isinstance(vertices1, list):
+        vertices1 = np.array(vertices1, dtype=DTYPE)
+    if isinstance(vertices2, list):
+        vertices2 = np.array(vertices2, dtype=DTYPE)
 
-    if not is_batch:
-        vertices1 = [vertices1]
-        vertices2 = [vertices2]
+    if vertices1.ndim != 3 or vertices1.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {vertices1.shape}")
+    if vertices2.ndim != 3 or vertices2.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {vertices2.shape}")
 
-    n = len(vertices1)
+    n = vertices1.shape[0]
+    if vertices2.shape[0] != n:
+        raise ValueError(f"Mismatch: {vertices1.shape[0]} polytopes in bd1, {vertices2.shape[0]} in bd2")
 
     # Prepare polytopes (coords_alive arrays must stay in scope to prevent garbage collection)
     bd1_array, coords1_alive = _prepare_polytope_batch(vertices1)
@@ -367,8 +391,8 @@ def compute_epa(
 
 
 def compute_gjk_epa(
-    vertices1: np.ndarray,
-    vertices2: np.ndarray
+    vertices1: Union[np.ndarray, List[np.ndarray]],
+    vertices2: Union[np.ndarray, List[np.ndarray]]
 ) -> Dict[str, np.ndarray]:
     """
     Combined GJK+EPA pipeline: runs GJK first, then EPA for colliding pairs.
@@ -377,28 +401,34 @@ def compute_gjk_epa(
     the GJK simplex for EPA initialization.
 
     Args:
-        vertices1: NumPy array (n, 3) or list of arrays for batch
-        vertices2: NumPy array (n, 3) or list of arrays for batch
+        vertices1: 3D ndarray (num_poly, num_verts, 3) or list of 2D arrays
+        vertices2: 3D ndarray (num_poly, num_verts, 3) or list of 2D arrays
 
     Returns:
         Dictionary with NumPy arrays:
-            'distances': (n,) distances (0.0 for collisions)
-            'is_collision': (n,) boolean collision flags
-            'witnesses1': (n, 3) witness/contact points on first polytopes
-            'witnesses2': (n, 3) witness/contact points on second polytopes
-            'simplex_nvrtx': (n,) number of simplex vertices
+            'distances': (num_pairs,) distances (0.0 for collisions)
+            'is_collision': (num_pairs,) boolean collision flags
+            'witnesses1': (num_pairs, 3) witness/contact points on first polytopes
+            'witnesses2': (num_pairs, 3) witness/contact points on second polytopes
+            'simplex_nvrtx': (num_pairs,) number of simplex vertices
 
         For colliding pairs, witnesses are EPA contact points.
         For separated pairs, witnesses are GJK closest points.
     """
-    # Check if batch or single
-    is_batch = isinstance(vertices1, list)
+    # Normalize inputs to 3D ndarrays
+    if isinstance(vertices1, list):
+        vertices1 = np.array(vertices1, dtype=DTYPE)
+    if isinstance(vertices2, list):
+        vertices2 = np.array(vertices2, dtype=DTYPE)
 
-    if not is_batch:
-        vertices1 = [vertices1]
-        vertices2 = [vertices2]
+    if vertices1.ndim != 3 or vertices1.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {vertices1.shape}")
+    if vertices2.ndim != 3 or vertices2.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {vertices2.shape}")
 
-    n = len(vertices1)
+    n = vertices1.shape[0]
+    if vertices2.shape[0] != n:
+        raise ValueError(f"Mismatch: {vertices1.shape[0]} polytopes in bd1, {vertices2.shape[0]} in bd2")
 
     # Prepare polytopes (coords_alive arrays must stay in scope to prevent garbage collection)
     bd1_array, coords1_alive = _prepare_polytope_batch(vertices1)
@@ -456,13 +486,23 @@ def compute_minimum_distance_indexed(
         >>> result = compute_minimum_distance_indexed(polytopes, pairs)
         >>> print(f"Collision mask: {result['is_collision']}")
     """
-    num_polytopes = len(polytopes)
+    # Normalize polytopes to 3D ndarray
+    if isinstance(polytopes, list):
+        polytopes = np.array(polytopes, dtype=DTYPE)
 
-    # Validate and prepare pairs
-    if isinstance(pairs, list):
+    if polytopes.ndim != 3 or polytopes.shape[2] != 3:
+        raise ValueError(f"Expected 3D array (num_poly, num_verts, 3), got shape {polytopes.shape}")
+
+    num_polytopes = polytopes.shape[0]
+
+    # Normalize and validate pairs (ensure int32)
+    if not isinstance(pairs, np.ndarray):
         pairs = np.array(pairs, dtype=np.int32)
+    elif pairs.dtype != np.int32:
+        pairs = pairs.astype(np.int32)
+
     if pairs.ndim != 2 or pairs.shape[1] != 2:
-        raise ValueError(f"Pairs must have shape (m, 2), got {pairs.shape}")
+        raise ValueError(f"Pairs must have shape (num_pairs, 2), got {pairs.shape}")
 
     num_pairs = pairs.shape[0]
 
