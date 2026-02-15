@@ -33,11 +33,11 @@ endif(FORCE_CXX_COMPILER)
 
 add_executable(example_lib_opengjk_ce ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
 
-IF(WIN32)
-    target_link_libraries(example_lib_opengjk_ce obj_openGJK)
-ELSE()
-    target_link_libraries(example_lib_opengjk_ce obj_openGJK m)
-ENDIF()
+if(WIN32)
+    target_link_libraries(example_lib_opengjk_ce opengjk_scalar_static)
+else()
+    target_link_libraries(example_lib_opengjk_ce opengjk_scalar_static m)
+endif()
 
 # Copy input files for this example after build
 add_custom_command(

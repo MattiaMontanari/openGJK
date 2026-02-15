@@ -1,0 +1,14 @@
+LIBRARY openGJK_GPU
+EXPORTS
+    compute_minimum_distance
+    compute_epa
+    compute_gjk_epa
+    compute_minimum_distance_indexed
+    compute_minimum_distance_device
+    compute_epa_device
+    allocate_and_copy_device_arrays
+    allocate_epa_device_arrays
+    copy_results_from_device
+    copy_epa_results_from_device
+    free_device_arrays
+    free_epa_device_arrays

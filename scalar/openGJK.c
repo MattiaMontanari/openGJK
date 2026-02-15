@@ -1,26 +1,21 @@
-//                           _____      _ _  __ //
-//                          / ____|    | | |/ / //
-//    ___  _ __   ___ _ __ | |  __     | | ' / //
-//   / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  < //
-//  | (_) | |_) |  __/ | | | |__| | |__| | . \ //
-//   \___/| .__/ \___|_| |_|\_____|\____/|_|\_\ //
-//        | | //
-//        |_| //
-//                                                                                //
-// Copyright 2022 Mattia Montanari, University of Oxford //
-//                                                                                //
-// This program is free software: you can redistribute it and/or modify it under
-// // the terms of the GNU General Public License as published by the Free
-// Software  // Foundation, either version 3 of the License. You should have
-// received a copy   // of the GNU General Public License along with this
-// program. If not, visit       //
-//                                                                                //
-//     https://www.gnu.org/licenses/ //
-//                                                                                //
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS  // FOR A PARTICULAR PURPOSE. See GNU General Public License for
-// details.          //
+/*
+ *                          _____      _ _  __
+ *                         / ____|    | | |/ /
+ *   ___  _ __   ___ _ __ | |  __     | | ' /
+ *  / _ \| '_ \ / _ \ '_ \| | |_ |_   | |  <
+ * | (_) | |_) |  __/ | | | |__| | |__| | . \
+ *  \___/| .__/ \___|_| |_|\_____|\____/|_|\_\
+ *       | |
+ *       |_|
+ *
+ * Copyright 2022-2026 Mattia Montanari, University of Oxford
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3. See https://www.gnu.org/licenses/
+ */
 
 /**
  * @file openGJK.c
@@ -243,7 +238,7 @@ inline static int hff1(const gkFloat* restrict p, const gkFloat* restrict q) {
   }
 
   if (tmp > 0) {
-    return 1;  // keep q
+    return 1;
   }
   return 0;
 }
@@ -263,7 +258,7 @@ inline static int hff2(const gkFloat* restrict p, const gkFloat* restrict q,
   crossProduct(pq, pr, ntmp);
   crossProduct(pq, ntmp, n);
 
-  return dotProduct(p, n) < 0;  // Discard r if true
+  return dotProduct(p, n) < 0;
 }
 
 inline static int hff3(const gkFloat* restrict p, const gkFloat* restrict q,
@@ -278,7 +273,7 @@ inline static int hff3(const gkFloat* restrict p, const gkFloat* restrict q,
   }
 
   crossProduct(pq, pr, n);
-  return dotProduct(p, n) <= 0;  // discard s if true
+  return dotProduct(p, n) <= 0;
 }
 
 inline static void S1D(gkSimplex* s, gkFloat* v) {
@@ -286,11 +281,11 @@ inline static void S1D(gkSimplex* s, gkFloat* v) {
   const gkFloat* restrict s2p = s->vrtx[0];
 
   if (hff1(s1p, s2p)) {
-    projectOnLine(s1p, s2p, v);  // Update v, no need to update s
-    return;                      // Return V{1,2}
+    projectOnLine(s1p, s2p, v);
+    return;
   } else {
-    S1Dregion1();  // Update v and s
-    return;        // Return V{1}
+    S1Dregion1();
+    return;
   }
 }
 
@@ -307,35 +302,35 @@ inline static void S2D(gkSimplex* s, gkFloat* v) {
       if (hff1f_s13) {
         const int hff2f_32 = !hff2(s1p, s3p, s2p);
         if (hff2f_32) {
-          projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update c
-          return;                            // Return V{1,2,3}
+          projectOnPlane(s1p, s2p, s3p, v);
+          return;
         } else {
-          projectOnLine(s1p, s3p, v);  // Update v
-          S2Dregion13();               // Update s
-          return;                      // Return V{1,3}
+          projectOnLine(s1p, s3p, v);
+          S2Dregion13();
+          return;
         }
       } else {
-        projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update c
-        return;                            // Return V{1,2,3}
+        projectOnPlane(s1p, s2p, s3p, v);
+        return;
       }
     } else {
-      projectOnLine(s1p, s2p, v);  // Update v
-      S2Dregion12();               // Update s
-      return;                      // Return V{1,2}
+      projectOnLine(s1p, s2p, v);
+      S2Dregion12();
+      return;
     }
   } else if (hff1f_s13) {
     const int hff2f_32 = !hff2(s1p, s3p, s2p);
     if (hff2f_32) {
-      projectOnPlane(s1p, s2p, s3p, v);  // Update s, no need to update v
-      return;                            // Return V{1,2,3}
+      projectOnPlane(s1p, s2p, s3p, v);
+      return;
     } else {
-      projectOnLine(s1p, s3p, v);  // Update v
-      S2Dregion13();               // Update s
-      return;                      // Return V{1,3}
+      projectOnLine(s1p, s3p, v);
+      S2Dregion13();
+      return;
     }
   } else {
-    S2Dregion1();  // Update s and v
-    return;        // Return V{1}
+    S2Dregion1();
+    return;
   }
 }
 
@@ -385,18 +380,15 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
       break;
 
     case 2:
-      // Only one facing the oring
-      // 1,i,j, are the indices of the points on the triangle and remove k from
-      // simplex
       s->nvrtx = 3;
-      if (!testPlaneTwo) {  // k = 2;   removes s2
+      if (!testPlaneTwo) {
         for (i = 0; i < 3; i++) {
           s->vrtx[2][i] = s->vrtx[3][i];
         }
         for (i = 0; i < 2; i++) {
           s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
         }
-      } else if (!testPlaneThree) {  // k = 1; // removes s3
+      } else if (!testPlaneThree) {
         for (i = 0; i < 3; i++) {
           s->vrtx[1][i] = s2[i];
           s->vrtx[2][i] = s->vrtx[3][i];
@@ -405,8 +397,7 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
           s->vrtx_idx[1][i] = s2_idx[i];
           s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
         }
-      } else if (!testPlaneFour) {  // k = 0; // removes s4  and no need to
-                                    // reorder
+      } else if (!testPlaneFour) {
         for (i = 0; i < 3; i++) {
           s->vrtx[0][i] = s3[i];
           s->vrtx[1][i] = s2[i];
@@ -418,27 +409,20 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
           s->vrtx_idx[2][i] = s->vrtx_idx[3][i];
         }
       }
-      // Call S2D
       S2D(s, v);
       break;
     case 1:
-      // Two triangles face the origins:
-      //    The only positive hff3 is for triangle 1,i,j, therefore k must be in
-      //    the solution as it supports the the point of minimum norm.
-
-      // 1,i,j, are the indices of the points on the triangle and remove k from
-      // simplex
       s->nvrtx = 3;
       if (testPlaneTwo) {
-        k = 2;  // s2
+        k = 2;
         i = 1;
         j = 0;
       } else if (testPlaneThree) {
-        k = 1;  // s3
+        k = 1;
         i = 0;
         j = 2;
       } else {
-        k = 0;  // s4
+        k = 0;
         i = 2;
         j = 1;
       }
@@ -456,7 +440,7 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
             select_1jk();
             projectOnPlane(s1, sj, sk, v);
           } else {
-            select_1k();  // select region 1i
+            select_1k();
             projectOnLine(s1, sk, v);
           }
         } else if (hff1_tests[i]) {
@@ -464,7 +448,7 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
             select_1ik();
             projectOnPlane(s1, si, sk, v);
           } else {
-            select_1i();  // select region 1i
+            select_1i();
             projectOnLine(s1, si, v);
           }
         } else {
@@ -472,61 +456,50 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
             select_1jk();
             projectOnPlane(s1, sj, sk, v);
           } else {
-            select_1j();  // select region 1i
+            select_1j();
             projectOnLine(s1, sj, v);
           }
         }
       } else if (dotTotal == 2) {
-        // Two edges have positive hff1, meaning that for two edges the origin's
-        // project fall on the segement.
-        //  Certainly the edge 1,k supports the the point of minimum norm, and
-        //  so hff1_1k is positive
-
         if (hff1_tests[i]) {
           if (!hff2(s1, sk, si)) {
             if (!hff2(s1, si, sk)) {
-              select_1ik();  // select region 1ik
+              select_1ik();
               projectOnPlane(s1, si, sk, v);
             } else {
-              select_1k();  // select region 1k
+              select_1k();
               projectOnLine(s1, sk, v);
             }
           } else {
             if (!hff2(s1, sk, sj)) {
-              select_1jk();  // select region 1jk
+              select_1jk();
               projectOnPlane(s1, sj, sk, v);
             } else {
-              select_1k();  // select region 1k
+              select_1k();
               projectOnLine(s1, sk, v);
             }
           }
-        } else if (hff1_tests[j]) {  //  there is no other choice
+        } else if (hff1_tests[j]) {
           if (!hff2(s1, sk, sj)) {
             if (!hff2(s1, sj, sk)) {
-              select_1jk();  // select region 1jk
+              select_1jk();
               projectOnPlane(s1, sj, sk, v);
             } else {
-              select_1j();  // select region 1j
+              select_1j();
               projectOnLine(s1, sj, v);
             }
           } else {
             if (!hff2(s1, sk, si)) {
-              select_1ik();  // select region 1ik
+              select_1ik();
               projectOnPlane(s1, si, sk, v);
             } else {
-              select_1k();  // select region 1k
+              select_1k();
               projectOnLine(s1, sk, v);
             }
           }
-        } else {
-          // ERROR;
         }
 
       } else if (dotTotal == 3) {
-        // MM : ALL THIS HYPHOTESIS IS FALSE
-        // sk is s.t. hff3 for sk < 0. So, sk must support the origin because
-        // there are 2 triangles facing the origin.
-
         int hff2_ik = hff2(s1, si, sk);
         int hff2_jk = hff2(s1, sj, sk);
         int hff2_ki = hff2(s1, sk, si);
@@ -539,9 +512,7 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
           select_1k();
           projectOnLine(s1, sk, v);
         } else if (hff2_ki) {
-          // discard i
           if (hff2_jk) {
-            // discard k
             select_1j();
             projectOnLine(s1, sj, v);
           } else {
@@ -549,9 +520,7 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
             projectOnPlane(s1, sk, sj, v);
           }
         } else {
-          // discard j
           if (hff2_ik) {
-            // discard k
             select_1i();
             projectOnLine(s1, si, v);
           } else {
@@ -563,20 +532,18 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
       break;
 
     case 0:
-      // The origin is outside all 3 triangles
       if (dotTotal == 1) {
-        // Here si is set such that hff(s1,si) > 0
         if (testLineThree) {
           k = 2;
-          i = 1;  // s3
+          i = 1;
           j = 0;
         } else if (testLineFour) {
-          k = 1;  // s3
+          k = 1;
           i = 0;
           j = 2;
         } else {
           k = 0;
-          i = 2;  // s2
+          i = 2;
           j = 1;
         }
         getvrtxidx(si, si_idx, i);
@@ -594,19 +561,18 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
           projectOnLine(s1, si, v);
         }
       } else if (dotTotal == 2) {
-        // Here si is set such that hff(s1,si) < 0
         s->nvrtx = 3;
         if (!testLineThree) {
           k = 2;
-          i = 1;  // s3
+          i = 1;
           j = 0;
         } else if (!testLineFour) {
           k = 1;
-          i = 0;  // s4
+          i = 0;
           j = 2;
         } else {
           k = 0;
-          i = 2;  // s2
+          i = 2;
           j = 1;
         }
         getvrtxidx(si, si_idx, i);
@@ -615,7 +581,7 @@ inline static void S3D(gkSimplex* s, gkFloat* v) {
 
         if (!hff2(s1, sj, sk)) {
           if (!hff2(s1, sk, sj)) {
-            select_1jk();  // select region 1jk
+            select_1jk();
             projectOnPlane(s1, sj, sk, v);
           } else if (!hff2(s1, sk, si)) {
             select_1ik();
@@ -974,11 +940,10 @@ inline static void compute_witnesses(const gkPolytope* bd1,
 
 gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
                                  gkSimplex* restrict s) {
-  unsigned int k = 0;                /**< Iteration counter                 */
-  const int mk = GJK_MAX_ITERATIONS; /**< Maximum number of GJK iterations  */
-  const gkFloat eps_rel = GJK_EPSILON_REL; /**< Tolerance on relative */
-  const gkFloat eps_tot =
-      GJK_EPSILON_ABS; /**< Tolerance on absolute distance    */
+  unsigned int k = 0;
+  const int mk = GJK_MAX_ITERATIONS;
+  const gkFloat eps_rel = GJK_EPSILON_REL;
+  const gkFloat eps_tot = GJK_EPSILON_ABS;
 
   const gkFloat eps_rel2 = eps_rel * eps_rel;
   unsigned int i;
@@ -1040,7 +1005,7 @@ gkFloat compute_minimum_distance(gkPolytope bd1, gkPolytope bd2,
       break;
     }
 
-    if (norm2(v) < eps_rel2) {  // it a null V
+    if (norm2(v) < eps_rel2) {
       break;
     }
 
@@ -1190,8 +1155,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 /**
  * @brief Invoke this function from C# applications
  */
-extern gkFloat csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB,
-                          gkFloat* inCoordsB) {
+OPENGJK_EXPORT gkFloat csFunction(int nCoordsA, gkFloat* inCoordsA,
+                                  int nCoordsB, gkFloat* inCoordsB) {
   gkFloat distance = 0;
   int i, j;
 
@@ -1253,3 +1218,31 @@ extern gkFloat csFunction(int nCoordsA, gkFloat* inCoordsA, int nCoordsB,
   return distance;
 }
 #endif  // CS_MONO_BUILD
+
+/* ========================================================================== */
+/* Testing wrappers - expose internal functions for cross-validation         */
+/* ========================================================================== */
+
+/**
+ * @brief Wrapper to expose S1D for testing.
+ *
+ * @param[in,out] s  Simplex with nvrtx=2. vrtx[1] is newest, vrtx[0] is oldest.
+ * @param[out]    v  Closest point to origin.
+ */
+void opengjk_test_S1D(gkSimplex* s, gkFloat* v) { S1D(s, v); }
+
+/**
+ * @brief Wrapper to expose S2D for testing.
+ *
+ * @param[in,out] s  Simplex with nvrtx=3. vrtx[2] is newest, vrtx[0] is oldest.
+ * @param[out]    v  Closest point to origin.
+ */
+void opengjk_test_S2D(gkSimplex* s, gkFloat* v) { S2D(s, v); }
+
+/**
+ * @brief Wrapper to expose S3D for testing.
+ *
+ * @param[in,out] s  Simplex with nvrtx=4. vrtx[3] is newest, vrtx[0] is oldest.
+ * @param[out]    v  Closest point to origin.
+ */
+void opengjk_test_S3D(gkSimplex* s, gkFloat* v) { S3D(s, v); }

@@ -1,0 +1,101 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  build-and-test:
+    name: 🔧 ${{ matrix.os }} • ${{ matrix.precision }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        precision: [double, float]
+        include:
+          # Precision settings
+          - precision: double
+            use_32bits: OFF
+          - precision: float
+            use_32bits: ON
+          # Ubuntu: SIMD works for both precisions (AVX2 has 4 double lanes)
+          - os: ubuntu-latest
+            build_simd: ON
+          # macOS ARM (NEON): only 2 double lanes, need 4 for double precision
+          # Float works fine (4 float lanes)
+          - os: macos-latest
+            precision: float
+            build_simd: ON
+          - os: macos-latest
+            precision: double
+            build_simd: OFF
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libcmocka-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake cmocka
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=ON \
+            -DBUILD_SCALAR=ON \
+            -DBUILD_SIMD=${{ matrix.build_simd }} \
+            -DUSE_32BITS=${{ matrix.use_32bits }}
+
+      - name: Build
+        run: cmake --build build --parallel 4
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure -C Release
+
+  # Separate job for Windows (CMocka not easily available)
+  build-and-test-windows:
+    name: 🪟 Windows SIMD • ${{ matrix.precision }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        precision: [double, float]
+        include:
+          - precision: double
+            use_32bits: OFF
+          - precision: float
+            use_32bits: ON
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        run: |
+          cmake -B build `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_TESTS=ON `
+            -DBUILD_SCALAR=OFF `
+            -DBUILD_SIMD=ON `
+            -DUSE_32BITS=${{ matrix.use_32bits }}
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure -C Release

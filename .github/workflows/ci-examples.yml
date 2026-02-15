@@ -1,0 +1,159 @@
+name: Language Bindings
+run-name: Examples • ${{ github.ref_name }}
+on:
+  push:
+  schedule:
+    - cron: "0 0 1,15 * *"
+
+jobs:
+  c-gcc:
+    name: 🐧 C (GCC)
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-fedora
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF ..
+      - run: cmake --build build
+      - run: cmake -E chdir build/scalar/examples/c/ ./example_lib_opengjk_ce
+
+  c-gcc-cxx:
+    name: 🐧 C (G++)
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-fedora
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DFORCE_CXX_COMPILER=ON -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF ..
+      - run: cmake --build build
+      - run: cmake -E chdir build/scalar/examples/c/ ./example_lib_opengjk_ce
+
+  c-msvc:
+    name: 🪟 C (MSVC)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          choco install ninja cmake
+          ninja --version
+          cmake --version
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF ..
+      - run: cmake --build build
+      - run: cmake -E copy build/scalar/examples/c/Debug/example_lib_opengjk_ce.exe build/scalar/examples/c
+      - run: cmake -E chdir build/scalar/examples/c/ ./example_lib_opengjk_ce.exe
+
+  cython:
+    name: 🐍 Cython
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-ubuntu
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: apt-get update -y && apt-get install python3-setuptools python3-pip -y
+      - run: pip3 install numpy pytest scipy Cython
+      - run: cd scalar/examples/cython/ && python3 setup.py build_ext --inplace && python3 pygjk_trial.py
+      - run: cd scalar/examples/cython/ && pytest test.py
+
+  python-ctypes:
+    name: 🐍 Python ${{ matrix.python_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install pip
+        run: python -m pip install --upgrade pip
+      - name: Configure CMake
+        run: cmake -B ${{ github.workspace }}/build -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF -DUSE_32BITS=OFF
+        env:
+          CMAKE_BUILD_TYPE: Release
+      - name: Build
+        working-directory: ${{ github.workspace }}/build
+        run: make
+      - name: Debug library
+        run: |
+          echo "Checking library symbols..."
+          nm -D ${{ github.workspace }}/build/scalar/libopengjk_scalar.so
+          echo "Checking library dependencies..."
+          ldd ${{ github.workspace }}/build/scalar/libopengjk_scalar.so
+      - name: Copy library
+        run: |
+          mkdir -p ${{ github.workspace }}/scalar/examples/python_ctypes/src/pyopengjk/
+          cp ${{ github.workspace }}/build/scalar/libopengjk_scalar.so ${{ github.workspace }}/scalar/examples/python_ctypes/src/pyopengjk/libopengjk_ce.so
+      - name: Install package
+        working-directory: ${{ github.workspace }}/scalar/examples/python_ctypes/
+        run: pip install -e .[test]
+      - name: Run tests
+        working-directory: ${{ github.workspace }}/scalar/examples/python_ctypes/
+        run: pytest -vv
+
+  csharp:
+    name: 🟣 C# (Mono)
+    runs-on: ubuntu-latest
+    container: mono:6.12.0.182-slim
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list
+          sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list
+          apt-get update || true
+          apt-get install gcc g++ make wget mono-devel ca-certificates -y
+      - name: Install CMake 3.22
+        run: |
+          wget -q https://github.com/Kitware/CMake/releases/download/v3.22.6/cmake-3.22.6-linux-x86_64.sh
+          chmod +x cmake-3.22.6-linux-x86_64.sh
+          ./cmake-3.22.6-linux-x86_64.sh --skip-license --prefix=/usr/local
+          cmake --version
+      - run: cmake -E make_directory build
+      - run: cmake -E chdir build cmake -DCMAKE_BUILD_TYPE=Release -DUSE_32BITS=ON -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF ..
+      - run: cmake --build build --target opengjk_scalar
+      - run: cp build/scalar/libopengjk_scalar.so scalar/examples/cs/
+      - run: cd scalar/examples/cs/ && mcs -define:UNIX -out:main.exe main.cs && LD_LIBRARY_PATH=. mono main.exe
+
+  go:
+    name: 🔵 Go
+    runs-on: ubuntu-latest
+    container: mmontanari/devenv:buildenv-fedora
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.15
+      - run: cd scalar/examples/go/openGJK && go build && go test -v
+
+  octave:
+    name: 📊 Octave
+    runs-on: ubuntu-latest
+    container: gnuoctave/octave:7.3.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: cd scalar/examples/matlab/; octave runme.m
+
+  zig:
+    name: ⚡ Zig
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+      - name: Build and run
+        run: cd scalar/examples/zig && zig build && zig build run
