@@ -68,7 +68,7 @@ set(headers
 )
 
 set(sources
-    "openGJK_GPU.cu"
+    "opengjk_gpu.cu"
 )
 
 list(SORT headers)
