@@ -267,17 +267,9 @@ inline static int hff2(const gkFloat* restrict p, const gkFloat* restrict q,
 
 inline static int hff3(const gkFloat* restrict p, const gkFloat* restrict q,
                        const gkFloat* restrict r) {
-  gkFloat n[3], pq[3], pr[3];
-
-  for (int i = 0; i < 3; i++) {
-    pq[i] = q[i] - p[i];
-  }
-  for (int i = 0; i < 3; i++) {
-    pr[i] = r[i] - p[i];
-  }
-
-  crossProduct(pq, pr, n);
-  return dotProduct(p, n) <= 0;
+  gkFloat n[3];
+  crossProduct(q, r, n);
+  return dotProduct(p, n) <= 0;  // discard s if true
 }
 
 inline static void S1D(gkSimplex* s, gkFloat* v) {
