@@ -1,0 +1,71 @@
+name: GPU example (simulated H100)
+
+# Optional, non-required check. Hosted runners have no GPU, so this builds the
+# CUDA implementation and runs gpu/examples/simple_collision on a simulated
+# NVIDIA H100 (https://github.com/pantheongpu/pantheonsim). A simulator cannot
+# reproduce hardware-specific behavior or timing.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "gpu/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/gpu-sim.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gpu-sim:
+    name: CUDA 13.0, simulated H100
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+
+      - name: Set up the simulated GPU and CUDA toolkit
+        uses: pantheongpu/setup-pantheonsim@a1b9d4237411f9b2b0e0bb895b4d83377f336a7b # v0.1.9
+        with:
+          gpu: nvidia/h100
+          cuda-toolkit: "13.0"
+
+      # The simulator runs PTX only and needs a shared CUDA runtime. The gpu
+      # CMakeLists pins CUDA_ARCHITECTURES to "native", which needs a real GPU
+      # and would emit SASS, so it is replaced with 90-virtual for this job.
+      - name: Select PTX-only architecture
+        run: |
+          sed -i 's/CUDA_ARCHITECTURES native)/CUDA_ARCHITECTURES 90-virtual)/' \
+            gpu/CMakeLists.txt gpu/examples/simple_collision/CMakeLists.txt
+          grep -c '90-virtual' gpu/CMakeLists.txt gpu/examples/simple_collision/CMakeLists.txt
+
+      - name: Configure
+        run: |
+          cmake -B build -S . \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_CUDA_COMPILER=/usr/local/cuda-13.0/bin/nvcc \
+                -DCMAKE_CUDA_ARCHITECTURES=90-virtual \
+                -DCMAKE_CUDA_RUNTIME_LIBRARY=Shared \
+                -DBUILD_GPU=ON -DBUILD_SCALAR=OFF -DBUILD_SIMD=OFF -DBUILD_TESTS=OFF
+
+      - name: Build
+        run: cmake --build build -j3
+
+      # The example exits 0 even when a kernel launch fails (it just prints a
+      # zero distance), so the result is checked explicitly. 3.653650 is the
+      # distance the scalar example prints for the same userP.dat / userQ.dat.
+      - name: Run simple_collision
+        working-directory: build/gpu/examples/simple_collision
+        run: |
+          vgpu run ./example_lib_openGJK_GPU 2>&1 | tee out.txt
+          grep -q 'nvidia/h100' out.txt
+          ! grep -q 'VirtualGPU error' out.txt
+          grep -q 'Distance between bodies 3.653650' out.txt
+          grep -q 'Verification (witness distance): 3.653650' out.txt
